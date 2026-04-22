@@ -1,0 +1,17 @@
+<h2>Business Signup</h2>
+
+<input placeholder="Name" id="name" />
+<input placeholder="Service" id="service" />
+
+<button onclick="signup()">Register</button>
+
+<p id="result"></p>
+
+<script>
+function signup() {
+  let otp = Math.floor(100000 + Math.random() * 900000);
+
+  document.getElementById("result").innerText =
+    "Your OTP is: " + otp + " (Save it)";
+}
+</script>
