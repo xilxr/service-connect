@@ -48,6 +48,30 @@ app.post("/verify", (req, res) => {
 });
 
 // bot
+let requests = [];
+
+// SAVE STUDENT REQUEST
+app.post("/request", (req, res) => {
+  const { message } = req.body;
+
+  const newRequest = {
+    id: requests.length + 1,
+    message,
+    status: "pending"
+  };
+
+  requests.push(newRequest);
+
+  res.json({
+    message: "Request saved successfully",
+    request: newRequest
+  });
+});
+
+// VIEW REQUESTS (for testing)
+app.get("/requests", (req, res) => {
+  res.json(requests);
+});
 app.post("/bot", (req, res) => {
   const { message } = req.body;
 
