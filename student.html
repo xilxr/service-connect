@@ -1,24 +1,17 @@
-<h2>Student Help</h2>
-
-<input id="msg" placeholder="Type your problem" />
-<button onclick="send()">Send</button>
-
-<p id="reply"></p>
-
 <script>
-function send() {
+async function send() {
   let text = document.getElementById("msg").value;
 
-  let response = "We are checking your request...";
+  let res = await fetch("https://service-backend-jezm.onrender.com/bot", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message: text })
+  });
 
-  if (text.includes("generator")) {
-    response = "We found a generator mechanic near you.";
-  }
+  let data = await res.json();
 
-  if (text.includes("urgent")) {
-    response = "Finding fastest help for you...";
-  }
-
-  document.getElementById("reply").innerText = response;
+  document.getElementById("reply").innerText = data.reply;
 }
 </script>
