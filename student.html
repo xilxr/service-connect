@@ -1,3 +1,37 @@
+<h2>Student Help Center</h2>
+
+<input id="msg" placeholder="Type your problem (e.g. generator issue)" />
+<button onclick="send()">Send</button>
+
+<p><b>Reply:</b></p>
+<p id="reply"></p>
+
+<script>
+async function send() {
+  let text = document.getElementById("msg").value;
+
+  // show what student typed (first message display)
+  document.getElementById("reply").innerText = "You said: " + text + " ... checking";
+
+  try {
+    let res = await fetch("https://service-backend-jezm.onrender.com/bot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: text })
+    });
+
+    let data = await res.json();
+
+    // show real bot reply
+    document.getElementById("reply").innerText = data.reply;
+
+  } catch (error) {
+    document.getElementById("reply").innerText =
+      "Error connecting to server. Please try again.";
+  }
+}
 <script>
 async function send() {
   let text = document.getElementById("msg").value;
