@@ -1,20 +1,13 @@
-<h2>Student Help Center</h2>
-
-<input id="msg" placeholder="Type your problem (e.g. generator issue)" />
-<button onclick="send()">Send</button>
-
-<p><b>Reply:</b></p>
-<p id="reply"></p>
-
 <script>
 async function send() {
   let text = document.getElementById("msg").value;
 
-  // show what student typed (first message display)
-  document.getElementById("reply").innerText = "You said: " + text + " ... checking";
+  // show immediate feedback
+  document.getElementById("reply").innerText =
+    "Sending request... please wait";
 
   try {
-    let res = await fetch("https://service-backend-jezm.onrender.com/bot", {
+    let res = await fetch("https://service-backend-jezm.onrender.com/request", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -24,12 +17,12 @@ async function send() {
 
     let data = await res.json();
 
-    // show real bot reply
-    document.getElementById("reply").innerText = data.reply;
+    document.getElementById("reply").innerText =
+      "Request saved ✔ ID: " + data.request.id;
 
   } catch (error) {
     document.getElementById("reply").innerText =
-      "Error connecting to server. Please try again.";
+      "Error connecting to server. Try again.";
   }
 }
 </script>
