@@ -5,12 +5,12 @@
 </head>
 <body>
 
-<h2>Business Registration</h2>
+<h2>Register Business</h2>
 
-<input id="name" placeholder="Enter your name" />
+<input id="name" placeholder="Name" />
 <br><br>
 
-<input id="service" placeholder="Enter your service (e.g mechanic)" />
+<input id="service" placeholder="Service (mechanic, plumber...)" />
 <br><br>
 
 <button onclick="register()">Register</button>
@@ -19,79 +19,49 @@
 
 <hr>
 
-<h3>Verify Account</h3>
+<h3>Pay ₦2000</h3>
+<p>Send to: 0000000000 (Your Bank)</p>
 
-<input id="bizId" placeholder="Enter your ID" />
+<input id="payId" placeholder="Enter your ID" />
 <br><br>
 
-<input id="otp" placeholder="Enter OTP" />
-<br><br>
+<button onclick="pay()">I Have Paid</button>
 
-<button onclick="verify()">Verify</button>
-
-<p id="verifyResult"></p>
+<p id="payResult"></p>
 
 <script>
 async function register() {
   let name = document.getElementById("name").value;
   let service = document.getElementById("service").value;
 
-  if (!name || !service) {
-    document.getElementById("result").innerText =
-      "Please fill all fields";
-    return;
-  }
+  let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ name, service })
+  });
 
-  document.getElementById("result").innerText = "Registering...";
+  let data = await res.json();
 
-  try {
-    let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, service })
-    });
-
-    let data = await res.json();
-
-    document.getElementById("result").innerText =
-      "Registered ✔ ID: " + data.business.id +
-      " | OTP: " + data.business.otp;
-
-  } catch (error) {
-    document.getElementById("result").innerText =
-      "Error connecting to server";
-  }
+  document.getElementById("result").innerText =
+    "Your ID: " + data.business.id;
 }
 
-async function verify() {
-  let id = document.getElementById("bizId").value;
-  let otp = document.getElementById("otp").value;
+async function pay() {
+  let id = document.getElementById("payId").value;
 
-  document.getElementById("verifyResult").innerText = "Verifying...";
+  let res = await fetch("https://service-backend-jezm.onrender.com/business/pay", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id })
+  });
 
-  try {
-    let res = await fetch("https://service-backend-jezm.onrender.com/business/verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ id, otp })
-    });
+  let data = await res.json();
 
-    let data = await res.json();
-
-    if (data.message) {
-      document.getElementById("verifyResult").innerText = data.message;
-    } else {
-      document.getElementById("verifyResult").innerText = data.error;
-    }
-
-  } catch (error) {
-    document.getElementById("verifyResult").innerText =
-      "Error verifying account";
-  }
+  document.getElementById("payResult").innerText = data.message;
 }
 </script>
 
