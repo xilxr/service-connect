@@ -5,63 +5,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/*
-  DATABASE (temporary memory storage)
-*/
 let businesses = [];
 let requests = [];
 
 /*
-  HOME TEST
+  HOME
 */
 app.get("/", (req, res) => {
-  res.send("Backend is live and working ✔");
-});
-
-/*
-  BOT SYSTEM
-*/
-app.post("/bot", (req, res) => {
-  const { message } = req.body;
-
-  let reply = "We are checking your request...";
-
-  if (message.toLowerCase().includes("generator")) {
-    reply = "Generator issue detected. Connecting you to nearest mechanic...";
-  }
-
-  if (message.toLowerCase().includes("urgent")) {
-    reply = "Urgent request received. Finding fastest available help...";
-  }
-
-  res.json({ reply });
-});
-
-/*
-  STUDENT REQUEST SYSTEM
-*/
-app.post("/request", (req, res) => {
-  const { message } = req.body;
-
-  const newRequest = {
-    id: requests.length + 1,
-    message,
-    status: "pending"
-  };
-
-  requests.push(newRequest);
-
-  res.json({
-    message: "Request saved successfully",
-    request: newRequest
-  });
-});
-
-/*
-  VIEW REQUESTS (TEST ONLY)
-*/
-app.get("/requests", (req, res) => {
-  res.json(requests);
+  res.send("Backend is live ✔");
 });
 
 /*
@@ -72,45 +23,89 @@ app.post("/business/signup", (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000);
 
-  const newBusiness = {
+  const newBiz = {
     id: businesses.length + 1,
     name,
-    service,
+    service: service.toLowerCase(),
     otp,
     verified: false
   };
 
-  businesses.push(newBusiness);
+  businesses.push(newBiz);
 
-  res.json({
-    message: "Business registered successfully",
-    business: newBusiness
-  });
+  res.json({ business: newBiz });
 });
 
 /*
-  BUSINESS VERIFY
+  VERIFY BUSINESS
 */
 app.post("/business/verify", (req, res) => {
   const { id, otp } = req.body;
 
   const biz = businesses.find(b => b.id == id);
 
-  if (!biz) {
-    return res.json({ error: "Business not found" });
-  }
+  if (!biz) return res.json({ error: "Not found" });
 
   if (biz.otp == otp) {
     biz.verified = true;
-    return res.json({ message: "Business verified successfully ✔" });
+    return res.json({ message: "Verified ✔" });
   }
 
   res.json({ error: "Wrong OTP" });
 });
 
 /*
-  START SERVER
+  GET VERIFIED BUSINESSES BY SERVICE
 */
+app.get("/business/:service", (req, res) => {
+  const service = req.params.service.toLowerCase();
+
+  const result = businesses.filter(
+    b => b.service.includes(service) && b.verified
+  );
+
+  res.json(result);
+});
+
+/*
+  STUDENT REQUEST + MATCHING
+*/
+app.post("/request", (req, res) => {
+  const { message } = req.body;
+
+  let service = "";
+
+  if (message.toLowerCase().includes("generator")) {
+    service = "mechanic";
+  } else if (message.toLowerCase().includes("plumber")) {
+    service = "plumber";
+  } else if (message.toLowerCase().includes("electric")) {
+    service = "electrician";
+  }
+
+  const matched = businesses.filter(
+    b => b.service.includes(service) && b.verified
+  );
+
+  const newRequest = {
+    id: requests.length + 1,
+    message,
+    service,
+    matches: matched
+  };
+
+  requests.push(newRequest);
+
+  res.json(newRequest);
+});
+
+/*
+  VIEW REQUESTS
+*/
+app.get("/requests", (req, res) => {
+  res.json(requests);
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
