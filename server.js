@@ -12,50 +12,69 @@ let requests = [];
   HOME
 */
 app.get("/", (req, res) => {
-  res.send("Backend is live ✔");
+  res.send("Backend live ✔");
 });
 
 /*
-  BUSINESS SIGNUP
+  BUSINESS SIGNUP (NOW UNVERIFIED + UNPAID)
 */
 app.post("/business/signup", (req, res) => {
   const { name, service } = req.body;
-
-  const otp = Math.floor(100000 + Math.random() * 900000);
 
   const newBiz = {
     id: businesses.length + 1,
     name,
     service: service.toLowerCase(),
-    otp,
-    verified: false
+    verified: false,
+    paid: false
   };
 
   businesses.push(newBiz);
 
-  res.json({ business: newBiz });
+  res.json({
+    message: "Registered. Pay ₦2000 to activate",
+    business: newBiz
+  });
 });
 
 /*
-  VERIFY BUSINESS
+  SUBMIT PAYMENT PROOF
 */
-app.post("/business/verify", (req, res) => {
-  const { id, otp } = req.body;
+app.post("/business/pay", (req, res) => {
+  const { id } = req.body;
+
+  const biz = businesses.find(b => b.id == id);
+
+  if (!biz) return res.json({ error: "Business not found" });
+
+  biz.paid = true;
+
+  res.json({
+    message: "Payment submitted. Waiting for admin approval"
+  });
+});
+
+/*
+  ADMIN VERIFY (YOU CONTROL THIS)
+*/
+app.post("/business/approve", (req, res) => {
+  const { id } = req.body;
 
   const biz = businesses.find(b => b.id == id);
 
   if (!biz) return res.json({ error: "Not found" });
 
-  if (biz.otp == otp) {
-    biz.verified = true;
-    return res.json({ message: "Verified ✔" });
+  if (!biz.paid) {
+    return res.json({ error: "Payment not completed" });
   }
 
-  res.json({ error: "Wrong OTP" });
+  biz.verified = true;
+
+  res.json({ message: "Business approved ✔" });
 });
 
 /*
-  GET VERIFIED BUSINESSES BY SERVICE
+  GET VERIFIED BUSINESSES
 */
 app.get("/business/:service", (req, res) => {
   const service = req.params.service.toLowerCase();
@@ -68,7 +87,7 @@ app.get("/business/:service", (req, res) => {
 });
 
 /*
-  STUDENT REQUEST + MATCHING
+  REQUEST MATCHING
 */
 app.post("/request", (req, res) => {
   const { message } = req.body;
@@ -87,27 +106,14 @@ app.post("/request", (req, res) => {
     b => b.service.includes(service) && b.verified
   );
 
-  const newRequest = {
-    id: requests.length + 1,
-    message,
+  res.json({
     service,
     matches: matched
-  };
-
-  requests.push(newRequest);
-
-  res.json(newRequest);
-});
-
-/*
-  VIEW REQUESTS
-*/
-app.get("/requests", (req, res) => {
-  res.json(requests);
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log("Server running");
 });
