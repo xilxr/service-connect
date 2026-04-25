@@ -18,7 +18,6 @@
 async function send() {
   let text = document.getElementById("msg").value;
 
-  // check empty input
   if (!text) {
     document.getElementById("reply").innerText = "Please type a problem first.";
     return;
@@ -42,7 +41,7 @@ async function send() {
 
   } catch (error) {
     document.getElementById("reply").innerText =
-      "Cannot reach server. Check your backend link.";
+      "Cannot reach server. Try again.";
   }
 }
 </script>
