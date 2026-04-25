@@ -27,7 +27,7 @@ async function send() {
   document.getElementById("reply").innerText = "Sending request...";
 
   try {
-    let res = await fetch("YOUR_BACKEND_LINK/request", {
+    let res = await fetch("https://service-backend-jezm.onrender.com/request", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
