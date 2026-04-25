@@ -113,7 +113,31 @@ app.post("/request", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+/*
+  GET ALL BUSINESSES (ADMIN)
+*/
+app.get("/admin/businesses", (req, res) => {
+  res.json(businesses);
+});
 
+/*
+  APPROVE BUSINESS (ADMIN)
+*/
+app.post("/admin/approve", (req, res) => {
+  const { id } = req.body;
+
+  const biz = businesses.find(b => b.id == id);
+
+  if (!biz) return res.json({ error: "Not found" });
+
+  if (!biz.paid) {
+    return res.json({ error: "User has not paid" });
+  }
+
+  biz.verified = true;
+
+  res.json({ message: "Business approved ✔" });
+});
 app.listen(PORT, () => {
   console.log("Server running");
 });
