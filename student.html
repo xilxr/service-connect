@@ -12,18 +12,14 @@
 
 <button onclick="send()">Send</button>
 
-<p id="reply"></p>
+<h3>Results:</h3>
+<div id="results"></div>
 
 <script>
 async function send() {
   let text = document.getElementById("msg").value;
 
-  if (!text) {
-    document.getElementById("reply").innerText = "Please type a problem first.";
-    return;
-  }
-
-  document.getElementById("reply").innerText = "Sending request...";
+  document.getElementById("results").innerText = "Searching...";
 
   try {
     let res = await fetch("https://service-backend-jezm.onrender.com/request", {
@@ -36,12 +32,25 @@ async function send() {
 
     let data = await res.json();
 
-    document.getElementById("reply").innerText =
-      "Request saved ✔ ID: " + data.request.id;
+    if (data.matches.length === 0) {
+      document.getElementById("results").innerText =
+        "No verified service providers found.";
+      return;
+    }
+
+    let output = "<ul>";
+
+    data.matches.forEach(biz => {
+      output += "<li>" + biz.name + " (" + biz.service + ")</li>";
+    });
+
+    output += "</ul>";
+
+    document.getElementById("results").innerHTML = output;
 
   } catch (error) {
-    document.getElementById("reply").innerText =
-      "Cannot reach server. Try again.";
+    document.getElementById("results").innerText =
+      "Error connecting to server";
   }
 }
 </script>
