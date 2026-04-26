@@ -19,6 +19,7 @@ mongoose.connect("mongodb+srv://kernel_void:Goodmoney1.@futodash.cxegic0.mongodb
 const Business = mongoose.model("Business", {
   name: String,
   service: String,
+  phone: String,
   paid: Boolean,
   verified: Boolean
 });
@@ -39,14 +40,15 @@ app.get("/", (req, res) => {
   BUSINESS SIGNUP
 */
 app.post("/business/signup", async (req, res) => {
-  const { name, service } = req.body;
+  const { name, service, phone } = req.body;
 
   const newBiz = await Business.create({
-    name,
-    service: service.toLowerCase(),
-    paid: false,
-    verified: false
-  });
+  name,
+  service: service.toLowerCase(),
+  phone,
+  paid: false,
+  verified: false
+});
 
   res.json({ business: newBiz });
 });
