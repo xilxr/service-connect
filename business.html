@@ -38,6 +38,7 @@
 
 <input id="name" placeholder="Your Name">
 <input id="service" placeholder="Your Service (mechanic, plumber...)">
+<input id="location" placeholder="Your Location (e.g Onitsha)">
 <input id="phone" placeholder="Your WhatsApp Number (e.g 08012345678)">
 
 <button onclick="register()">Register</button>
@@ -58,6 +59,9 @@
 async function register() {
   let name = document.getElementById("name").value;
   let service = document.getElementById("service").value;
+  let location = document.getElementById("location").value;
+
+body: JSON.stringify({ name, service, phone, location })
   let phone = document.getElementById("phone").value;
 
   let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
