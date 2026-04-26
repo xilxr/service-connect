@@ -24,12 +24,12 @@ async function loadBusinesses() {
     data.forEach(b => {
       output += `
         <div style="border:1px solid black; margin:10px; padding:10px;">
-          <p><b>ID:</b> ${b.id}</p>
+          <p><b>ID:</b> ${b._id}</p>
           <p><b>Name:</b> ${b.name}</p>
           <p><b>Service:</b> ${b.service}</p>
           <p><b>Paid:</b> ${b.paid}</p>
           <p><b>Verified:</b> ${b.verified}</p>
-          <button onclick="approve(${b.id})">Approve</button>
+          <button onclick="approve('${b._id}')">Approve</button>
         </div>
       `;
     });
