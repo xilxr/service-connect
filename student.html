@@ -13,10 +13,6 @@
       padding: 20px;
     }
 
-    h2 {
-      color: #38bdf8;
-    }
-
     input {
       width: 90%;
       padding: 12px;
@@ -81,11 +77,22 @@ async function send() {
   let output = "";
 
   data.matches.forEach(biz => {
+    let phone = biz.phone;
+
+    // convert to international format (Nigeria)
+    if (phone.startsWith("0")) {
+      phone = "234" + phone.substring(1);
+    }
+
+    let link = "https://wa.me/" + phone;
+
     output += `
       <div class="card">
         <h4>${biz.name}</h4>
         <p>${biz.service}</p>
-        <button onclick="alert('Call feature coming soon')">Contact</button>
+        <a href="${link}" target="_blank">
+          <button>Contact on WhatsApp</button>
+        </a>
       </div>
     `;
   });
