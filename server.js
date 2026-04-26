@@ -20,6 +20,7 @@ const Business = mongoose.model("Business", {
   name: String,
   service: String,
   phone: String,
+  location: String,
   paid: Boolean,
   verified: Boolean
 });
@@ -40,12 +41,13 @@ app.get("/", (req, res) => {
   BUSINESS SIGNUP
 */
 app.post("/business/signup", async (req, res) => {
-  const { name, service, phone } = req.body;
+  const { name, service, phone, location } = req.body;
 
   const newBiz = await Business.create({
   name,
   service: service.toLowerCase(),
   phone,
+  location: location.toLowerCase(),
   paid: false,
   verified: false
 });
@@ -96,7 +98,7 @@ app.get("/admin/businesses", async (req, res) => {
   REQUEST MATCHING
 */
 app.post("/request", async (req, res) => {
-  const { message } = req.body;
+  const { message, location } = req.body;
 
   let service = "";
 
@@ -111,9 +113,10 @@ app.post("/request", async (req, res) => {
   await Request.create({ message, service });
 
   const matches = await Business.find({
-    service: { $regex: service },
-    verified: true
-  });
+  service: { $regex: service },
+  location: { $regex: location.toLowerCase() },
+  verified: true
+});
 
   res.json({ matches });
 });
