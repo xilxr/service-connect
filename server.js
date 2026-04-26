@@ -1,95 +1,99 @@
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-let businesses = [];
-let requests = [];
+/*
+  CONNECT TO DATABASE
+*/
+mongoose.connect("mongodb+srv://kernel_void:Goodmoney1.@futodash.cxegic0.mongodb.net/serviceDB?retryWrites=true&w=majority")
+.then(() => console.log("MongoDB connected ✔"))
+.catch(err => console.log(err));
+
+/*
+  SCHEMAS
+*/
+const Business = mongoose.model("Business", {
+  name: String,
+  service: String,
+  paid: Boolean,
+  verified: Boolean
+});
+
+const Request = mongoose.model("Request", {
+  message: String,
+  service: String
+});
 
 /*
   HOME
 */
 app.get("/", (req, res) => {
-  res.send("Backend live ✔");
+  res.send("Backend + Database live ✔");
 });
 
 /*
-  BUSINESS SIGNUP (NOW UNVERIFIED + UNPAID)
+  BUSINESS SIGNUP
 */
-app.post("/business/signup", (req, res) => {
+app.post("/business/signup", async (req, res) => {
   const { name, service } = req.body;
 
-  const newBiz = {
-    id: businesses.length + 1,
+  const newBiz = await Business.create({
     name,
     service: service.toLowerCase(),
-    verified: false,
-    paid: false
-  };
-
-  businesses.push(newBiz);
-
-  res.json({
-    message: "Registered. Pay ₦2000 to activate",
-    business: newBiz
+    paid: false,
+    verified: false
   });
+
+  res.json({ business: newBiz });
 });
 
 /*
-  SUBMIT PAYMENT PROOF
+  PAYMENT
 */
-app.post("/business/pay", (req, res) => {
+app.post("/business/pay", async (req, res) => {
   const { id } = req.body;
 
-  const biz = businesses.find(b => b.id == id);
+  await Business.findByIdAndUpdate(id, { paid: true });
 
-  if (!biz) return res.json({ error: "Business not found" });
-
-  biz.paid = true;
-
-  res.json({
-    message: "Payment submitted. Waiting for admin approval"
-  });
+  res.json({ message: "Payment submitted" });
 });
 
 /*
-  ADMIN VERIFY (YOU CONTROL THIS)
+  ADMIN APPROVE
 */
-app.post("/business/approve", (req, res) => {
+app.post("/admin/approve", async (req, res) => {
   const { id } = req.body;
 
-  const biz = businesses.find(b => b.id == id);
+  const biz = await Business.findById(id);
 
   if (!biz) return res.json({ error: "Not found" });
 
   if (!biz.paid) {
-    return res.json({ error: "Payment not completed" });
+    return res.json({ error: "User has not paid" });
   }
 
   biz.verified = true;
+  await biz.save();
 
-  res.json({ message: "Business approved ✔" });
+  res.json({ message: "Approved ✔" });
 });
 
 /*
-  GET VERIFIED BUSINESSES
+  GET ALL BUSINESSES
 */
-app.get("/business/:service", (req, res) => {
-  const service = req.params.service.toLowerCase();
-
-  const result = businesses.filter(
-    b => b.service.includes(service) && b.verified
-  );
-
-  res.json(result);
+app.get("/admin/businesses", async (req, res) => {
+  const data = await Business.find();
+  res.json(data);
 });
 
 /*
   REQUEST MATCHING
 */
-app.post("/request", (req, res) => {
+app.post("/request", async (req, res) => {
   const { message } = req.body;
 
   let service = "";
@@ -102,42 +106,18 @@ app.post("/request", (req, res) => {
     service = "electrician";
   }
 
-  const matched = businesses.filter(
-    b => b.service.includes(service) && b.verified
-  );
+  await Request.create({ message, service });
 
-  res.json({
-    service,
-    matches: matched
+  const matches = await Business.find({
+    service: { $regex: service },
+    verified: true
   });
+
+  res.json({ matches });
 });
 
 const PORT = process.env.PORT || 5000;
-/*
-  GET ALL BUSINESSES (ADMIN)
-*/
-app.get("/admin/businesses", (req, res) => {
-  res.json(businesses);
-});
 
-/*
-  APPROVE BUSINESS (ADMIN)
-*/
-app.post("/admin/approve", (req, res) => {
-  const { id } = req.body;
-
-  const biz = businesses.find(b => b.id == id);
-
-  if (!biz) return res.json({ error: "Not found" });
-
-  if (!biz.paid) {
-    return res.json({ error: "User has not paid" });
-  }
-
-  biz.verified = true;
-
-  res.json({ message: "Business approved ✔" });
-});
 app.listen(PORT, () => {
-  console.log("Server running");
+  console.log("Server running ✔");
 });
