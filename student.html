@@ -20,7 +20,7 @@
       border: none;
       margin-top: 10px;
     }
-
+    
     button {
       margin-top: 10px;
       padding: 12px 20px;
@@ -44,6 +44,7 @@
 
 <h2>🔧 Find Help Near You</h2>
 
+<input id="location" placeholder="Your location (e.g Onitsha)" />
 <input id="msg" placeholder="Describe your problem..." />
 <br>
 
@@ -54,17 +55,21 @@
 
 <script>
 async function send() {
+  let location = document.getElementById("location").value;
   let text = document.getElementById("msg").value;
 
   document.getElementById("results").innerHTML = "Searching...";
 
   let res = await fetch("https://service-backend-jezm.onrender.com/request", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ message: text })
-  });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    message: text,
+    location: location
+  })
+});
 
   let data = await res.json();
 
