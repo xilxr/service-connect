@@ -1,17 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Business Signup</title>
+  <title>Join as Worker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #020617;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      background: #22c55e;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Register Business</h2>
+<h2>💼 Register Your Service</h2>
 
-<input id="name" placeholder="Name" />
-<br><br>
-
-<input id="service" placeholder="Service (mechanic, plumber...)" />
-<br><br>
+<input id="name" placeholder="Your Name">
+<input id="service" placeholder="Your Service (mechanic, plumber...)">
 
 <button onclick="register()">Register</button>
 
@@ -19,11 +45,10 @@
 
 <hr>
 
-<h3>Pay ₦2000</h3>
-<p>Send to: 0000000000 (Your Bank)</p>
+<h3>Activate Account (₦2000)</h3>
+<p>Send payment to your account</p>
 
-<input id="payId" placeholder="Enter your ID" />
-<br><br>
+<input id="payId" placeholder="Enter your ID">
 
 <button onclick="pay()">I Have Paid</button>
 
@@ -45,7 +70,7 @@ async function register() {
   let data = await res.json();
 
   document.getElementById("result").innerText =
-    "Your ID: " + data.business.id;
+    "Your ID: " + data.business._id;
 }
 
 async function pay() {
