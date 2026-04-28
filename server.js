@@ -21,6 +21,8 @@ const Business = mongoose.model("Business", {
   service: String,
   phone: String,
   location: String,
+  rating: { type: Number, default: 0 },
+  reviews: { type: Number, default: 0 },
   paid: Boolean,
   verified: Boolean
 });
@@ -116,12 +118,30 @@ app.post("/request", async (req, res) => {
   service: { $regex: service },
   location: { $regex: location.toLowerCase() },
   verified: true
-});
+}).sort({ rating: -1 });
 
   res.json({ matches });
 });
 
 const PORT = process.env.PORT || 5000;
+
+app.post("/rate", async (req, res) => {
+  const { id, rating } = req.body;
+
+  const biz = await Business.findById(id);
+
+  if (!biz) return res.json({ error: "Not found" });
+
+  let total = biz.rating * biz.reviews;
+  total += rating;
+
+  biz.reviews += 1;
+  biz.rating = total / biz.reviews;
+
+  await biz.save();
+
+  res.json({ message: "Rating submitted ✔" });
+});
 
 app.listen(PORT, () => {
   console.log("Server running ✔");
