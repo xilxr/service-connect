@@ -47,16 +47,33 @@
 
 <hr>
 
-<h3>Activate Account (₦2000)</h3>
+<h3>💳 Pay ₦2000 to Activate</h3>
 
-<input id="payId" placeholder="Enter your ID">
+<!-- OPay Image -->
+<img src="https://i.ibb.co/Pvz0zyVZ/1777417845030.png" style="width:90%; border-radius:10px; margin-top:10px;">
 
-<button onclick="pay()">I Have Paid</button>
+<p>
+After payment, use this as your <b>Remark:</b>
+</p>
 
-<p id="payResult"></p>
+<p id="remarkBox" style="color:#22c55e; font-weight:bold;"></p>
+
+<button onclick="copyRemark()">Copy Remark</button>
+
+<br><br>
+
+<!-- Send proof button to WhatsApp -->
+<button onclick="openWhatsApp()">Send Proof on WhatsApp</button>
 
 <script>
-const BASE_URL = "https://service-backend-jezm.onrender.com";
+let generatedRemark = "";
+
+function generateRemark(name, service, location) {
+  let unique = Math.floor(Math.random() * 100000);  // Generate random number
+  generatedRemark = name + "-" + service + "-" + location + "-" + unique;  // Create remark
+
+  document.getElementById("remarkBox").innerText = generatedRemark;  // Display remark
+}
 
 async function register() {
   try {
@@ -70,7 +87,7 @@ async function register() {
       return;
     }
 
-    let res = await fetch(BASE_URL + "/business/signup", {
+    let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -80,45 +97,26 @@ async function register() {
 
     let data = await res.json();
 
-    console.log(data);
-
     document.getElementById("result").innerText =
       "Your ID: " + data.business._id;
 
+    generateRemark(name, service, location);  // Generate remark after registration
   } catch (err) {
     console.error(err);
     alert("Error registering");
   }
 }
 
-async function pay() {
-  try {
-    let id = document.getElementById("payId").value;
+function copyRemark() {
+  navigator.clipboard.writeText(generatedRemark);  // Copy remark to clipboard
+  alert("Remark copied ✔");
+}
 
-    if (!id) {
-      alert("Enter your ID");
-      return;
-    }
-
-    let res = await fetch(BASE_URL + "/business/pay", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ id })
-    });
-
-    let data = await res.json();
-
-    console.log(data);
-
-    document.getElementById("payResult").innerText =
-      data.message || data.error;
-
-  } catch (err) {
-    console.error(err);
-    alert("Error processing payment");
-  }
+function openWhatsApp() {
+  let phone = "2348107661212";  // Your customer care phone number
+  let message = "Hello, I have made payment.\n\nRemark: " + generatedRemark;  // Payment message
+  let link = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);  // WhatsApp link
+  window.open(link, "_blank");  // Open WhatsApp chat in a new tab
 }
 </script>
 
