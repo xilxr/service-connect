@@ -23,8 +23,8 @@ const Business = mongoose.model("Business", {
   location: String,
   rating: { type: Number, default: 0 },
   reviews: { type: Number, default: 0 },
-  paid: Boolean,
-  verified: Boolean
+  paid: { type: Boolean, default: false },
+  verified: { type: Boolean, default: false }
 });
 
 const Request = mongoose.model("Request", {
@@ -46,13 +46,13 @@ app.post("/business/signup", async (req, res) => {
   const { name, service, phone, location } = req.body;
 
   const newBiz = await Business.create({
-  name,
-  service: service.toLowerCase(),
-  phone,
-  location: location.toLowerCase(),
-  paid: false,
-  verified: false
-});
+    name,
+    service: service.toLowerCase(),
+    phone,
+    location: location.toLowerCase(),
+    paid: false,
+    verified: false
+  });
 
   res.json({ business: newBiz });
 });
@@ -63,9 +63,16 @@ app.post("/business/signup", async (req, res) => {
 app.post("/business/pay", async (req, res) => {
   const { id } = req.body;
 
-  await Business.findByIdAndUpdate(id, { paid: true });
+  const biz = await Business.findById(id);
 
-  res.json({ message: "Payment submitted" });
+  if (!biz) {
+    return res.json({ error: "Business not found" });
+  }
+
+  biz.paid = true;  // Ensure that payment status is correctly updated
+  await biz.save();  // Save the updated business object
+
+  res.json({ message: "Payment submitted ✔" });
 });
 
 /*
@@ -79,13 +86,13 @@ app.post("/admin/approve", async (req, res) => {
   if (!biz) return res.json({ error: "Not found" });
 
   if (!biz.paid) {
-    return res.json({ error: "User has not paid" });
+    return res.json({ error: "User has not paid" });  // Only allow approval if paid is true
   }
 
   biz.verified = true;
-  await biz.save();
+  await biz.save();  // Save the updated verification status
 
-  res.json({ message: "Approved ✔" });
+  res.json({ message: "Business approved ✔" });
 });
 
 /*
@@ -115,16 +122,19 @@ app.post("/request", async (req, res) => {
   await Request.create({ message, service });
 
   const matches = await Business.find({
-  service: { $regex: service },
-  location: { $regex: location.toLowerCase() },
-  verified: true
-}).sort({ rating: -1 });
+    service: { $regex: service },
+    location: { $regex: location.toLowerCase() },
+    verified: true
+  }).sort({ rating: -1 });
 
   res.json({ matches });
 });
 
 const PORT = process.env.PORT || 5000;
 
+/*
+  RATE BUSINESS (NEW CODE)
+*/
 app.post("/rate", async (req, res) => {
   const { id, rating } = req.body;
 
