@@ -41,7 +41,7 @@
 <input id="location" placeholder="Your Location (e.g futo)">
 <input id="phone" placeholder="Your WhatsApp Number (080...)">
 
-<button onclick="register()">Register</button>
+<button id="registerBtn">Register</button>
 
 <p id="result"></p>
 
@@ -58,23 +58,25 @@ After payment, use this as your <b>Remark:</b>
 
 <p id="remarkBox" style="color:#22c55e; font-weight:bold;"></p>
 
-<button onclick="copyRemark()">Copy Remark</button>
+<button id="copyBtn">Copy Remark</button>
 
 <br><br>
 
 <!-- Send proof button to WhatsApp -->
-<button onclick="openWhatsApp()">Send Proof on WhatsApp</button>
+<button id="whatsAppBtn">Send Proof on WhatsApp</button>
 
 <script>
+// Define global variable for the generated remark
 let generatedRemark = "";
 
+// Function to generate unique remark
 function generateRemark(name, service, location) {
-  let unique = Math.floor(Math.random() * 100000);  // Generate random number
-  generatedRemark = name + "-" + service + "-" + location + "-" + unique;  // Create remark
-
-  document.getElementById("remarkBox").innerText = generatedRemark;  // Display remark
+  let unique = Math.floor(Math.random() * 100000); // Generate random number
+  generatedRemark = name + "-" + service + "-" + location + "-" + unique; // Create remark
+  document.getElementById("remarkBox").innerText = generatedRemark; // Display remark
 }
 
+// Register function triggered by button
 async function register() {
   try {
     let name = document.getElementById("name").value;
@@ -100,24 +102,31 @@ async function register() {
     document.getElementById("result").innerText =
       "Your ID: " + data.business._id;
 
-    generateRemark(name, service, location);  // Generate remark after registration
+    generateRemark(name, service, location); // Generate remark after registration
   } catch (err) {
     console.error(err);
     alert("Error registering");
   }
 }
 
+// Function to copy remark to clipboard
 function copyRemark() {
-  navigator.clipboard.writeText(generatedRemark);  // Copy remark to clipboard
+  navigator.clipboard.writeText(generatedRemark);  // Copy the remark to clipboard
   alert("Remark copied ✔");
 }
 
+// Function to open WhatsApp with payment proof
 function openWhatsApp() {
   let phone = "2348107661212";  // Your customer care phone number
   let message = "Hello, I have made payment.\n\nRemark: " + generatedRemark;  // Payment message
   let link = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);  // WhatsApp link
   window.open(link, "_blank");  // Open WhatsApp chat in a new tab
 }
+
+// Add event listeners to the buttons
+document.getElementById("registerBtn").addEventListener("click", register); // Register button
+document.getElementById("copyBtn").addEventListener("click", copyRemark); // Copy Remark button
+document.getElementById("whatsAppBtn").addEventListener("click", openWhatsApp); // WhatsApp button
 </script>
 
 </body>
