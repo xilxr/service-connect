@@ -38,8 +38,8 @@
 
 <input id="name" placeholder="Your Name">
 <input id="service" placeholder="Your Service (mechanic, plumber...)">
-<input id="location" placeholder="Your Location (e.g Onitsha)">
-<input id="phone" placeholder="Your WhatsApp Number (e.g 08012345678)">
+<input id="location" placeholder="Your Location (e.g futo)">
+<input id="phone" placeholder="Your WhatsApp Number (080...)">
 
 <button onclick="register()">Register</button>
 
@@ -56,42 +56,69 @@
 <p id="payResult"></p>
 
 <script>
+const BASE_URL = "https://service-backend-jezm.onrender.com";
+
 async function register() {
-  let name = document.getElementById("name").value;
-  let service = document.getElementById("service").value;
-  let location = document.getElementById("location").value;
+  try {
+    let name = document.getElementById("name").value;
+    let service = document.getElementById("service").value;
+    let location = document.getElementById("location").value;
+    let phone = document.getElementById("phone").value;
 
-body: JSON.stringify({ name, service, phone, location })
-  let phone = document.getElementById("phone").value;
+    if (!name || !service || !location || !phone) {
+      alert("Fill all fields");
+      return;
+    }
 
-  let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ name, service, phone })
-  });
+    let res = await fetch(BASE_URL + "/business/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, service, location, phone })
+    });
 
-  let data = await res.json();
+    let data = await res.json();
 
-  document.getElementById("result").innerText =
-    "Your ID: " + data.business._id;
+    console.log(data);
+
+    document.getElementById("result").innerText =
+      "Your ID: " + data.business._id;
+
+  } catch (err) {
+    console.error(err);
+    alert("Error registering");
+  }
 }
 
 async function pay() {
-  let id = document.getElementById("payId").value;
+  try {
+    let id = document.getElementById("payId").value;
 
-  let res = await fetch("https://service-backend-jezm.onrender.com/business/pay", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ id })
-  });
+    if (!id) {
+      alert("Enter your ID");
+      return;
+    }
 
-  let data = await res.json();
+    let res = await fetch(BASE_URL + "/business/pay", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id })
+    });
 
-  document.getElementById("payResult").innerText = data.message;
+    let data = await res.json();
+
+    console.log(data);
+
+    document.getElementById("payResult").innerText =
+      data.message || data.error;
+
+  } catch (err) {
+    console.error(err);
+    alert("Error processing payment");
+  }
 }
 </script>
 
