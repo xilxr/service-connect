@@ -94,15 +94,30 @@ async function send() {
     output += `
       <div class="card">
         <h4>${biz.name}</h4>
-        <p>${biz.service}</p>
-        <a href="${link}" target="_blank">
-          <button>Contact on WhatsApp</button>
-        </a>
+<p>${biz.service}</p>
+<p>⭐ ${biz.rating.toFixed(1)} (${biz.reviews} reviews)</p>
+        <input type="number" min="1" max="5" id="rate-${biz._id}" placeholder="Rate 1-5">
+<button onclick="rateBiz('${biz._id}')">Submit Rating</button>
       </div>
     `;
   });
 
   document.getElementById("results").innerHTML = output;
+}
+  async function rateBiz(id) {
+  let rating = document.getElementById("rate-" + id).value;
+
+  let res = await fetch("https://service-backend-jezm.onrender.com/rate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id, rating: Number(rating) })
+  });
+
+  let data = await res.json();
+
+  alert(data.message || data.error);
 }
 </script>
 
