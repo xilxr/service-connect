@@ -10,8 +10,8 @@ app.use(express.json());
   CONNECT TO DATABASE
 */
 mongoose.connect("mongodb+srv://kernel_void:Goodmoney1.@futodash.cxegic0.mongodb.net/serviceDB?retryWrites=true&w=majority")
-.then(() => console.log("MongoDB connected ✔"))
-.catch(err => console.log(err));
+  .then(() => console.log("MongoDB connected ✔"))
+  .catch(err => console.log(err));
 
 /*
   SCHEMAS
@@ -24,12 +24,18 @@ const Business = mongoose.model("Business", {
   rating: { type: Number, default: 0 },
   reviews: { type: Number, default: 0 },
   paid: { type: Boolean, default: false },
-  verified: { type: Boolean, default: false }
+  verified: { type: Boolean, default: false },
+  profilePicture: String,  // Added for business profile picture
+  shortBio: String,        // Added for business short bio
+  approvedAt: { type: Date, default: Date.now } // Added approval timestamp
 });
 
-const Request = mongoose.model("Request", {
-  message: String,
-  service: String
+const Student = mongoose.model("Student", {
+  name: String,
+  phone: String,
+  profilePicture: String,  // Added for student profile picture
+  shortBio: String,        // Added for student short bio
+  location: String
 });
 
 /*
@@ -96,7 +102,62 @@ app.post("/admin/approve", async (req, res) => {
 });
 
 /*
-  GET ALL BUSINESSES
+  ADMIN UNAPPROVE
+*/
+app.post("/admin/unapprove", async (req, res) => {
+  const { id } = req.body;
+
+  const biz = await Business.findById(id);
+
+  if (!biz) return res.json({ error: "Business not found" });
+
+  biz.verified = false;  // Unapprove the business
+  await biz.save();
+
+  res.json({ message: "Business unapproved ✔" });
+});
+
+/*
+  CHECK APPROVAL EXPIRY (30 DAYS)
+*/
+app.post("/admin/checkExpiry", async (req, res) => {
+  const { id } = req.body;
+
+  const biz = await Business.findById(id);
+
+  if (!biz) return res.json({ error: "Business not found" });
+
+  const currentDate = new Date();
+  const expiryDate = new Date(biz.approvedAt);
+  expiryDate.setDate(expiryDate.getDate() + 30);  // Add 30 days
+
+  if (currentDate > expiryDate) {
+    return res.json({ error: "Business approval expired" });
+  }
+
+  res.json({ message: "Business approval still valid" });
+});
+
+/*
+  UPDATE STUDENT PROFILE
+*/
+app.post("/student/updateProfile", async (req, res) => {
+  const { id, profilePicture, shortBio } = req.body;
+
+  const student = await Student.findById(id);
+
+  if (!student) return res.json({ error: "Student not found" });
+
+  student.profilePicture = profilePicture || student.profilePicture;
+  student.shortBio = shortBio || student.shortBio;
+
+  await student.save();
+
+  res.json({ message: "Profile updated ✔" });
+});
+
+/*
+  GET ALL BUSINESSES (ADMIN)
 */
 app.get("/admin/businesses", async (req, res) => {
   const data = await Business.find();
@@ -130,8 +191,6 @@ app.post("/request", async (req, res) => {
   res.json({ matches });
 });
 
-const PORT = process.env.PORT || 5000;
-
 /*
   RATE BUSINESS (NEW CODE)
 */
@@ -152,6 +211,8 @@ app.post("/rate", async (req, res) => {
 
   res.json({ message: "Rating submitted ✔" });
 });
+
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log("Server running ✔");
