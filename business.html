@@ -65,6 +65,9 @@ After payment, use this as your <b>Remark:</b>
 <!-- Send proof button to WhatsApp -->
 <button id="whatsAppBtn">Send Proof on WhatsApp</button>
 
+<!-- I Have Paid Button -->
+<button id="paidBtn">I Have Paid</button>
+
 <script>
 // Define global variable for the generated remark
 let generatedRemark = "";
@@ -123,10 +126,37 @@ function openWhatsApp() {
   window.open(link, "_blank");  // Open WhatsApp chat in a new tab
 }
 
+// Function to mark payment as completed (I Have Paid)
+async function markPaid() {
+  const businessId = "business_id_here"; // Replace with the actual business ID
+
+  try {
+    let res = await fetch("https://service-backend-jezm.onrender.com/business/pay", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id: businessId })
+    });
+
+    let data = await res.json();
+
+    if (data.message === "Payment submitted ✔") {
+      alert("Your payment has been successfully marked.");
+    } else {
+      alert("There was an issue marking your payment.");
+    }
+  } catch (error) {
+    console.error("Error marking payment:", error);
+    alert("Something went wrong, please try again.");
+  }
+}
+
 // Add event listeners to the buttons
 document.getElementById("registerBtn").addEventListener("click", register); // Register button
 document.getElementById("copyBtn").addEventListener("click", copyRemark); // Copy Remark button
 document.getElementById("whatsAppBtn").addEventListener("click", openWhatsApp); // WhatsApp button
+document.getElementById("paidBtn").addEventListener("click", markPaid); // I Have Paid button
 </script>
 
 </body>
