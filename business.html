@@ -68,6 +68,18 @@ After payment, use this as your <b>Remark:</b>
 <!-- I Have Paid Button -->
 <button id="paidBtn">I Have Paid</button>
 
+<hr>
+
+<!-- Business Profile Update Section -->
+<h3>Update Your Business Profile</h3>
+
+<img src="business_profile_picture_url" id="profilePicturePreview" style="width:100px; height:100px; border-radius:50%;" />
+
+<input type="file" id="profilePictureInput" accept="image/*" />
+<input id="shortBio" placeholder="Short Bio">
+
+<button id="updateProfileBtn">Update Profile</button>
+
 <script>
 // Define global variable for the generated remark
 let generatedRemark = "";
@@ -151,6 +163,40 @@ async function markPaid() {
     alert("Something went wrong, please try again.");
   }
 }
+
+// Handle profile picture preview
+document.getElementById("profilePictureInput").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = function() {
+      document.getElementById("profilePicturePreview").src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Handle profile update button click
+document.getElementById("updateProfileBtn").addEventListener("click", async function() {
+  const businessId = "business_id_here"; // Replace with actual business ID
+  const profilePicture = document.getElementById("profilePictureInput").files[0] ? document.getElementById("profilePictureInput").files[0].name : "";
+  const shortBio = document.getElementById("shortBio").value;
+
+  const res = await fetch("https://service-backend-jezm.onrender.com/business/updateProfile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id: businessId, profilePicture, shortBio })
+  });
+
+  const data = await res.json();
+  if (data.message === "Profile updated ✔") {
+    alert("Your profile has been updated.");
+  } else {
+    alert("Error updating profile.");
+  }
+});
 
 // Add event listeners to the buttons
 document.getElementById("registerBtn").addEventListener("click", register); // Register button
