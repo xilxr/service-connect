@@ -71,6 +71,7 @@ After payment, use this as your <b>Remark:</b>
 <script>
 // Define global variable for the generated remark
 let generatedRemark = "";
+let businessId = "";  // Variable to hold the business ID
 
 // Function to generate unique remark (with business ID)
 function generateRemark(name, service, location, businessId) {
@@ -103,8 +104,11 @@ async function register() {
     let data = await res.json();
 
     if (res.ok) {
-      document.getElementById("result").innerText = "Your ID: " + data.business._id;
-      generateRemark(name, service, location, data.business._id);  // Generate remark after registration
+      // Capture the business ID from the backend response
+      businessId = data.business._id;
+
+      document.getElementById("result").innerText = "Your ID: " + businessId;
+      generateRemark(name, service, location, businessId);  // Generate remark after registration
     } else {
       alert("Error registering business: " + data.error);  // Show error from backend
     }
@@ -130,10 +134,8 @@ function openWhatsApp() {
 
 // Function to mark payment as completed (I Have Paid)
 async function markPaid() {
-  const businessId = "business_id_here"; // Replace with actual business ID
-
   if (!businessId) {
-    alert("Business ID is missing. Please register first.");
+    alert("Please register first to get a Business ID.");
     return;
   }
 
