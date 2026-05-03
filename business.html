@@ -69,11 +69,11 @@ After payment, use this as your <b>Remark:</b>
 <button id="paidBtn">I Have Paid</button>
 
 <script>
-// Define global variable for the generated remark
+// Define global variables
 let generatedRemark = "";
 let businessId = "";  // To store the business ID for future use
 
-// Function to generate remark using the business ID
+// Function to generate the remark using the business ID
 function generateRemark(name, service, location, businessId) {
   let unique = Math.floor(Math.random() * 100000);  // Generate a unique random number
   generatedRemark = name + "-" + service + "-" + location + "-" + businessId + "-" + unique;  // Create the remark
