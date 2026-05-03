@@ -2,59 +2,96 @@
 <html>
 <head>
   <title>Admin Dashboard</title>
+  <style>
+    /* Optional CSS for better styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      color: #333;
+    }
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .business-card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+  </style>
 </head>
 <body>
 
 <h2>Admin Dashboard</h2>
 
 <button onclick="loadBusinesses()">Load Businesses</button>
-
 <div id="list"></div>
 
 <script>
 async function loadBusinesses() {
-  document.getElementById("list").innerText = "Loading...";
+  document.getElementById("list").innerHTML = "<p>Loading businesses...</p>";
 
   try {
     let res = await fetch("https://service-backend-jezm.onrender.com/admin/businesses");
     let data = await res.json();
 
-    let output = "";
+    if (res.ok) {
+      let output = "";
 
-    data.forEach(b => {
-      output += `
-        <div style="border:1px solid black; margin:10px; padding:10px;">
-          <p><b>ID:</b> ${b._id}</p>
-          <p><b>Name:</b> ${b.name}</p>
-          <p><b>Service:</b> ${b.service}</p>
-          <p><b>Paid:</b> ${b.paid}</p>
-          <p><b>Verified:</b> ${b.verified}</p>
-          <button onclick="approve('${b._id}')">Approve</button>
-        </div>
-      `;
-    });
+      data.forEach(b => {
+        output += `
+          <div class="business-card">
+            <p><b>ID:</b> ${b._id}</p>
+            <p><b>Name:</b> ${b.name}</p>
+            <p><b>Service:</b> ${b.service}</p>
+            <p><b>Paid:</b> ${b.paid}</p>
+            <p><b>Verified:</b> ${b.verified}</p>
+            <button onclick="approve('${b._id}')">Approve</button>
+          </div>
+        `;
+      });
 
-    document.getElementById("list").innerHTML = output;
+      document.getElementById("list").innerHTML = output;
 
+    } else {
+      document.getElementById("list").innerHTML = "<p>Error loading businesses: " + data.error + "</p>";
+    }
   } catch (error) {
-    document.getElementById("list").innerText = "Error loading data";
+    document.getElementById("list").innerHTML = "<p>Error loading businesses: " + error.message + "</p>";
   }
 }
 
 async function approve(id) {
-  let res = await fetch("https://service-backend-jezm.onrender.com/admin/approve", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ id })
-  });
+  try {
+    let res = await fetch("https://service-backend-jezm.onrender.com/admin/approve", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id })
+    });
 
-  let data = await res.json();
+    let data = await res.json();
 
-  alert(data.message || data.error);
+    alert(data.message || data.error);
 
-  loadBusinesses(); // refresh list
+    if (res.ok) {
+      loadBusinesses(); // Refresh list after approval
+    }
+
+  } catch (error) {
+    alert("Error approving business: " + error.message);
+  }
 }
 </script>
 
