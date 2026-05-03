@@ -94,33 +94,39 @@ function generateRemark(name, service, location) {
 // Register function triggered by button
 async function register() {
   try {
+    // Get values from input fields
     let name = document.getElementById("name").value;
     let service = document.getElementById("service").value;
     let location = document.getElementById("location").value;
     let phone = document.getElementById("phone").value;
 
+    // Check if all fields are filled
     if (!name || !service || !location || !phone) {
-      alert("Fill all fields");
-      return;
+      alert("Please fill all fields.");
+      return;  // Stop the function if fields are empty
     }
 
+    // Send POST request to register the business
     let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ name, service, location, phone })
+      body: JSON.stringify({ name, service, location, phone })  // Sending data as JSON
     });
 
+    // Handle response from the backend
     let data = await res.json();
 
-    document.getElementById("result").innerText =
-      "Your ID: " + data.business._id;
-
-    generateRemark(name, service, location); // Generate remark after registration
+    if (res.ok) {
+      document.getElementById("result").innerText = "Your ID: " + data.business._id;
+      generateRemark(name, service, location);  // Generate remark after registration
+    } else {
+      alert("Error registering business: " + data.error);  // Show error from backend
+    }
   } catch (err) {
-    console.error(err);
-    alert("Error registering");
+    console.error("Error during registration:", err);  // Log any errors
+    alert("An error occurred while registering.");
   }
 }
 
@@ -140,27 +146,34 @@ function openWhatsApp() {
 
 // Function to mark payment as completed (I Have Paid)
 async function markPaid() {
-  const businessId = "business_id_here"; // Replace with the actual business ID
+  const businessId = "business_id_here"; // Replace with actual business ID from registration
+
+  if (!businessId) {
+    alert("Business ID is missing. Please register first.");
+    return;
+  }
 
   try {
+    // Send POST request to mark the payment as completed
     let res = await fetch("https://service-backend-jezm.onrender.com/business/pay", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ id: businessId })
+      body: JSON.stringify({ id: businessId })  // Sending business ID to mark as paid
     });
 
+    // Handle response from backend
     let data = await res.json();
 
-    if (data.message === "Payment submitted ✔") {
+    if (res.ok) {
       alert("Your payment has been successfully marked.");
     } else {
-      alert("There was an issue marking your payment.");
+      alert("Error marking payment: " + data.error);  // Show error message from backend
     }
   } catch (error) {
-    console.error("Error marking payment:", error);
-    alert("Something went wrong, please try again.");
+    console.error("Error marking payment:", error);  // Log any errors
+    alert("An error occurred while marking payment.");
   }
 }
 
