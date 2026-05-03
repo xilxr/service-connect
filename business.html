@@ -65,19 +65,15 @@ After payment, use this as your <b>Remark:</b>
 <!-- Send proof button to WhatsApp -->
 <button id="whatsAppBtn">Send Proof on WhatsApp</button>
 
-<!-- I Have Paid Button -->
-<button id="paidBtn">I Have Paid</button>
-
 <script>
-// Define global variables
+// Define global variable for the generated remark
 let generatedRemark = "";
-let businessId = "";  // To store the business ID for future use
 
-// Function to generate the remark using the business ID
-function generateRemark(name, service, location, businessId) {
-  let unique = Math.floor(Math.random() * 100000);  // Generate a unique random number
-  generatedRemark = name + "-" + service + "-" + location + "-" + businessId + "-" + unique;  // Create the remark
-  document.getElementById("remarkBox").innerText = generatedRemark;  // Display the remark
+// Function to generate unique remark
+function generateRemark(name, service, location) {
+  let unique = Math.floor(Math.random() * 100000); // Generate random number
+  generatedRemark = name + "-" + service + "-" + location + "-" + unique; // Create remark
+  document.getElementById("remarkBox").innerText = generatedRemark; // Display remark
 }
 
 // Register function triggered by button
@@ -89,8 +85,8 @@ async function register() {
     let phone = document.getElementById("phone").value;
 
     if (!name || !service || !location || !phone) {
-      alert("Please fill all fields.");
-      return;  // Stop if any field is missing
+      alert("Fill all fields");
+      return;
     }
 
     let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
@@ -103,16 +99,13 @@ async function register() {
 
     let data = await res.json();
 
-    if (res.ok) {
-      businessId = data.business._id;  // Capture the business ID
-      document.getElementById("result").innerText = "Your ID: " + businessId;
-      generateRemark(name, service, location, businessId);  // Generate remark after registration
-    } else {
-      alert("Error registering business: " + data.error);
-    }
+    document.getElementById("result").innerText =
+      "Your ID: " + data.business._id;
+
+    generateRemark(name, service, location); // Generate remark after registration
   } catch (err) {
-    console.error("Error during registration:", err);
-    alert("An error occurred while registering.");
+    console.error(err);
+    alert("Error registering");
   }
 }
 
@@ -130,40 +123,10 @@ function openWhatsApp() {
   window.open(link, "_blank");  // Open WhatsApp chat in a new tab
 }
 
-// Function to mark payment as completed (I Have Paid)
-async function markPaid() {
-  if (!businessId) {
-    alert("Please register first to get a Business ID.");
-    return;
-  }
-
-  try {
-    let res = await fetch("https://service-backend-jezm.onrender.com/business/pay", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ id: businessId })  // Send business ID to mark as paid
-    });
-
-    let data = await res.json();
-
-    if (res.ok) {
-      alert("Your payment has been successfully marked.");
-    } else {
-      alert("Error marking payment: " + data.error);
-    }
-  } catch (error) {
-    console.error("Error marking payment:", error);
-    alert("An error occurred while marking payment.");
-  }
-}
-
 // Add event listeners to the buttons
 document.getElementById("registerBtn").addEventListener("click", register); // Register button
 document.getElementById("copyBtn").addEventListener("click", copyRemark); // Copy Remark button
 document.getElementById("whatsAppBtn").addEventListener("click", openWhatsApp); // WhatsApp button
-document.getElementById("paidBtn").addEventListener("click", markPaid); // I Have Paid button
 </script>
 
 </body>
