@@ -68,59 +68,43 @@ After payment, use this as your <b>Remark:</b>
 <!-- I Have Paid Button -->
 <button id="paidBtn">I Have Paid</button>
 
-<hr>
-
-<!-- Business Profile Update Section -->
-<h3>Update Your Business Profile</h3>
-
-<img src="business_profile_picture_url" id="profilePicturePreview" style="width:100px; height:100px; border-radius:50%;" />
-
-<input type="file" id="profilePictureInput" accept="image/*" />
-<input id="shortBio" placeholder="Short Bio">
-
-<button id="updateProfileBtn">Update Profile</button>
-
 <script>
 // Define global variable for the generated remark
 let generatedRemark = "";
 
-// Function to generate unique remark
-function generateRemark(name, service, location) {
+// Function to generate unique remark (with business ID)
+function generateRemark(name, service, location, businessId) {
   let unique = Math.floor(Math.random() * 100000); // Generate random number
-  generatedRemark = name + "-" + service + "-" + location + "-" + unique; // Create remark
+  generatedRemark = name + "-" + service + "-" + location + "-" + businessId + "-" + unique; // Create remark using business ID
   document.getElementById("remarkBox").innerText = generatedRemark; // Display remark
 }
 
 // Register function triggered by button
 async function register() {
   try {
-    // Get values from input fields
     let name = document.getElementById("name").value;
     let service = document.getElementById("service").value;
     let location = document.getElementById("location").value;
     let phone = document.getElementById("phone").value;
 
-    // Check if all fields are filled
     if (!name || !service || !location || !phone) {
       alert("Please fill all fields.");
-      return;  // Stop the function if fields are empty
+      return;
     }
 
-    // Send POST request to register the business
     let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ name, service, location, phone })  // Sending data as JSON
+      body: JSON.stringify({ name, service, location, phone })
     });
 
-    // Handle response from the backend
     let data = await res.json();
 
     if (res.ok) {
       document.getElementById("result").innerText = "Your ID: " + data.business._id;
-      generateRemark(name, service, location);  // Generate remark after registration
+      generateRemark(name, service, location, data.business._id);  // Generate remark after registration
     } else {
       alert("Error registering business: " + data.error);  // Show error from backend
     }
@@ -146,7 +130,7 @@ function openWhatsApp() {
 
 // Function to mark payment as completed (I Have Paid)
 async function markPaid() {
-  const businessId = "business_id_here"; // Replace with actual business ID from registration
+  const businessId = "business_id_here"; // Replace with actual business ID
 
   if (!businessId) {
     alert("Business ID is missing. Please register first.");
@@ -154,16 +138,14 @@ async function markPaid() {
   }
 
   try {
-    // Send POST request to mark the payment as completed
     let res = await fetch("https://service-backend-jezm.onrender.com/business/pay", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ id: businessId })  // Sending business ID to mark as paid
+      body: JSON.stringify({ id: businessId })
     });
 
-    // Handle response from backend
     let data = await res.json();
 
     if (res.ok) {
@@ -176,40 +158,6 @@ async function markPaid() {
     alert("An error occurred while marking payment.");
   }
 }
-
-// Handle profile picture preview
-document.getElementById("profilePictureInput").addEventListener("change", function(event) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onloadend = function() {
-      document.getElementById("profilePicturePreview").src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-// Handle profile update button click
-document.getElementById("updateProfileBtn").addEventListener("click", async function() {
-  const businessId = "business_id_here"; // Replace with actual business ID
-  const profilePicture = document.getElementById("profilePictureInput").files[0] ? document.getElementById("profilePictureInput").files[0].name : "";
-  const shortBio = document.getElementById("shortBio").value;
-
-  const res = await fetch("https://service-backend-jezm.onrender.com/business/updateProfile", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ id: businessId, profilePicture, shortBio })
-  });
-
-  const data = await res.json();
-  if (data.message === "Profile updated ✔") {
-    alert("Your profile has been updated.");
-  } else {
-    alert("Error updating profile.");
-  }
-});
 
 // Add event listeners to the buttons
 document.getElementById("registerBtn").addEventListener("click", register); // Register button
