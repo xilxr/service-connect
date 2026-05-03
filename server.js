@@ -6,16 +6,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/*
-  CONNECT TO DATABASE
-*/
 mongoose.connect("mongodb+srv://kernel_void:Goodmoney1.@futodash.cxegic0.mongodb.net/serviceDB?retryWrites=true&w=majority")
   .then(() => console.log("MongoDB connected ✔"))
-  .catch(err => console.log(err));
+  .catch(err => {
+    console.error("Error connecting to MongoDB:", err);
+    process.exit(1);
+  });
 
-/*
-  SCHEMAS
-*/
 const Business = mongoose.model("Business", {
   name: String,
   service: String,
@@ -25,31 +22,29 @@ const Business = mongoose.model("Business", {
   reviews: { type: Number, default: 0 },
   paid: { type: Boolean, default: false },
   verified: { type: Boolean, default: false },
-  profilePicture: String,  // Added for business profile picture
-  shortBio: String,        // Added for business short bio
-  approvedAt: { type: Date, default: Date.now } // Added approval timestamp
+  profilePicture: String,
+  shortBio: String,
+  approvedAt: { type: Date, default: Date.now }
 });
 
 const Student = mongoose.model("Student", {
   name: String,
   phone: String,
-  profilePicture: String,  // Added for student profile picture
-  shortBio: String,        // Added for student short bio
+  profilePicture: String,
+  shortBio: String,
   location: String
 });
 
-/*
-  HOME
-*/
 app.get("/", (req, res) => {
   res.send("Backend + Database live ✔");
 });
 
-/*
-  BUSINESS SIGNUP
-*/
 app.post("/business/signup", async (req, res) => {
   const { name, service, phone, location } = req.body;
+
+  if (!name || !service || !phone || !location) {
+    return res.json({ error: "All fields are required." });
+  }
 
   const newBiz = await Business.create({
     name,
@@ -63,73 +58,58 @@ app.post("/business/signup", async (req, res) => {
   res.json({ business: newBiz });
 });
 
-/*
-  PAYMENT
-*/
 app.post("/business/pay", async (req, res) => {
   const { id } = req.body;
 
   const biz = await Business.findById(id);
-
   if (!biz) {
     return res.json({ error: "Business not found" });
   }
 
-  biz.paid = true;  // Ensure that payment status is correctly updated
-  await biz.save();  // Save the updated business object
+  biz.paid = true;
+  await biz.save();
 
   res.json({ message: "Payment submitted ✔" });
 });
 
-/*
-  ADMIN APPROVE
-*/
 app.post("/admin/approve", async (req, res) => {
   const { id } = req.body;
 
   const biz = await Business.findById(id);
-
-  if (!biz) return res.json({ error: "Not found" });
+  if (!biz) return res.json({ error: "Business not found" });
 
   if (!biz.paid) {
-    return res.json({ error: "User has not paid" });  // Only allow approval if paid is true
+    return res.json({ error: "Business has not paid yet" });
   }
 
   biz.verified = true;
-  await biz.save();  // Save the updated verification status
+  biz.approvedAt = Date.now();
+  await biz.save();
 
   res.json({ message: "Business approved ✔" });
 });
 
-/*
-  ADMIN UNAPPROVE
-*/
 app.post("/admin/unapprove", async (req, res) => {
   const { id } = req.body;
 
   const biz = await Business.findById(id);
-
   if (!biz) return res.json({ error: "Business not found" });
 
-  biz.verified = false;  // Unapprove the business
+  biz.verified = false;
   await biz.save();
 
   res.json({ message: "Business unapproved ✔" });
 });
 
-/*
-  CHECK APPROVAL EXPIRY (30 DAYS)
-*/
 app.post("/admin/checkExpiry", async (req, res) => {
   const { id } = req.body;
 
   const biz = await Business.findById(id);
-
   if (!biz) return res.json({ error: "Business not found" });
 
   const currentDate = new Date();
   const expiryDate = new Date(biz.approvedAt);
-  expiryDate.setDate(expiryDate.getDate() + 30);  // Add 30 days
+  expiryDate.setDate(expiryDate.getDate() + 30);
 
   if (currentDate > expiryDate) {
     return res.json({ error: "Business approval expired" });
@@ -138,14 +118,10 @@ app.post("/admin/checkExpiry", async (req, res) => {
   res.json({ message: "Business approval still valid" });
 });
 
-/*
-  UPDATE STUDENT PROFILE
-*/
 app.post("/student/updateProfile", async (req, res) => {
   const { id, profilePicture, shortBio } = req.body;
 
   const student = await Student.findById(id);
-
   if (!student) return res.json({ error: "Student not found" });
 
   student.profilePicture = profilePicture || student.profilePicture;
@@ -156,17 +132,11 @@ app.post("/student/updateProfile", async (req, res) => {
   res.json({ message: "Profile updated ✔" });
 });
 
-/*
-  GET ALL BUSINESSES (ADMIN)
-*/
 app.get("/admin/businesses", async (req, res) => {
   const data = await Business.find();
   res.json(data);
 });
 
-/*
-  REQUEST MATCHING
-*/
 app.post("/request", async (req, res) => {
   const { message, location } = req.body;
 
@@ -191,14 +161,10 @@ app.post("/request", async (req, res) => {
   res.json({ matches });
 });
 
-/*
-  RATE BUSINESS (NEW CODE)
-*/
 app.post("/rate", async (req, res) => {
   const { id, rating } = req.body;
 
   const biz = await Business.findById(id);
-
   if (!biz) return res.json({ error: "Not found" });
 
   let total = biz.rating * biz.reviews;
