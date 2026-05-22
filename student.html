@@ -1,124 +1,331 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Find Help Fast</title>
+  <title>Student Dashboard</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      text-align: center;
-      padding: 20px;
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial;
     }
 
-    input {
-      width: 90%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      margin-top: 10px;
-    }
-    
-    button {
-      margin-top: 10px;
-      padding: 12px 20px;
-      border: none;
-      background: #38bdf8;
-      color: black;
-      border-radius: 8px;
-      cursor: pointer;
+    body{
+      background:#020617;
+      color:white;
+      padding:15px;
     }
 
-    .card {
-      background: #1e293b;
-      margin: 10px;
-      padding: 15px;
-      border-radius: 10px;
+    .top{
+      text-align:center;
+      margin-bottom:20px;
     }
+
+    .top h1{
+      color:#22c55e;
+      font-size:30px;
+    }
+
+    .top p{
+      color:#94a3b8;
+      margin-top:5px;
+    }
+
+    .searchBox{
+      background:#0f172a;
+      padding:15px;
+      border-radius:15px;
+      margin-bottom:20px;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:10px;
+      margin-top:10px;
+      outline:none;
+      font-size:15px;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:10px;
+      margin-top:12px;
+      background:#22c55e;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    .workerCard{
+      background:#0f172a;
+      padding:15px;
+      border-radius:18px;
+      margin-top:20px;
+      box-shadow:0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .profile{
+      width:70px;
+      height:70px;
+      border-radius:50%;
+      object-fit:cover;
+      border:3px solid #22c55e;
+    }
+
+    .name{
+      font-size:22px;
+      margin-top:10px;
+      font-weight:bold;
+    }
+
+    .service{
+      color:#22c55e;
+      margin-top:5px;
+      font-size:16px;
+    }
+
+    .location{
+      color:#cbd5e1;
+      margin-top:5px;
+    }
+
+    .rating{
+      margin-top:8px;
+      color:#facc15;
+      font-weight:bold;
+    }
+
+    .bio{
+      margin-top:10px;
+      color:#cbd5e1;
+      line-height:1.5;
+    }
+
+    .status{
+      margin-top:10px;
+      display:inline-block;
+      background:#22c55e;
+      padding:7px 12px;
+      border-radius:20px;
+      font-size:13px;
+      font-weight:bold;
+    }
+
+    .actionBtn{
+      margin-top:10px;
+    }
+
+    .callBtn{
+      background:#3b82f6;
+    }
+
+    .empty{
+      text-align:center;
+      margin-top:40px;
+      color:#94a3b8;
+    }
+
   </style>
 </head>
 
 <body>
 
-<h2>🔧 Find Help Near You</h2>
+<div class="top">
 
-<input id="location" placeholder="Your location (e.g Onitsha)" />
-<input id="msg" placeholder="Describe your problem..." />
-<br>
+  <h1>⚡ Service Connect</h1>
 
-<button onclick="send()">Find Help</button>
+  <p>
+    Find trusted workers around you instantly
+  </p>
 
-<h3>Available Workers</h3>
+</div>
+
+<div class="searchBox">
+
+  <input
+  id="service"
+  placeholder="What service do you need?">
+
+  <input
+  id="location"
+  placeholder="Your location (e.g FUTO)">
+
+  <button onclick="findWorkers()">
+    Find Available Workers
+  </button>
+
+</div>
+
 <div id="results"></div>
 
 <script>
-async function send() {
-  let location = document.getElementById("location").value;
-  let text = document.getElementById("msg").value;
 
-  document.getElementById("results").innerHTML = "Searching...";
+async function findWorkers(){
 
-  let res = await fetch("https://service-backend-jezm.onrender.com/request", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    message: text,
-    location: location
-  })
-});
+  let service =
+    document.getElementById("service").value;
 
-  let data = await res.json();
+  let location =
+    document.getElementById("location").value;
 
-  if (data.matches.length === 0) {
-    document.getElementById("results").innerHTML =
-      "<p>No verified workers found</p>";
+  if(!service || !location){
+
+    alert("Fill all fields");
+
     return;
+
   }
 
-  let output = "";
+  document.getElementById("results").innerHTML =
+  "<div class='empty'>Searching workers...</div>";
 
-  data.matches.forEach(biz => {
-    let phone = biz.phone;
+  try{
 
-    // convert to international format (Nigeria)
-    if (phone.startsWith("0")) {
-      phone = "234" + phone.substring(1);
+    let res = await fetch(
+      "https://service-backend-jezm.onrender.com/request",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          message:service,
+          location:location
+        })
+      }
+    );
+
+    let data = await res.json();
+
+    let output = "";
+
+    if(data.matches.length === 0){
+
+      output = `
+      <div class="empty">
+        No active workers found nearby
+      </div>
+      `;
+
     }
 
-    let link = "https://wa.me/" + phone;
+    data.matches.forEach(worker => {
 
-    output += `
-      <div class="card">
-        <h4>${biz.name}</h4>
-<p>${biz.service}</p>
-<p>⭐ ${biz.rating.toFixed(1)} (${biz.reviews} reviews)</p>
-        <input type="number" min="1" max="5" id="rate-${biz._id}" placeholder="Rate 1-5">
-<button onclick="rateBiz('${biz._id}')">Submit Rating</button>
+      let profile =
+        worker.profilePicture
+        ?
+        worker.profilePicture
+        :
+        "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+      let bio =
+        worker.shortBio
+        ?
+        worker.shortBio
+        :
+        "Trusted local worker available for jobs.";
+
+      output += `
+
+      <div class="workerCard">
+
+        <img
+        class="profile"
+        src="${profile}">
+
+        <div class="name">
+          ${worker.name}
+        </div>
+
+        <div class="service">
+          ${worker.service}
+        </div>
+
+        <div class="location">
+          📍 ${worker.location}
+        </div>
+
+        <div class="rating">
+          ⭐ ${worker.rating.toFixed(1)}
+        </div>
+
+        <div class="bio">
+          ${bio}
+        </div>
+
+        <div class="status">
+          AVAILABLE NOW
+        </div>
+
+        <button
+        class="actionBtn"
+        onclick="whatsappWorker('${worker.phone}')">
+        Chat on WhatsApp
+        </button>
+
+        <button
+        class="actionBtn callBtn"
+        onclick="callWorker('${worker.phone}')">
+        Call Worker
+        </button>
+
       </div>
+
+      `;
+
+    });
+
+    document.getElementById("results").innerHTML =
+    output;
+
+  }catch(err){
+
+    console.log(err);
+
+    document.getElementById("results").innerHTML =
+    `
+    <div class="empty">
+      Failed to connect to server
+    </div>
     `;
-  });
 
-  document.getElementById("results").innerHTML = output;
+  }
+
 }
-  async function rateBiz(id) {
-  let rating = document.getElementById("rate-" + id).value;
 
-  let res = await fetch("https://service-backend-jezm.onrender.com/rate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ id, rating: Number(rating) })
-  });
+function whatsappWorker(phone){
 
-  let data = await res.json();
+  let cleaned =
+    phone.startsWith("0")
+    ?
+    "234" + phone.substring(1)
+    :
+    phone;
 
-  alert(data.message || data.error);
+  window.open(
+    "https://wa.me/" + cleaned,
+    "_blank"
+  );
+
 }
+
+function callWorker(phone){
+
+  window.location.href =
+  "tel:" + phone;
+
+}
+
 </script>
 
 </body>
