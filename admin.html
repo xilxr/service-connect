@@ -9,31 +9,28 @@
 
     body{
       margin:0;
-      padding:20px;
+      padding:15px;
       background:#020617;
-      font-family:Arial;
       color:white;
+      font-family:Arial;
     }
 
     h1{
       text-align:center;
       color:#22c55e;
+      margin-bottom:20px;
     }
 
-    button{
-      border:none;
-      border-radius:10px;
-      padding:12px;
-      cursor:pointer;
-      font-size:15px;
-      margin-top:8px;
-    }
-
-    .loadBtn{
+    .topBtn{
       width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
       background:#22c55e;
       color:white;
+      font-size:16px;
       margin-bottom:20px;
+      cursor:pointer;
     }
 
     .card{
@@ -41,47 +38,54 @@
       padding:15px;
       border-radius:15px;
       margin-bottom:20px;
-      box-shadow:0 0 10px rgba(0,0,0,0.3);
+      box-shadow:0 0 10px rgba(0,0,0,0.4);
     }
 
-    .verified{
+    .active{
       color:#22c55e;
       font-weight:bold;
     }
 
-    .unverified{
+    .inactive{
       color:#ef4444;
       font-weight:bold;
     }
 
+    button{
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:10px;
+      margin-top:10px;
+      color:white;
+      font-size:15px;
+      cursor:pointer;
+    }
+
     .approveBtn{
       background:#22c55e;
-      color:white;
-      width:100%;
     }
 
-    .unapproveBtn{
+    .disapproveBtn{
       background:#f59e0b;
-      color:white;
-      width:100%;
-    }
-
-    .deleteBtn{
-      background:#ef4444;
-      color:white;
-      width:100%;
     }
 
     .callBtn{
       background:#3b82f6;
-      color:white;
-      width:100%;
     }
 
     .whatsappBtn{
       background:#10b981;
-      color:white;
-      width:100%;
+    }
+
+    .deleteBtn{
+      background:#ef4444;
+    }
+
+    .countdown{
+      margin-top:10px;
+      color:#facc15;
+      font-weight:bold;
     }
 
   </style>
@@ -91,7 +95,7 @@
 
 <h1>⚡ ADMIN CONTROL CENTER</h1>
 
-<button class="loadBtn" onclick="loadBusinesses()">
+<button class="topBtn" onclick="loadBusinesses()">
 Load Businesses
 </button>
 
@@ -106,6 +110,10 @@ async function loadBusinesses(){
 
   try{
 
+    await fetch(
+      "https://service-backend-jezm.onrender.com/business/check-expiry"
+    );
+
     let res = await fetch(
       "https://service-backend-jezm.onrender.com/admin/businesses"
     );
@@ -116,11 +124,40 @@ async function loadBusinesses(){
 
     if(data.length === 0){
 
-      output = "<h3>No businesses yet</h3>";
+      output = "<h3>No businesses found</h3>";
 
     }
 
     data.forEach(b => {
+
+      let countdownText = "Not active";
+
+      if(b.verified && b.approvedAt){
+
+        let approvedDate =
+          new Date(b.approvedAt);
+
+        let expiryDate =
+          new Date(approvedDate);
+
+        expiryDate.setDate(
+          expiryDate.getDate() + 30
+        );
+
+        let now = new Date();
+
+        let diff =
+          expiryDate - now;
+
+        let days =
+          Math.ceil(
+            diff / (1000 * 60 * 60 * 24)
+          );
+
+        countdownText =
+          days + " day(s) remaining";
+
+      }
 
       output += `
 
@@ -154,23 +191,27 @@ async function loadBusinesses(){
         ${
           b.verified
           ?
-          '<span class="verified">ACTIVE</span>'
+          '<span class="active">ACTIVE</span>'
           :
-          '<span class="unverified">INACTIVE</span>'
+          '<span class="inactive">INACTIVE</span>'
         }
 
         </p>
 
+        <div class="countdown">
+          ${countdownText}
+        </div>
+
         <button
         class="approveBtn"
         onclick="approveBusiness('${b._id}')">
-        Activate
+        Activate Business
         </button>
 
         <button
-        class="unapproveBtn"
-        onclick="deactivateBusiness('${b._id}')">
-        Deactivate
+        class="disapproveBtn"
+        onclick="disapproveBusiness('${b._id}')">
+        Deactivate Business
         </button>
 
         <button
@@ -240,7 +281,7 @@ async function approveBusiness(id){
 
 }
 
-async function deactivateBusiness(id){
+async function disapproveBusiness(id){
 
   try{
 
@@ -284,13 +325,21 @@ function callBusiness(phone){
 
 function whatsappBusiness(phone){
 
-  let link =
-  "https://wa.me/234" +
-  phone.substring(1);
+  let cleaned =
+    phone.startsWith("0")
+    ?
+    "234" + phone.substring(1)
+    :
+    phone;
 
-  window.open(link, "_blank");
+  window.open(
+    "https://wa.me/" + cleaned,
+    "_blank"
+  );
 
 }
+
+loadBusinesses();
 
 </script>
 
