@@ -413,66 +413,74 @@ app.get("/admin/businesses", async (req, res) => {
 
 /*
 ====================================
-REQUEST MATCHING
-====================================
+/*
+  SMART REQUEST MATCHING
 */
 app.post("/request", async (req, res) => {
+  const { message, location } = req.body;
 
-  try {
+  const text = message.toLowerCase();
 
-    const { message, location } = req.body;
+  let service = "";
 
-    let service = "";
+  /*
+    ELECTRICAL KEYWORDS
+  */
+  if (
+    text.includes("light") ||
+    text.includes("socket") ||
+    text.includes("electric") ||
+    text.includes("nepa") ||
+    text.includes("wire") ||
+    text.includes("current")
+  ) {
+    service = "electrical";
+  }
 
-    if (message.toLowerCase().includes("generator")) {
+  /*
+    PLUMBING KEYWORDS
+  */
+  else if (
+    text.includes("water") ||
+    text.includes("pipe") ||
+    text.includes("tap") ||
+    text.includes("plumber") ||
+    text.includes("leak")
+  ) {
+    service = "plumber";
+  }
 
-      service = "mechanic";
+  /*
+    MECHANIC KEYWORDS
+  */
+  else if (
+    text.includes("generator") ||
+    text.includes("engine") ||
+    text.includes("mechanic") ||
+    text.includes("repair")
+  ) {
+    service = "mechanic";
+  }
 
-    } else if (
-      message.toLowerCase().includes("plumber")
-    ) {
-
-      service = "plumber";
-
-    } else if (
-      message.toLowerCase().includes("electric")
-    ) {
-
-      service = "electrician";
-
-    }
-
-    /*
+  /*
     SAVE REQUEST
-    */
-    await Request.create({
-      message,
-      service,
-      location
-    });
+  */
+  await Request.create({
+    message,
+    service
+  });
 
-    /*
+  /*
     FIND MATCHES
-    */
-    const matches = await Business.find({
+  */
+  const matches = await Business.find({
+    service: { $regex: service, $options: "i" },
+    location: { $regex: location, $options: "i" },
+    verified: true
+  }).sort({ rating: -1 });
 
-      service: {
-        $regex: service
-      },
-
-      location: {
-        $regex: location.toLowerCase()
-      },
-
-      verified: true
-
-    }).sort({
-      rating: -1
-    });
-
-    res.json({
-      matches
-    });
+  res.json({ matches });
+});
 
   } catch (err) {
 
