@@ -3,148 +3,510 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
 /*
+====================================
 CONNECT TO DATABASE
+====================================
 */
-mongoose.connect("mongodb+srv://kernel_void:Goodmoney1.@futodash.cxegic0.mongodb.net/serviceDB?retryWrites=true&w=majority")
+mongoose.connect(
+  "mongodb+srv://kernel_void:Goodmoney1.@futodash.cxegic0.mongodb.net/serviceDB?retryWrites=true&w=majority"
+)
 .then(() => console.log("MongoDB connected ✔"))
 .catch(err => console.log(err));
 
 /*
-SCHEMAS
+====================================
+BUSINESS SCHEMA
+====================================
 */
 const Business = mongoose.model("Business", {
-name: String,
-service: String,
-phone: String,
-location: String,
-rating: { type: Number, default: 0 },
-reviews: { type: Number, default: 0 },
-paid: Boolean,
-verified: Boolean
-});
+  name: String,
+  service: String,
+  phone: String,
+  location: String,
 
-const Request = mongoose.model("Request", {
-message: String,
-service: String
+  rating: {
+    type: Number,
+    default: 0
+  },
+
+  reviews: {
+    type: Number,
+    default: 0
+  },
+
+  paid: {
+    type: Boolean,
+    default: false
+  },
+
+  verified: {
+    type: Boolean,
+    default: false
+  },
+
+  profilePicture: String,
+
+  shortBio: String,
+
+  approvedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 /*
+====================================
+STUDENT SCHEMA
+====================================
+*/
+const Student = mongoose.model("Student", {
+  name: String,
+  phone: String,
+  location: String,
+
+  profilePicture: String,
+
+  shortBio: String
+});
+
+/*
+====================================
+REQUEST SCHEMA
+THIS WAS THE MISSING PART
+====================================
+*/
+const Request = mongoose.model("Request", {
+  message: String,
+  service: String,
+  location: String
+});
+
+/*
+====================================
 HOME
+====================================
 */
 app.get("/", (req, res) => {
-res.send("Backend + Database live ✔");
+  res.send("Backend + Database live ✔");
 });
 
 /*
+====================================
 BUSINESS SIGNUP
+====================================
 */
 app.post("/business/signup", async (req, res) => {
-const { name, service, phone, location } = req.body;
 
-const newBiz = await Business.create({
-name,
-service: service.toLowerCase(),
-phone,
-location: location.toLowerCase(),
-paid: false,
-verified: false
-});
+  try {
 
-res.json({ business: newBiz });
+    const { name, service, phone, location } = req.body;
+
+    if (!name || !service || !phone || !location) {
+      return res.json({
+        error: "Please fill all fields"
+      });
+    }
+
+    const newBiz = await Business.create({
+      name,
+      service: service.toLowerCase(),
+      phone,
+      location: location.toLowerCase(),
+
+      paid: false,
+      verified: false
+    });
+
+    res.json({
+      business: newBiz
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Registration failed"
+    });
+
+  }
+
 });
 
 /*
-PAYMENT
+====================================
+BUSINESS PAYMENT
+====================================
 */
 app.post("/business/pay", async (req, res) => {
-const { id } = req.body;
 
-await Business.findByIdAndUpdate(id, { paid: true });
+  try {
 
-res.json({ message: "Payment submitted" });
+    const { id } = req.body;
+
+    const biz = await Business.findById(id);
+
+    if (!biz) {
+      return res.json({
+        error: "Business not found"
+      });
+    }
+
+    biz.paid = true;
+
+    await biz.save();
+
+    res.json({
+      message: "Payment submitted ✔"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Payment failed"
+    });
+
+  }
+
 });
 
 /*
+====================================
 ADMIN APPROVE
+====================================
 */
 app.post("/admin/approve", async (req, res) => {
-const { id } = req.body;
 
-const biz = await Business.findById(id);
+  try {
 
-if (!biz) return res.json({ error: "Not found" });
+    const { id } = req.body;
 
-if (!biz.paid) {
-return res.json({ error: "User has not paid" });
-}
+    const biz = await Business.findById(id);
 
-biz.verified = true;
-await biz.save();
+    if (!biz) {
+      return res.json({
+        error: "Business not found"
+      });
+    }
 
-res.json({ message: "Approved ✔" });
+    if (!biz.paid) {
+      return res.json({
+        error: "User has not paid"
+      });
+    }
+
+    biz.verified = true;
+
+    biz.approvedAt = Date.now();
+
+    await biz.save();
+
+    res.json({
+      message: "Business approved ✔"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Approval failed"
+    });
+
+  }
+
 });
 
 /*
+====================================
+ADMIN UNAPPROVE
+====================================
+*/
+app.post("/admin/unapprove", async (req, res) => {
+
+  try {
+
+    const { id } = req.body;
+
+    const biz = await Business.findById(id);
+
+    if (!biz) {
+      return res.json({
+        error: "Business not found"
+      });
+    }
+
+    biz.verified = false;
+
+    await biz.save();
+
+    res.json({
+      message: "Business unapproved ✔"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Unapprove failed"
+    });
+
+  }
+
+});
+
+/*
+====================================
+CHECK APPROVAL EXPIRY
+====================================
+*/
+app.post("/admin/checkExpiry", async (req, res) => {
+
+  try {
+
+    const { id } = req.body;
+
+    const biz = await Business.findById(id);
+
+    if (!biz) {
+      return res.json({
+        error: "Business not found"
+      });
+    }
+
+    const currentDate = new Date();
+
+    const expiryDate = new Date(biz.approvedAt);
+
+    expiryDate.setDate(expiryDate.getDate() + 30);
+
+    if (currentDate > expiryDate) {
+
+      return res.json({
+        error: "Business approval expired"
+      });
+
+    }
+
+    res.json({
+      message: "Business approval still valid"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Expiry check failed"
+    });
+
+  }
+
+});
+
+/*
+====================================
+UPDATE STUDENT PROFILE
+====================================
+*/
+app.post("/student/updateProfile", async (req, res) => {
+
+  try {
+
+    const { id, profilePicture, shortBio } = req.body;
+
+    const student = await Student.findById(id);
+
+    if (!student) {
+      return res.json({
+        error: "Student not found"
+      });
+    }
+
+    student.profilePicture =
+      profilePicture || student.profilePicture;
+
+    student.shortBio =
+      shortBio || student.shortBio;
+
+    await student.save();
+
+    res.json({
+      message: "Profile updated ✔"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Profile update failed"
+    });
+
+  }
+
+});
+
+/*
+====================================
 GET ALL BUSINESSES
+====================================
 */
 app.get("/admin/businesses", async (req, res) => {
-const data = await Business.find();
-res.json(data);
+
+  try {
+
+    const data = await Business.find();
+
+    res.json(data);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Failed to load businesses"
+    });
+
+  }
+
 });
 
 /*
+====================================
 REQUEST MATCHING
+====================================
 */
 app.post("/request", async (req, res) => {
-const { message, location } = req.body;
 
-let service = "";
+  try {
 
-if (message.toLowerCase().includes("generator")) {
-service = "mechanic";
-} else if (message.toLowerCase().includes("plumber")) {
-service = "plumber";
-} else if (message.toLowerCase().includes("electric")) {
-service = "electrician";
-}
+    const { message, location } = req.body;
 
-await Request.create({ message, service });
+    let service = "";
 
-const matches = await Business.find({
-service: { $regex: service },
-location: { $regex: location.toLowerCase() },
-verified: true
-}).sort({ rating: -1 });
+    if (message.toLowerCase().includes("generator")) {
 
-res.json({ matches });
+      service = "mechanic";
+
+    } else if (
+      message.toLowerCase().includes("plumber")
+    ) {
+
+      service = "plumber";
+
+    } else if (
+      message.toLowerCase().includes("electric")
+    ) {
+
+      service = "electrician";
+
+    }
+
+    /*
+    SAVE REQUEST
+    */
+    await Request.create({
+      message,
+      service,
+      location
+    });
+
+    /*
+    FIND MATCHES
+    */
+    const matches = await Business.find({
+
+      service: {
+        $regex: service
+      },
+
+      location: {
+        $regex: location.toLowerCase()
+      },
+
+      verified: true
+
+    }).sort({
+      rating: -1
+    });
+
+    res.json({
+      matches
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Matching failed"
+    });
+
+  }
+
 });
 
+/*
+====================================
+RATE BUSINESS
+====================================
+*/
+app.post("/rate", async (req, res) => {
+
+  try {
+
+    const { id, rating } = req.body;
+
+    const biz = await Business.findById(id);
+
+    if (!biz) {
+      return res.json({
+        error: "Business not found"
+      });
+    }
+
+    let total = biz.rating * biz.reviews;
+
+    total += rating;
+
+    biz.reviews += 1;
+
+    biz.rating = total / biz.reviews;
+
+    await biz.save();
+
+    res.json({
+      message: "Rating submitted ✔"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Rating failed"
+    });
+
+  }
+
+});
+
+/*
+====================================
+START SERVER
+====================================
+*/
 const PORT = process.env.PORT || 5000;
 
-app.post("/rate", async (req, res) => {
-const { id, rating } = req.body;
-
-const biz = await Business.findById(id);
-
-if (!biz) return res.json({ error: "Not found" });
-
-let total = biz.rating * biz.reviews;
-total += rating;
-
-biz.reviews += 1;
-biz.rating = total / biz.reviews;
-
-await biz.save();
-
-res.json({ message: "Rating submitted ✔" });
-});
-
 app.listen(PORT, () => {
-console.log("Server running ✔");
+  console.log("Server running ✔");
 });
-
-Give me the updated code
