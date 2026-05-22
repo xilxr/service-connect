@@ -184,33 +184,29 @@ ADMIN APPROVE
 */
 app.post("/admin/approve", async (req, res) => {
 
-  try {
+  const { id } = req.body;
 
-    const { id } = req.body;
+  const biz = await Business.findById(id);
 
-    const biz = await Business.findById(id);
+  if (!biz){
 
-    if (!biz) {
-      return res.json({
-        error: "Business not found"
-      });
-    }
-
-    if (!biz.paid) {
-      return res.json({
-        error: "User has not paid"
-      });
-    }
-
-    biz.verified = true;
-
-    biz.approvedAt = Date.now();
-
-    await biz.save();
-
-    res.json({
-      message: "Business approved ✔"
+    return res.json({
+      error:"Business not found"
     });
+
+  }
+
+  biz.verified = true;
+
+  biz.approvedAt = new Date();
+
+  await biz.save();
+
+  res.json({
+    message:"Business activated ✔"
+  });
+
+});
 
   } catch (err) {
 
