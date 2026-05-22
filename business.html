@@ -1,34 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Join as Worker</title>
+  <title>Business Portal</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
-      font-family: Arial;
-      background: #020617;
-      color: white;
-      text-align: center;
-      padding: 20px;
+
+    body{
+      background:#020617;
+      color:white;
+      font-family:Arial;
+      padding:20px;
+      text-align:center;
     }
 
-    input {
-      width: 90%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      margin-top: 10px;
+    input{
+      width:90%;
+      padding:14px;
+      margin-top:10px;
+      border:none;
+      border-radius:10px;
+      outline:none;
     }
 
-    button {
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      background: #22c55e;
-      border-radius: 8px;
-      cursor: pointer;
+    button{
+      width:95%;
+      padding:14px;
+      margin-top:12px;
+      border:none;
+      border-radius:10px;
+      background:#22c55e;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
     }
+
+    .card{
+      background:#0f172a;
+      padding:15px;
+      border-radius:15px;
+      margin-top:20px;
+    }
+
+    img{
+      width:100%;
+      border-radius:15px;
+      margin-top:10px;
+    }
+
+    #remarkBox{
+      color:#22c55e;
+      font-weight:bold;
+      margin-top:10px;
+      word-break:break-word;
+    }
+
   </style>
 </head>
 
@@ -36,97 +63,199 @@
 
 <h2>💼 Register Your Service</h2>
 
-<input id="name" placeholder="Your Name">
-<input id="service" placeholder="Your Service (mechanic, plumber...)">
-<input id="location" placeholder="Your Location (e.g futo)">
-<input id="phone" placeholder="Your WhatsApp Number (080...)">
+<div class="card">
 
-<button id="registerBtn">Register</button>
+<input id="name" placeholder="Your Name">
+
+<input id="service" placeholder="Your Service">
+
+<input id="location" placeholder="Your Location">
+
+<input id="phone" placeholder="WhatsApp Number">
+
+<button onclick="registerBusiness()">
+Register
+</button>
 
 <p id="result"></p>
 
-<hr>
+</div>
 
-<h3>💳 Pay ₦2000 to Activate</h3>
+<div class="card">
 
-<!-- OPay Image -->
-<img src="https://i.ibb.co/Pvz0zyVZ/1777417845030.png" style="width:90%; border-radius:10px; margin-top:10px;">
+<h3>💳 Pay ₦2000 To Activate</h3>
+
+<img src="https://i.ibb.co/Pvz0zyVZ/1777417845030.png">
 
 <p>
-After payment, use this as your <b>Remark:</b>
+Use your generated ID as payment remark
 </p>
 
-<p id="remarkBox" style="color:#22c55e; font-weight:bold;"></p>
+<p id="remarkBox"></p>
 
-<button id="copyBtn">Copy Remark</button>
+<button onclick="copyRemark()">
+Copy Remark
+</button>
 
-<br><br>
+<button onclick="openWhatsApp()">
+Send Proof On WhatsApp
+</button>
 
-<!-- Send proof button to WhatsApp -->
-<button id="whatsAppBtn">Send Proof on WhatsApp</button>
+<button onclick="iHavePaid()">
+I Have Paid
+</button>
+
+</div>
 
 <script>
-// Define global variable for the generated remark
-let generatedRemark = "";
 
-// Function to generate unique remark
-function generateRemark(name, service, location) {
-  let unique = Math.floor(Math.random() * 100000); // Generate random number
-  generatedRemark = name + "-" + service + "-" + location + "-" + unique; // Create remark
-  document.getElementById("remarkBox").innerText = generatedRemark; // Display remark
-}
+let businessId = "";
 
-// Register function triggered by button
-async function register() {
-  try {
-    let name = document.getElementById("name").value;
-    let service = document.getElementById("service").value;
-    let location = document.getElementById("location").value;
-    let phone = document.getElementById("phone").value;
+async function registerBusiness(){
 
-    if (!name || !service || !location || !phone) {
-      alert("Fill all fields");
-      return;
-    }
+  let name =
+    document.getElementById("name").value;
 
-    let res = await fetch("https://service-backend-jezm.onrender.com/business/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, service, location, phone })
-    });
+  let service =
+    document.getElementById("service").value;
+
+  let location =
+    document.getElementById("location").value;
+
+  let phone =
+    document.getElementById("phone").value;
+
+  if(!name || !service || !location || !phone){
+
+    alert("Fill all fields");
+
+    return;
+
+  }
+
+  try{
+
+    let res = await fetch(
+      "https://service-backend-jezm.onrender.com/business/signup",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          name,
+          service,
+          location,
+          phone
+        })
+      }
+    );
 
     let data = await res.json();
 
-    document.getElementById("result").innerText =
-      "Your ID: " + data.business._id;
+    if(data.error){
 
-    generateRemark(name, service, location); // Generate remark after registration
-  } catch (err) {
-    console.error(err);
-    alert("Error registering");
+      alert(data.error);
+
+      return;
+
+    }
+
+    businessId = data.business._id;
+
+    document.getElementById("result").innerHTML = `
+      Registration Successful ✔<br><br>
+      Your Business ID:<br>
+      <b>${businessId}</b>
+    `;
+
+    document.getElementById("remarkBox")
+      .innerText = businessId;
+
+  }catch(err){
+
+    console.log(err);
+
+    alert("Registration failed");
+
   }
+
 }
 
-// Function to copy remark to clipboard
-function copyRemark() {
-  navigator.clipboard.writeText(generatedRemark);  // Copy the remark to clipboard
+function copyRemark(){
+
+  let text =
+    document.getElementById("remarkBox").innerText;
+
+  navigator.clipboard.writeText(text);
+
   alert("Remark copied ✔");
+
 }
 
-// Function to open WhatsApp with payment proof
-function openWhatsApp() {
-  let phone = "2348107661212";  // Your customer care phone number
-  let message = "Hello, I have made payment.\n\nRemark: " + generatedRemark;  // Payment message
-  let link = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);  // WhatsApp link
-  window.open(link, "_blank");  // Open WhatsApp chat in a new tab
+function openWhatsApp(){
+
+  let message =
+`Hello Admin,
+I have made payment.
+
+Business ID:
+${businessId}
+
+Please verify my payment.`;
+
+  let link =
+"https://wa.me/2348107661212?text="
++
+encodeURIComponent(message);
+
+  window.open(link,"_blank");
+
 }
 
-// Add event listeners to the buttons
-document.getElementById("registerBtn").addEventListener("click", register); // Register button
-document.getElementById("copyBtn").addEventListener("click", copyRemark); // Copy Remark button
-document.getElementById("whatsAppBtn").addEventListener("click", openWhatsApp); // WhatsApp button
+async function iHavePaid(){
+
+  if(!businessId){
+
+    alert("Please register first");
+
+    return;
+
+  }
+
+  try{
+
+    let res = await fetch(
+      "https://service-backend-jezm.onrender.com/business/pay",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          id:businessId
+        })
+      }
+    );
+
+    let data = await res.json();
+
+    alert(data.message || data.error);
+
+  }catch(err){
+
+    console.log(err);
+
+    alert("Payment update failed");
+
+  }
+
+}
+
 </script>
 
 </body>
