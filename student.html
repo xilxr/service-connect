@@ -90,6 +90,7 @@
       color:#22c55e;
       margin-top:5px;
       font-size:16px;
+      text-transform:capitalize;
     }
 
     .location{
@@ -131,6 +132,19 @@
       text-align:center;
       margin-top:40px;
       color:#94a3b8;
+    }
+
+    .rateBox{
+      margin-top:15px;
+    }
+
+    .rateBtn{
+      width:auto;
+      padding:8px 12px;
+      margin-right:5px;
+      background:#1e293b;
+      border:1px solid #334155;
+      font-size:14px;
     }
 
   </style>
@@ -267,6 +281,28 @@ async function findWorkers(){
           AVAILABLE NOW
         </div>
 
+        <div class="rateBox">
+
+          <button
+          class="rateBtn"
+          onclick="rateBusiness('${worker._id}',5)">
+          ⭐5
+          </button>
+
+          <button
+          class="rateBtn"
+          onclick="rateBusiness('${worker._id}',4)">
+          ⭐4
+          </button>
+
+          <button
+          class="rateBtn"
+          onclick="rateBusiness('${worker._id}',3)">
+          ⭐3
+          </button>
+
+        </div>
+
         <button
         class="actionBtn"
         onclick="whatsappWorker('${worker.phone}')">
@@ -323,6 +359,43 @@ function callWorker(phone){
 
   window.location.href =
   "tel:" + phone;
+
+}
+
+/*
+  RATE BUSINESS
+*/
+async function rateBusiness(id, rating){
+
+  try{
+
+    let res = await fetch(
+      "https://service-backend-jezm.onrender.com/rate",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          id,
+          rating
+        })
+      }
+    );
+
+    let data = await res.json();
+
+    alert(data.message || data.error);
+
+  }catch(err){
+
+    console.log(err);
+
+    alert("Rating failed");
+
+  }
 
 }
 
