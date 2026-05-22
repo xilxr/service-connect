@@ -53,10 +53,7 @@ const Business = mongoose.model("Business", {
 
   shortBio: String,
 
-  approvedAt: {
-    type: Date,
-    default: Date.now
-  }
+  approvedAt: Date
 });
 
 /*
@@ -205,7 +202,45 @@ app.post("/admin/approve", async (req, res) => {
   res.json({
     message:"Business activated ✔"
   });
+/*
+AUTO EXPIRE BUSINESS AFTER 30 DAYS
+*/
 
+app.get("/business/check-expiry", async (req, res) => {
+
+  const businesses = await Business.find({
+    verified:true
+  });
+
+  const now = new Date();
+
+  for(let biz of businesses){
+
+    const approvedDate =
+      new Date(biz.approvedAt);
+
+    const diffTime =
+      now - approvedDate;
+
+    const diffDays =
+      diffTime / (1000 * 60 * 60 * 24);
+
+    if(diffDays >= 30){
+
+      biz.verified = false;
+
+      await biz.save();
+
+    }
+
+  }
+
+  res.json({
+    message:"Expiry check complete"
+  });
+
+});
+  
 });
 
   } catch (err) {
