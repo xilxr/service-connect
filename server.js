@@ -399,6 +399,32 @@ app.get("/admin/businesses", async (req, res) => {
 
     res.json(data);
 
+    /*
+  GET SINGLE BUSINESS
+*/
+app.get("/business/:id", async (req, res) => {
+
+  try {
+
+    const business = await Business.findById(req.params.id);
+
+    if (!business) {
+      return res.json({
+        error: "Business not found"
+      });
+    }
+
+    res.json(business);
+
+  } catch (err) {
+
+    res.json({
+      error: "Invalid Business ID"
+    });
+
+  }
+
+});
   } catch (err) {
 
     console.log(err);
