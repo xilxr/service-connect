@@ -24,6 +24,7 @@ BUSINESS SCHEMA
 ====================================
 */
 const Business = mongoose.model("Business", {
+  businessCode: String,
   name: String,
   service: String,
   phone: String,
@@ -49,13 +50,61 @@ const Business = mongoose.model("Business", {
     default: false
   },
 
-  profilePicture: String,
+  profilePicture: {
+    type: String,
+    default: ""
+  },
 
-  shortBio: String,
+  shortBio: {
+    type: String,
+    default: "Trusted Service Connect professional."
+  },
 
-  approvedAt: Date
+  approvedAt: {
+    type: Date,
+    default: null
+  }
 });
 
+/*
+  GENERATE SERVICE CONNECT BUSINESS CODE
+*/
+
+function generateBusinessCode(service, campus = "FUTO") {
+
+  const map = {
+    electrician: "ELEC",
+    electrical: "ELEC",
+    plumber: "PLUM",
+    mechanic: "MECH",
+    baker: "BAKE",
+    tailor: "TAIL",
+    barber: "BARB",
+    fashion: "FASH",
+    computer: "TECH",
+    technician: "TECH"
+  };
+
+  let prefix = "GEN";
+
+  for (let key in map) {
+
+    if (service.toLowerCase().includes(key)) {
+
+      prefix = map[key];
+
+      break;
+
+    }
+
+  }
+
+  const random =
+    Math.floor(100000 + Math.random() * 900000);
+
+  return `SC-${campus}-${prefix}-${random}`;
+
+}
 /*
 ====================================
 STUDENT SCHEMA
@@ -109,15 +158,26 @@ app.post("/business/signup", async (req, res) => {
       });
     }
 
-    const newBiz = await Business.create({
-      name,
-      service: service.toLowerCase(),
-      phone,
-      location: location.toLowerCase(),
+    const businessCode =
+generateBusinessCode(service);
 
-      paid: false,
-      verified: false
-    });
+const newBiz = await Business.create({
+
+  businessCode,
+
+  name,
+
+  service: service.toLowerCase(),
+
+  phone,
+
+  location: location.toLowerCase(),
+
+  paid: false,
+
+  verified: false
+
+});
 
     res.json({
       business: newBiz
