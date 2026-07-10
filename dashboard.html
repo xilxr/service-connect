@@ -1,1 +1,6 @@
+const businessId = localStorage.getItem("businessId");
 
+if (!businessId) {
+    alert("Please register first.");
+    window.location.href = "business.html";
+}
