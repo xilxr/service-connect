@@ -110,6 +110,7 @@ I Have Paid
 <script>
 
 let businessId = "";
+let businessCode = "";
 
 async function registerBusiness(){
 
@@ -164,15 +165,25 @@ async function registerBusiness(){
     }
 
     businessId = data.business._id;
+businessCode = data.business.businessCode;
 
     document.getElementById("result").innerHTML = `
-      Registration Successful ✔<br><br>
-      Your Business ID:<br>
-      <b>${businessId}</b>
-    `;
+<h3 style="color:#22c55e;">
+🎉 Registration Successful
+</h3>
 
-    document.getElementById("remarkBox")
-      .innerText = businessId;
+<p>Your Service Connect Business Code</p>
+
+<h2 style="color:#22c55e;">
+${businessCode}
+</h2>
+
+<p>
+Please use this code as your payment remark.
+</p>
+`;
+
+    document.getElementById("remarkBox").innerText = businessCode;
 
   }catch(err){
 
@@ -201,8 +212,8 @@ function openWhatsApp(){
 `Hello Admin,
 I have made payment.
 
-Business ID:
-${businessId}
+Business Code:
+${businessCode}
 
 Please verify my payment.`;
 
