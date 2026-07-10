@@ -66,11 +66,11 @@ const Business = mongoose.model("Business", {
   }
 });
 
-/*
+
+  /*
   GENERATE SERVICE CONNECT BUSINESS CODE
 */
-
-function generateBusinessCode(service, campus = "FUTO") {
+async function generateBusinessCode(service, campus = "FUTO") {
 
   const map = {
     electrician: "ELEC",
@@ -88,21 +88,26 @@ function generateBusinessCode(service, campus = "FUTO") {
   let prefix = "GEN";
 
   for (let key in map) {
-
     if (service.toLowerCase().includes(key)) {
-
       prefix = map[key];
-
       break;
-
     }
+  }
+
+  let businessCode;
+  let exists = true;
+
+  while (exists) {
+
+    const random = Math.floor(100000 + Math.random() * 900000);
+
+    businessCode = `SC-${campus}-${prefix}-${random}`;
+
+    exists = await Business.findOne({ businessCode });
 
   }
 
-  const random =
-    Math.floor(100000 + Math.random() * 900000);
-
-  return `SC-${campus}-${prefix}-${random}`;
+  return businessCode;
 
 }
 /*
@@ -159,8 +164,7 @@ app.post("/business/signup", async (req, res) => {
     }
 
     const businessCode =
-generateBusinessCode(service);
-
+await generateBusinessCode(service);
 const newBiz = await Business.create({
 
   businessCode,
