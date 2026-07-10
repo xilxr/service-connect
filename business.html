@@ -167,6 +167,14 @@ async function registerBusiness(){
     businessId = data.business._id;
 businessCode = data.business.businessCode;
 
+    // Save business information locally
+localStorage.setItem("businessId", businessId);
+localStorage.setItem("businessCode", businessCode);
+localStorage.setItem("businessName", data.business.name);
+
+// Redirect to Business Dashboard
+window.location.href = "dashboard.html";
+    
     document.getElementById("result").innerHTML = `
 <h3 style="color:#22c55e;">
 🎉 Registration Successful
