@@ -454,7 +454,50 @@ app.post("/business/pay", async (req, res) => {
   }
 
 });
+/*
+================================================
+UPDATE BUSINESS PROFILE
+================================================
+*/
 
+app.post("/business/updateProfile", async (req, res) => {
+
+    try {
+
+        const {
+            businessId,
+            profilePicture,
+            shortBio
+        } = req.body;
+
+        const business = await Business.findById(businessId);
+
+        if (!business) {
+            return res.json({
+                error: "Business not found"
+            });
+        }
+
+        business.profilePicture = profilePicture;
+        business.shortBio = shortBio;
+
+        await business.save();
+
+        res.json({
+    message: "Profile updated successfully ✅",
+    business
+});
+    } catch (err) {
+
+        console.log(err);
+
+        res.json({
+            error: "Failed to update profile"
+        });
+
+    }
+
+});
 /*
 =========================================
 GET SINGLE BUSINESS
