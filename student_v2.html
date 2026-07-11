@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Find a Worker - Service Connect</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#020617;
+color:white;
+}
+
+header{
+
+background:linear-gradient(135deg,#16a34a,#22c55e);
+
+padding:25px;
+
+border-bottom-left-radius:25px;
+border-bottom-right-radius:25px;
+
+text-align:center;
+
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+
+}
+
+header h1{
+
+font-size:30px;
+
+}
+
+header p{
+
+margin-top:8px;
+
+opacity:.95;
+
+}
+
+.container{
+
+padding:20px;
+
+}
+
+.searchBox{
+
+background:#0f172a;
+
+padding:20px;
+
+border-radius:20px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.3);
+
+}
+
+input{
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+outline:none;
+
+border-radius:12px;
+
+margin-top:12px;
+
+font-size:15px;
+
+}
+
+button{
+
+width:100%;
+
+padding:16px;
+
+margin-top:15px;
+
+border:none;
+
+border-radius:12px;
+
+background:#22c55e;
+
+color:white;
+
+font-size:16px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+transform:scale(1.02);
+
+}
+
+#loading{
+
+display:none;
+
+text-align:center;
+
+margin-top:20px;
+
+color:#22c55e;
+
+font-weight:bold;
+
+}
+
+.workerCard{
+
+background:#0f172a;
+
+margin-top:20px;
+
+padding:18px;
+
+border-radius:18px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.3);
+
+}
+
+.topRow{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+}
+
+.profile{
+
+width:75px;
+
+height:75px;
+
+border-radius:50%;
+
+object-fit:cover;
+
+border:3px solid #22c55e;
+
+}
+
+.name{
+
+font-size:22px;
+
+font-weight:bold;
+
+}
+
+.service{
+
+color:#22c55e;
+
+margin-top:5px;
+
+}
+
+.location{
+
+margin-top:5px;
+
+color:#cbd5e1;
+
+}
+
+.bio{
+
+margin-top:15px;
+
+line-height:1.7;
+
+color:#cbd5e1;
+
+}
+
+.rating{
+
+margin-top:12px;
+
+font-weight:bold;
+
+color:#facc15;
+
+}
+
+.badge{
+
+display:inline-block;
+
+margin-top:12px;
+
+padding:8px 14px;
+
+border-radius:20px;
+
+background:#16a34a;
+
+font-size:13px;
+
+font-weight:bold;
+
+}
+
+.action{
+
+display:flex;
+
+gap:10px;
+
+margin-top:18px;
+
+}
+
+.action button{
+
+margin:0;
+
+}
+
+.call{
+
+background:#2563eb;
+
+}
+
+.rate{
+
+background:#f59e0b;
+
+}
+
+.empty{
+
+text-align:center;
+
+margin-top:30px;
+
+color:#94a3b8;
+
+font-size:16px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🔍 Find a Worker</h1>
+
+<p>Search verified professionals around you</p>
+
+</header>
+
+<div class="container">
+
+<div class="searchBox">
+
+<input
+id="service"
+placeholder="What service do you need?">
+
+<input
+id="location"
+placeholder="Enter your location (e.g. FUTO)">
+
+<button onclick="findWorkers()">
+
+Search Now
+
+</button>
+
+<div id="loading">
+
+Searching nearby professionals...
+
+</div>
+
+</div>
+
+<div id="results"></div>
+
+</div>
+
+<script>
+
+const API =
+"https://service-backend-jezm.onrender.com";
+async function findWorkers(){
+
+const service=
+document.getElementById("service").value.trim();
+
+const location=
+document.getElementById("location").value.trim();
+
+if(!service || !location){
+
+alert("Please fill in all fields.");
+
+return;
+
+}
+
+document.getElementById("loading").style.display="block";
+
+document.getElementById("results").innerHTML="";
+
+try{
+
+const res=await fetch(API+"/request",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+message:service,
+
+location:location
+
+})
+
+});
+
+const data=await res.json();
+
+document.getElementById("loading").style.display="none";
+
+if(!data.matches || data.matches.length===0){
+
+document.getElementById("results").innerHTML=
+
+'<div class="empty">No verified worker found in your area.</div>';
+
+return;
+
+}
+
+let html="";
+
+data.matches.forEach(worker=>{
+
+const photo=
+
+worker.profilePicture && worker.profilePicture!=""
+
+?worker.profilePicture
+
+:"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+const bio=
+
+worker.shortBio && worker.shortBio!=""
+
+?worker.shortBio
+
+:"Trusted Service Connect Professional.";
+
+const rating=
+
+Number(worker.rating||0).toFixed(1);
+
+html+=`
+
+<div class="workerCard">
+
+<div class="topRow">
+
+<img class="profile" src="${photo}">
+
+<div>
+
+<div class="name">${worker.name}</div>
+
+<div class="service">${worker.service}</div>
+
+<div class="location">📍 ${worker.location}</div>
+
+</div>
+
+</div>
+
+<div class="bio">
+
+${bio}
+
+</div>
+
+<div class="rating">
+
+⭐ ${rating} (${worker.reviews} Reviews)
+
+</div>
+
+<div class="badge">
+
+🟢 AVAILABLE
+
+</div>
+
+<div class="action">
+
+<button onclick="chat('${worker.phone}')">
+
+WhatsApp
+
+</button>
+
+<button class="call"
+
+onclick="callWorker('${worker.phone}')">
+
+Call
+
+</button>
+
+<button class="rate"
+
+onclick="rateBusiness('${worker._id}')">
+
+⭐ Rate
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+document.getElementById("results").innerHTML=html;
+
+}catch(err){
+
+console.log(err);
+
+document.getElementById("loading").style.display="none";
+
+document.getElementById("results").innerHTML=
+
+'<div class="empty">Unable to connect to the server.</div>';
+
+}
+
+}
+
+function chat(phone){
+
+let number=phone;
+
+if(number.startsWith("0")){
+
+number="234"+number.substring(1);
+
+}
+
+window.open(
+
+"https://wa.me/"+number,
+
+"_blank"
+
+);
+
+}
+
+function callWorker(phone){
+
+window.location.href="tel:"+phone;
+
+}
+
+async function rateBusiness(id){
+
+const score=prompt("Rate this worker (1-5)");
+
+if(!score)return;
+
+const rating=parseInt(score);
+
+if(rating<1 || rating>5){
+
+alert("Please enter a rating between 1 and 5.");
+
+return;
+
+}
+
+try{
+
+const res=await fetch(API+"/rate",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+id:id,
+
+rating:rating
+
+})
+
+});
+
+const data=await res.json();
+
+alert(data.message || data.error);
+
+}catch(err){
+
+console.log(err);
+
+alert("Rating failed.");
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>
