@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>Business Dashboard</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+
+background:#020617;
+color:white;
+
+}
+
+.cover{
+
+height:180px;
+
+background:linear-gradient(135deg,#22c55e,#16a34a);
+
+position:relative;
+
+}
+
+.cover img{
+
+width:100%;
+height:180px;
+object-fit:cover;
+
+}
+
+.profile{
+
+position:absolute;
+
+bottom:-45px;
+
+left:20px;
+
+width:90px;
+
+height:90px;
+
+border-radius:50%;
+
+border:4px solid #020617;
+
+background:white;
+
+object-fit:cover;
+
+}
+
+.content{
+
+padding:65px 18px 20px;
+
+}
+
+.name{
+
+font-size:28px;
+
+font-weight:bold;
+
+}
+
+.code{
+
+margin-top:5px;
+
+color:#94a3b8;
+
+}
+
+.badge{
+
+display:inline-block;
+
+margin-top:10px;
+
+padding:8px 14px;
+
+border-radius:20px;
+
+font-size:13px;
+
+font-weight:bold;
+
+}
+
+.verified{
+
+background:#16a34a;
+
+}
+
+.pending{
+
+background:#dc2626;
+
+}
+
+.stats{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:12px;
+
+margin-top:25px;
+
+}
+
+.box{
+
+background:#0f172a;
+
+padding:18px;
+
+border-radius:15px;
+
+text-align:center;
+
+}
+
+.box h2{
+
+color:#22c55e;
+
+margin-bottom:8px;
+
+}
+
+.menu{
+
+margin-top:25px;
+
+}
+
+.menu button{
+
+width:100%;
+
+padding:16px;
+
+margin-top:12px;
+
+border:none;
+
+border-radius:12px;
+
+background:#0f172a;
+
+color:white;
+
+font-size:16px;
+
+cursor:pointer;
+
+text-align:left;
+
+}
+
+.logout{
+
+background:#dc2626!important;
+
+}
+
+.available{
+
+background:#16a34a!important;
+
+}
+
+.busy{
+
+background:#f59e0b!important;
+
+}
+
+.offline{
+
+background:#475569!important;
+
+}
+
+#countdown{
+
+margin-top:15px;
+
+color:#22c55e;
+
+font-weight:bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="cover">
+
+<img
+id="coverPhoto"
+src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1200">
+
+<img
+
+id="profilePicture"
+
+class="profile"
+
+src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+
+</div>
+
+<div class="content">
+
+<div
+class="name"
+id="businessName">
+
+Loading...
+
+</div>
+
+<div
+
+class="code"
+
+id="businessCode">
+
+</div>
+
+<div
+
+id="verifyBadge"
+
+class="badge pending">
+
+Checking Status...
+
+</div>
+
+<div id="countdown">
+
+</div>
+
+<div class="stats">
+
+<div class="box">
+
+<h2 id="rating">
+
+0.0
+
+</h2>
+
+<p>⭐ Rating</p>
+
+</div>
+
+<div class="box">
+
+<h2 id="reviews">
+
+0
+
+</h2>
+
+<p>Reviews</p>
+
+</div>
+
+<div class="box">
+
+<h2 id="jobs">
+
+0
+
+</h2>
+
+<p>Jobs Done</p>
+
+</div>
+
+<div class="box">
+
+<h2 id="trust">
+
+100%
+
+</h2>
+
+<p>Trust Score</p>
+
+</div>
+
+</div>
+
+<div class="menu">
+
+<button
+class="available"
+onclick="setAvailability('Available')">
+
+🟢 Available
+
+</button>
+
+<button
+class="busy"
+onclick="setAvailability('Busy')">
+
+🟠 Busy
+
+</button>
+
+<button
+class="offline"
+onclick="setAvailability('Offline')">
+
+⚫ Offline
+
+</button>
+
+<button
+onclick="location.href='edit-profile.html'">
+
+✏ Edit Profile
+
+</button>
+
+<button
+onclick="location.href='notification.html'">
+
+🔔 Notifications
+
+</button>
+
+<button
+class="logout"
+onclick="logout()">
+
+🚪 Logout
+
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const id =
+localStorage.getItem("businessId");
+async function loadBusiness(){
+
+if(!id){
+
+window.location.href="business-login.html";
+
+return;
+
+}
+
+try{
+
+const res=await fetch(
+"https://service-backend-jezm.onrender.com/business/"+id
+);
+
+const business=await res.json();
+
+if(business.error){
+
+alert(business.error);
+
+window.location.href="business-login.html";
+
+return;
+
+}
+
+document.getElementById("businessName").innerText=
+business.name;
+
+document.getElementById("businessCode").innerText=
+business.businessCode;
+
+document.getElementById("rating").innerText=
+Number(business.rating).toFixed(1);
+
+document.getElementById("reviews").innerText=
+business.reviews;
+
+document.getElementById("jobs").innerText=
+business.jobsCompleted || 0;
+
+document.getElementById("trust").innerText=
+(business.trustScore || 100)+"%";
+
+if(business.profilePicture){
+
+document.getElementById("profilePicture").src=
+business.profilePicture;
+
+}
+
+if(business.coverPhoto){
+
+document.getElementById("coverPhoto").src=
+business.coverPhoto;
+
+}
+
+const badge=
+document.getElementById("verifyBadge");
+
+if(business.verified){
+
+badge.innerHTML="✔ VERIFIED";
+
+badge.className="badge verified";
+
+}else{
+
+badge.innerHTML="PENDING APPROVAL";
+
+badge.className="badge pending";
+
+}
+
+if(business.approvedAt){
+
+startCountdown(business.approvedAt);
+
+}
+
+}catch(err){
+
+console.log(err);
+
+alert("Unable to load dashboard.");
+
+}
+
+}
+
+function startCountdown(date){
+
+const end=
+new Date(date);
+
+end.setDate(end.getDate()+30);
+
+setInterval(()=>{
+
+const now=new Date();
+
+const diff=end-now;
+
+if(diff<=0){
+
+document.getElementById("countdown").innerHTML=
+"Approval Expired";
+
+return;
+
+}
+
+const days=
+Math.floor(diff/(1000*60*60*24));
+
+const hours=
+Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+
+document.getElementById("countdown").innerHTML=
+
+"Approval expires in "+
+days+
+" day(s) "+
+hours+
+" hr";
+
+},1000);
+
+}
+
+async function setAvailability(status){
+
+try{
+
+const res=await fetch(
+
+"https://service-backend-jezm.onrender.com/business/availability",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+id:id,
+
+availability:status
+
+})
+
+}
+
+);
+
+const data=await res.json();
+
+alert(data.message || data.error);
+
+}catch(err){
+
+console.log(err);
+
+alert("Failed to update availability.");
+
+}
+
+}
+
+function logout(){
+
+localStorage.removeItem("businessId");
+
+localStorage.removeItem("businessCode");
+
+localStorage.removeItem("businessName");
+
+window.location.href="business-login.html";
+
+}
+
+loadBusiness();
+
+</script>
+
+</body>
+</html>
