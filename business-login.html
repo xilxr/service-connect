@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Service Connect Business Login</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+
+background:#020617;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:20px;
+
+}
+
+.card{
+
+width:100%;
+max-width:420px;
+background:#0f172a;
+padding:25px;
+border-radius:20px;
+box-shadow:0 0 20px rgba(0,0,0,.35);
+
+}
+
+.logo{
+
+font-size:34px;
+text-align:center;
+margin-bottom:10px;
+
+}
+
+h2{
+
+text-align:center;
+margin-bottom:10px;
+color:#22c55e;
+
+}
+
+.small{
+
+text-align:center;
+color:#94a3b8;
+margin-bottom:25px;
+
+}
+
+input{
+
+width:100%;
+padding:15px;
+border:none;
+border-radius:10px;
+margin-top:15px;
+font-size:15px;
+outline:none;
+
+}
+
+button{
+
+width:100%;
+padding:15px;
+border:none;
+border-radius:10px;
+margin-top:18px;
+background:#22c55e;
+color:white;
+font-size:16px;
+cursor:pointer;
+
+}
+
+button:hover{
+
+opacity:.9;
+
+}
+
+.options{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:15px;
+font-size:14px;
+
+}
+
+.options label{
+
+display:flex;
+align-items:center;
+gap:6px;
+
+}
+
+.link{
+
+text-align:center;
+margin-top:20px;
+
+}
+
+.link a{
+
+color:#22c55e;
+text-decoration:none;
+
+}
+
+#error{
+
+margin-top:15px;
+text-align:center;
+color:#ef4444;
+font-weight:bold;
+
+}
+
+#loading{
+
+display:none;
+text-align:center;
+margin-top:15px;
+color:#22c55e;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="logo">
+💼
+</div>
+
+<h2>
+Service Connect
+</h2>
+
+<p class="small">
+Business Owner Login
+</p>
+
+<input
+id="businessCode"
+placeholder="Business Code">
+
+<input
+id="password"
+type="password"
+placeholder="Password">
+
+<div class="options">
+
+<label>
+
+<input
+type="checkbox"
+id="remember">
+
+Remember Me
+
+</label>
+
+<a
+href="#"
+onclick="togglePassword()"
+style="color:#22c55e;">
+
+Show Password
+
+</a>
+
+</div>
+
+<button
+onclick="loginBusiness()">
+
+Login
+
+</button>
+
+<div id="loading">
+
+Logging in...
+
+</div>
+
+<div id="error"></div>
+
+<div class="link">
+
+Don't have an account?
+
+<br><br>
+
+<a href="business.html">
+
+Register Here
+
+</a>
+
+</div>
+
+</div>
+
+<script>
+
+function togglePassword(){
+
+let pass =
+document.getElementById("password");
+
+if(pass.type==="password"){
+
+pass.type="text";
+
+}else{
+
+pass.type="password";
+
+}
+
+}
+async function loginBusiness(){
+
+document.getElementById("error").innerHTML="";
+document.getElementById("loading").style.display="block";
+
+const businessCode=
+document.getElementById("businessCode").value.trim();
+
+const password=
+document.getElementById("password").value;
+
+if(!businessCode || !password){
+
+document.getElementById("loading").style.display="none";
+
+document.getElementById("error").innerHTML=
+"Enter your Business Code and Password.";
+
+return;
+
+}
+
+try{
+
+const res=await fetch(
+"https://service-backend-jezm.onrender.com/business/login",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+businessCode,
+password
+
+})
+
+}
+
+);
+
+const data=await res.json();
+
+document.getElementById("loading").style.display="none";
+
+if(data.error){
+
+document.getElementById("error").innerHTML=data.error;
+
+return;
+
+}
+
+/*
+SAVE LOGIN
+*/
+
+localStorage.setItem(
+"businessId",
+data.business._id
+);
+
+localStorage.setItem(
+"businessCode",
+data.business.businessCode
+);
+
+localStorage.setItem(
+"businessName",
+data.business.name
+);
+
+if(document.getElementById("remember").checked){
+
+localStorage.setItem(
+"rememberBusiness",
+"true"
+);
+
+}else{
+
+localStorage.removeItem(
+"rememberBusiness"
+);
+
+}
+
+/*
+GO TO DASHBOARD
+*/
+
+window.location.href=
+"business-dashboard.html";
+
+}catch(err){
+
+document.getElementById("loading").style.display="none";
+
+document.getElementById("error").innerHTML=
+"Unable to connect to server.";
+
+console.log(err);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
