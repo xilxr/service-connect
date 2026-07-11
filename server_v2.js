@@ -938,7 +938,6 @@ app.post("/notification/send", async (req, res) => {
   }
 
 });
-
 /*
 =========================================
 GET NOTIFICATIONS
@@ -962,6 +961,39 @@ app.get("/notifications/:receiverId", async (req, res) => {
 
 });
 
+app.post("/business/availability", async (req, res) => {
+
+  try {
+
+    const { id, availability } = req.body;
+
+    const business = await Business.findById(id);
+
+    if (!business) {
+      return res.json({
+        error: "Business not found"
+      });
+    }
+
+    business.availability = availability;
+
+    await business.save();
+
+    res.json({
+      message: "Availability updated ✔"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Update failed"
+    });
+
+  }
+
+});
 /*
 =========================================
 START SERVER
