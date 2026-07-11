@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>
+Business Dashboard
+</title>
+
+<style>
+
+*{
+
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+
+}
+
+body{
+
+background:#020617;
+color:white;
+padding:18px;
+
+}
+
+.header{
+
+text-align:center;
+margin-bottom:20px;
+
+}
+
+.header h1{
+
+color:#22c55e;
+font-size:30px;
+
+}
+
+.header p{
+
+color:#94a3b8;
+margin-top:8px;
+
+}
+
+.card{
+
+background:#0f172a;
+border-radius:18px;
+padding:18px;
+margin-top:18px;
+
+box-shadow:0 0 12px rgba(0,0,0,.3);
+
+}
+
+.profile{
+
+width:90px;
+height:90px;
+border-radius:50%;
+object-fit:cover;
+display:block;
+margin:auto;
+border:3px solid #22c55e;
+
+}
+
+.name{
+
+text-align:center;
+font-size:24px;
+margin-top:12px;
+font-weight:bold;
+
+}
+
+.service{
+
+text-align:center;
+color:#22c55e;
+margin-top:5px;
+
+}
+
+.info{
+
+margin-top:15px;
+line-height:2;
+
+}
+
+.label{
+
+color:#94a3b8;
+
+}
+
+.value{
+
+color:white;
+font-weight:bold;
+
+}
+
+.status{
+
+display:inline-block;
+
+padding:6px 12px;
+
+border-radius:20px;
+
+font-size:13px;
+
+font-weight:bold;
+
+margin-top:10px;
+
+}
+
+.verified{
+
+background:#16a34a;
+
+}
+
+.pending{
+
+background:#dc2626;
+
+}
+
+button{
+
+width:100%;
+
+padding:14px;
+
+border:none;
+
+border-radius:12px;
+
+margin-top:14px;
+
+background:#22c55e;
+
+color:white;
+
+font-size:16px;
+
+cursor:pointer;
+
+}
+
+.logout{
+
+background:#ef4444;
+
+}
+
+textarea{
+
+width:100%;
+
+height:120px;
+
+margin-top:12px;
+
+padding:12px;
+
+border:none;
+
+border-radius:12px;
+
+resize:none;
+
+outline:none;
+
+}
+
+input{
+
+width:100%;
+
+padding:14px;
+
+margin-top:12px;
+
+border:none;
+
+border-radius:12px;
+
+outline:none;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>
+💼 Business Dashboard
+</h1>
+
+<p>
+
+Welcome back to Service Connect
+
+</p>
+
+</div>
+
+<div id="dashboard">
+
+Loading...
+
+</div>
+
+<script>
+
+const API="https://service-backend-jezm.onrender.com";
+
+const businessId=
+localStorage.getItem("businessId");
+
+if(!businessId){
+
+window.location.href=
+"business-login_v2.html";
+
+}
+
+loadBusiness();
+async function loadBusiness(){
+
+try{
+
+const res=await fetch(
+
+API+"/business/"+businessId
+
+);
+
+const business=await res.json();
+
+if(business.error){
+
+alert(business.error);
+
+window.location.href="business-login_v2.html";
+
+return;
+
+}
+
+const photo=
+
+business.profilePicture && business.profilePicture!==""
+
+?business.profilePicture
+
+:"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+const verified=
+
+business.verified
+
+?'<span class="status verified">✅ VERIFIED</span>'
+
+:'<span class="status pending">⏳ PENDING APPROVAL</span>';
+
+document.getElementById("dashboard").innerHTML=`
+
+<div class="card">
+
+<img class="profile"
+
+src="${photo}">
+
+<div class="name">
+
+${business.name}
+
+</div>
+
+<div class="service">
+
+${business.service}
+
+</div>
+
+<div class="info">
+
+<div>
+
+<span class="label">
+
+Business Code:
+
+</span>
+
+<span class="value">
+
+${business.businessCode}
+
+</span>
+
+</div>
+
+<div>
+
+<span class="label">
+
+Phone:
+
+</span>
+
+<span class="value">
+
+${business.phone}
+
+</span>
+
+</div>
+
+<div>
+
+<span class="label">
+
+Location:
+
+</span>
+
+<span class="value">
+
+${business.location}
+
+</span>
+
+</div>
+
+<div>
+
+<span class="label">
+
+Rating:
+
+</span>
+
+<span class="value">
+
+⭐ ${Number(business.rating).toFixed(1)}
+
+(${business.reviews} Reviews)
+
+</span>
+
+</div>
+
+<div style="margin-top:10px;">
+
+${verified}
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Edit Business Profile
+
+</h3>
+
+<input
+
+id="profilePicture"
+
+placeholder="Profile Image URL"
+
+value="${business.profilePicture||""}">
+
+<textarea
+
+id="shortBio"
+
+placeholder="Short Bio">${business.shortBio||""}</textarea>
+
+<button
+
+onclick="updateProfile()">
+
+Save Changes
+
+</button>
+
+<button
+
+class="logout"
+
+onclick="logout()">
+
+Logout
+
+</button>
+
+</div>
+
+`;
+
+}catch(err){
+
+console.log(err);
+
+document.getElementById("dashboard").innerHTML=
+
+"Failed to load dashboard.";
+
+}
+}
