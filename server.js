@@ -465,13 +465,12 @@ app.post("/business/updateProfile", async (req, res) => {
     try {
 
         const {
-            businessId,
-            profilePicture,
-            shortBio
-        } = req.body;
+    id,
+    profilePicture,
+    shortBio
+} = req.body;
 
-        const business = await Business.findById(businessId);
-
+        const business = await Business.findById(id);
         if (!business) {
             return res.json({
                 error: "Business not found"
