@@ -377,11 +377,11 @@ app.post("/business/login", async (req, res) => {
 
   try {
 
-    const { businessCode } = req.body;
+    const businessCode = req.body.businessCode.trim().toUpperCase();
 
-    const business = await Business.findOne({
-      businessCode
-    });
+const business = await Business.findOne({
+    businessCode
+});
 
     if (!business) {
 
