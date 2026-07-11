@@ -435,3 +435,72 @@ document.getElementById("dashboard").innerHTML=
 
 }
 }
+async function updateProfile(){
+
+const profilePicture=
+document.getElementById("profilePicture").value.trim();
+
+const shortBio=
+document.getElementById("shortBio").value.trim();
+
+try{
+
+const res=await fetch(
+
+API+"/business/updateProfile",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+id:businessId,
+
+profilePicture,
+
+shortBio
+
+})
+
+}
+
+);
+
+const data=await res.json();
+
+alert(data.message||data.error);
+
+loadBusiness();
+
+}catch(err){
+
+console.log(err);
+
+alert("Profile update failed.");
+
+}
+
+}
+
+function logout(){
+
+localStorage.removeItem("businessId");
+
+localStorage.removeItem("businessCode");
+
+localStorage.removeItem("businessName");
+
+window.location.href="business-login_v2.html";
+
+}
+
+</script>
+
+</body>
+
+</html>
