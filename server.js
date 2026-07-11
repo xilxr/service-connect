@@ -377,28 +377,16 @@ app.post("/business/login", async (req, res) => {
 
   try {
 
-    const {
-      businessCode,
-      password
-    } = req.body;
+    const { businessCode } = req.body;
 
-    const business =
-      await Business.findOne({
-        businessCode
-      });
+    const business = await Business.findOne({
+      businessCode
+    });
 
     if (!business) {
 
       return res.json({
         error: "Business not found"
-      });
-
-    }
-
-    if (business.password !== password) {
-
-      return res.json({
-        error: "Incorrect password"
       });
 
     }
@@ -422,7 +410,6 @@ app.post("/business/login", async (req, res) => {
   }
 
 });
-
 /*
 =========================================
 BUSINESS PAYMENT
