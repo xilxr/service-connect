@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Register Business | Service Connect</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+
+background:#020617;
+color:white;
+
+}
+
+header{
+
+background:linear-gradient(135deg,#16a34a,#22c55e);
+
+padding:30px 20px;
+
+text-align:center;
+
+border-bottom-left-radius:25px;
+border-bottom-right-radius:25px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+
+}
+
+header h1{
+
+font-size:30px;
+
+}
+
+header p{
+
+margin-top:10px;
+
+opacity:.95;
+
+}
+
+.container{
+
+padding:20px;
+
+}
+
+.card{
+
+background:#0f172a;
+
+padding:20px;
+
+border-radius:20px;
+
+margin-top:20px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+
+}
+
+.card h2{
+
+margin-bottom:15px;
+
+color:#22c55e;
+
+}
+
+input,textarea{
+
+width:100%;
+
+padding:15px;
+
+margin-top:12px;
+
+border:none;
+
+border-radius:12px;
+
+outline:none;
+
+font-size:15px;
+
+}
+
+textarea{
+
+resize:none;
+
+height:90px;
+
+}
+
+button{
+
+width:100%;
+
+padding:16px;
+
+margin-top:15px;
+
+border:none;
+
+border-radius:12px;
+
+background:#22c55e;
+
+color:white;
+
+font-size:16px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+transform:scale(1.02);
+
+}
+
+#businessCodeBox{
+
+display:none;
+
+margin-top:20px;
+
+background:#111827;
+
+padding:18px;
+
+border-radius:15px;
+
+text-align:center;
+
+}
+
+#businessCode{
+
+font-size:22px;
+
+font-weight:bold;
+
+color:#22c55e;
+
+word-break:break-word;
+
+margin-top:10px;
+
+}
+
+.note{
+
+margin-top:15px;
+
+line-height:1.7;
+
+color:#cbd5e1;
+
+}
+
+.payBtn{
+
+background:#2563eb;
+
+}
+
+.whatsappBtn{
+
+background:#16a34a;
+
+}
+
+#loading{
+
+display:none;
+
+margin-top:15px;
+
+text-align:center;
+
+color:#22c55e;
+
+font-weight:bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>
+💼 Register Your Business
+</h1>
+
+<p>
+
+Join Service Connect and reach more students around you.
+
+</p>
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2>
+
+Business Information
+
+</h2>
+
+<input
+id="name"
+placeholder="Business Name">
+
+<input
+id="service"
+placeholder="Service (Electrician, Plumber...)">
+
+<input
+id="location"
+placeholder="Location (e.g. FUTO)">
+
+<input
+id="phone"
+placeholder="WhatsApp Number">
+
+<textarea
+id="bio"
+placeholder="Short description about your business"></textarea>
+
+<button
+onclick="registerBusiness()">
+
+Create Business Account
+
+</button>
+
+<div id="loading">
+
+Creating your business account...
+
+</div>
+
+<div id="businessCodeBox">
+
+<p>
+
+Your Service Connect Business Code
+
+</p>
+
+<div id="businessCode"></div>
+
+<p class="note">
+
+Save this code carefully. You'll use it to log in to your business dashboard.
+
+</p>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>
+
+💳 Activation Payment
+
+</h2>
+
+<p class="note">
+
+Activation Fee: <b>₦2,000</b>
+
+<br><br>
+
+After payment, copy your Business Code as the payment remark, then send your payment proof to the administrator.
+
+</p>
+
+<button
+class="payBtn"
+onclick="copyCode()">
+
+📋 Copy Business Code
+
+</button>
+
+<button
+class="whatsappBtn"
+onclick="sendProof()">
+
+📲 Send Proof via WhatsApp
+
+</button>
+
+<button
+onclick="iHavePaid()">
+
+✅ I Have Paid
+
+</button>
+
+</div>
+
+<script>
+
+const API="https://service-backend-jezm.onrender.com";
+
+let businessId="";
+let businessCode="";
+async function registerBusiness(){
+
+const name=
+document.getElementById("name").value.trim();
+
+const service=
+document.getElementById("service").value.trim();
+
+const location=
+document.getElementById("location").value.trim();
+
+const phone=
+document.getElementById("phone").value.trim();
+
+const bio=
+document.getElementById("bio").value.trim();
+
+if(!name||!service||!location||!phone){
+
+alert("Please complete all required fields.");
+
+return;
+
+}
+
+document.getElementById("loading").style.display="block";
+
+try{
+
+const res=await fetch(API+"/business/signup",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+name,
+
+service,
+
+location,
+
+phone,
+
+shortBio:bio
+
+})
+
+});
+
+const data=await res.json();
+
+document.getElementById("loading").style.display="none";
+
+if(data.error){
+
+alert(data.error);
+
+return;
+
+}
+
+businessId=data.business._id;
+
+businessCode=data.business.businessCode;
+
+localStorage.setItem("businessId",businessId);
+
+localStorage.setItem("businessCode",businessCode);
+
+localStorage.setItem("businessName",data.business.name);
+
+document.getElementById("businessCodeBox").style.display="block";
+
+document.getElementById("businessCode").innerHTML=businessCode;
+
+alert("Business registered successfully!");
+
+}catch(err){
+
+console.log(err);
+
+document.getElementById("loading").style.display="none";
+
+alert("Registration failed.");
+
+}
+
+}
+
+function copyCode(){
+
+if(!businessCode){
+
+alert("Register your business first.");
+
+return;
+
+}
+
+navigator.clipboard.writeText(businessCode);
+
+alert("Business Code copied.");
+
+}
+
+function sendProof(){
+
+if(!businessCode){
+
+alert("Register your business first.");
+
+return;
+
+}
+
+const msg=
+
+`Hello Admin,
+
+I have paid the Service Connect activation fee.
+
+Business Code:
+${businessCode}
+
+Business ID:
+${businessId}
+
+Please verify my payment.
+
+Thank you.`;
+
+window.open(
+
+"https://wa.me/2348107661212?text="+
+
+encodeURIComponent(msg),
+
+"_blank"
+
+);
+
+}
+
+async function iHavePaid(){
+
+if(!businessId){
+
+alert("Register your business first.");
+
+return;
+
+}
+
+try{
+
+const res=await fetch(API+"/business/pay",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+id:businessId
+
+})
+
+});
+
+const data=await res.json();
+
+alert(data.message||data.error);
+
+}catch(err){
+
+console.log(err);
+
+alert("Unable to submit payment.");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
