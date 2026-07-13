@@ -299,57 +299,54 @@ app.post("/business/signup", async (req, res) => {
   try {
 
     const {
-      name,
-      email,
-      password,
-      service,
-      phone,
-      location
-    } = req.body;
+    name,
+    service,
+    phone,
+    location,
+    shortBio,
+    profilePicture
+} = req.body;
 
     console.log(req.body);
     if (
-      !name ||
-      !email ||
-      !password ||
-      !service ||
-      !phone ||
-      !location
-    ) {
-      return res.json({
-        error: "Please fill all fields"
-      });
-    }
-
-    const emailExists = await Business.findOne({ email });
-
-    if (emailExists) {
-      return res.json({
-        error: "Email already registered"
-      });
-    }
+    !name ||
+    !service ||
+    !phone ||
+    !location
+) {
+    return res.json({
+        error: "Please fill all required fields."
+    });
+}
 
     const businessCode =
       await generateBusinessCode(service);
 
-    const business =
-      await Business.create({
+    const business = await Business.create({
 
-        businessCode,
+    businessCode,
 
-        name,
+    name,
 
-        email,
+    service: service.toLowerCase(),
 
-        password,
+    phone,
 
-        service: service.toLowerCase(),
+    location: location.toLowerCase(),
 
-        phone,
+    shortBio: shortBio || "",
 
-        location: location.toLowerCase()
+    profilePicture: profilePicture || "",
 
-      });
+    paid: false,
+
+    verified: false,
+
+    rating: 0,
+
+    reviews: []
+
+});
 
     res.json({
       message: "Registration successful ✔",
