@@ -355,13 +355,13 @@ app.post("/business/signup", async (req, res) => {
 
   } catch (err) {
 
-    console.log(err);
+    console.log("SIGNUP ERROR:", err);
 
     res.json({
-      error: "Registration failed"
+      error: err.message
     });
 
-  }
+}
 
 });
 
