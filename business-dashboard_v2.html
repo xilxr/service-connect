@@ -285,6 +285,8 @@ business.verified
 
 document.getElementById("dashboard").innerHTML=`
 
+loadRemainingDays();
+
 <div class="card">
 
 <img class="profile"
@@ -371,6 +373,22 @@ Rating:
 
 </div>
 
+<div>
+
+<span class="label">
+
+Subscription:
+
+</span>
+
+<span class="value" id="remainingDays">
+
+Loading...
+
+</span>
+
+</div>
+
 <div style="margin-top:10px;">
 
 ${verified}
@@ -434,6 +452,42 @@ document.getElementById("dashboard").innerHTML=
 "Failed to load dashboard.";
 
 }
+}
+async function loadRemainingDays(){
+
+try{
+
+const res = await fetch(
+
+API + "/business/" + businessId + "/remaining-days"
+
+);
+
+const data = await res.json();
+
+const element =
+document.getElementById("remainingDays");
+
+if(!element) return;
+
+if(data.remainingDays > 0){
+
+element.innerHTML =
+"🟢 " + data.remainingDays + " day(s) remaining";
+
+}else{
+
+element.innerHTML =
+"🔴 Subscription Expired";
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
 }
 async function updateProfile(){
 
