@@ -204,6 +204,52 @@ outline:none;
 
 }
 
+.progressBox{
+
+margin-top:18px;
+
+}
+
+.progressBar{
+
+width:100%;
+
+height:12px;
+
+background:#1e293b;
+
+border-radius:30px;
+
+overflow:hidden;
+
+margin-top:8px;
+
+}
+
+.progressFill{
+
+height:100%;
+
+width:100%;
+
+background:#22c55e;
+
+transition:width .5s ease;
+
+}
+
+.progressText{
+
+margin-top:8px;
+
+font-size:14px;
+
+color:#cbd5e1;
+
+text-align:center;
+
+}
+
 </style>
 
 </head>
@@ -389,6 +435,27 @@ Loading...
 
 </div>
 
+<div class="progressBox">
+
+<div class="progressBar">
+
+<div
+id="progressFill"
+class="progressFill">
+</div>
+
+</div>
+
+<div
+id="progressText"
+class="progressText">
+
+Checking subscription...
+
+</div>
+
+</div>
+
 <div style="margin-top:10px;">
 
 ${verified}
@@ -470,15 +537,38 @@ document.getElementById("remainingDays");
 
 if(!element) return;
 
+const fill =
+document.getElementById("progressFill");
+
+const text =
+document.getElementById("progressText");
+
+let percent =
+(data.remainingDays / 30) * 100;
+
+if(percent < 0){
+    percent = 0;
+}
+
+fill.style.width = percent + "%";
+
 if(data.remainingDays > 0){
 
-element.innerHTML =
-"🟢 " + data.remainingDays + " day(s) remaining";
+    element.innerHTML =
+    "🟢 " + data.remainingDays + " day(s) remaining";
+
+    text.innerHTML =
+    "Subscription Active";
 
 }else{
 
-element.innerHTML =
-"🔴 Subscription Expired";
+    element.innerHTML =
+    "🔴 Subscription Expired";
+
+    fill.style.width = "0%";
+
+    text.innerHTML =
+    "Please renew your subscription.";
 
 }
 
