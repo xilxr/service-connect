@@ -344,7 +344,7 @@ app.post("/business/signup", async (req, res) => {
 
     rating: 0,
 
-    reviews: []
+    reviews: 0
 
 });
 
