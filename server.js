@@ -1090,6 +1090,60 @@ app.get("/admin/check-expiry", async (req, res) => {
 
 });
 /*
+====================================
+BUSINESS REMAINING DAYS
+====================================
+*/
+
+app.get("/business/:id/remaining-days", async (req, res) => {
+
+  try {
+
+    const business = await Business.findById(req.params.id);
+
+    if (!business) {
+
+      return res.json({
+        error: "Business not found"
+      });
+
+    }
+
+    if (!business.expiryDate) {
+
+      return res.json({
+        remainingDays: 0
+      });
+
+    }
+
+    const today = new Date();
+
+    const expiry = new Date(business.expiryDate);
+
+    const difference = expiry - today;
+
+    const remainingDays = Math.max(
+      0,
+      Math.ceil(difference / (1000 * 60 * 60 * 24))
+    );
+
+    res.json({
+      remainingDays
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+      error: "Failed to calculate remaining days"
+    });
+
+  }
+
+});
+/*
 =========================================
 START SERVER
 =========================================
