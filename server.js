@@ -1035,6 +1035,61 @@ app.post("/business/availability", async (req, res) => {
 
 });
 /*
+====================================
+AUTO EXPIRE BUSINESSES
+====================================
+*/
+
+app.get("/admin/check-expiry", async (req, res) => {
+
+  try {
+
+    const today = new Date();
+
+    const expiredBusinesses = await Business.find({
+
+      verified: true,
+
+      expiryDate: {
+        $lte: today
+      }
+
+    });
+
+    for (const business of expiredBusinesses) {
+
+      business.verified = false;
+
+      business.paid = false;
+
+      business.approvedAt = null;
+
+      business.expiryDate = null;
+
+      await business.save();
+
+    }
+
+    res.json({
+
+      message: `${expiredBusinesses.length} expired business(es) updated.`
+
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.json({
+
+      error: "Expiry check failed"
+
+    });
+
+  }
+
+});
+/*
 =========================================
 START SERVER
 =========================================
