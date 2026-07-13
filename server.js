@@ -1132,15 +1132,16 @@ app.get("/business/:id/remaining-days", async (req, res) => {
       remainingDays
     });
 
-  } catch (err) {
+  } 
+  catch (err) {
 
-    console.log(err);
+  console.log("REMAINING DAYS ERROR:", err);
 
-    res.json({
-      error: "Failed to calculate remaining days"
-    });
+  res.json({
+    error: err.message
+  });
 
-  }
+}
 
 });
 /*
