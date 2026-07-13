@@ -307,6 +307,7 @@ app.post("/business/signup", async (req, res) => {
       location
     } = req.body;
 
+    console.log(req.body);
     if (
       !name ||
       !email ||
