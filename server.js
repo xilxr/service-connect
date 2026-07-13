@@ -105,6 +105,11 @@ type:Date,
 default:null
 },
 
+expiryDate:{
+type:Date,
+default:null
+},
+
 createdAt:{
 type:Date,
 default:Date.now
@@ -654,8 +659,16 @@ app.post("/admin/approve", async (req, res) => {
     }
 
     business.verified = true;
-    business.approvedAt = new Date();
 
+const today = new Date();
+
+business.approvedAt = today;
+
+const expiryDate = new Date(today);
+
+expiryDate.setDate(expiryDate.getDate() + 30);
+
+business.expiryDate = expiryDate;
     await business.save();
 
     res.json({
