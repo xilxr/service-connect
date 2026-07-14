@@ -532,8 +532,26 @@ Logout
 
 </div>
 
+<div class="card">
+
+<h3>
+
+⭐ Recent Reviews
+
+</h3>
+
+<div id="reviewsContainer">
+
+Loading reviews...
+
+</div>
+
+</div>
+
 `;
 loadRemainingDays();
+
+loadReviews();
 }catch(err){
 
 console.log(err);
@@ -685,6 +703,76 @@ timeString;
 }catch(err){
 
 console.log(err);
+
+}
+
+}
+async function loadReviews(){
+
+const container =
+document.getElementById("reviewsContainer");
+
+if(!container) return;
+
+container.innerHTML =
+"Loading reviews...";
+
+try{
+
+const res = await fetch(
+
+API + "/business/" +
+businessId +
+"/reviews"
+
+);
+
+const data = await res.json();
+
+if(!data.reviews || data.reviews.length===0){
+
+container.innerHTML =
+"No reviews yet.";
+
+return;
+
+}
+
+let html="";
+
+data.reviews.forEach(r=>{
+
+html += `
+
+<div style="background:#1e293b;
+padding:12px;
+border-radius:10px;
+margin-top:10px;">
+
+<b>${r.studentName||"Anonymous"}</b>
+
+<br>
+
+⭐ ${r.rating}/5
+
+<br><br>
+
+${r.comment}
+
+</div>
+
+`;
+
+});
+
+container.innerHTML = html;
+
+}catch(err){
+
+console.log(err);
+
+container.innerHTML =
+"Unable to load reviews.";
 
 }
 
