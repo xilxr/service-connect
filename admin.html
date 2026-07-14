@@ -87,6 +87,51 @@
       color:#facc15;
       font-weight:bold;
     }
+    .stats{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+
+gap:15px;
+
+margin-bottom:20px;
+
+}
+
+.statCard{
+
+background:#0f172a;
+
+padding:18px;
+
+border-radius:15px;
+
+text-align:center;
+
+box-shadow:0 0 10px rgba(0,0,0,.4);
+
+}
+
+.statCard h2{
+
+margin:0;
+
+font-size:30px;
+
+color:#22c55e;
+
+}
+
+.statCard p{
+
+margin-top:8px;
+
+color:#94a3b8;
+
+font-size:15px;
+
+}
 
   </style>
 </head>
@@ -99,10 +144,65 @@
 Load Businesses
 </button>
 
+<div class="stats">
+
+<div class="statCard">
+
+<h2 id="totalBusiness">0</h2>
+
+<p>Total Businesses</p>
+
+</div>
+
+<div class="statCard">
+
+<h2 id="activeBusiness">0</h2>
+
+<p>Active</p>
+
+</div>
+
+<div class="statCard">
+
+<h2 id="inactiveBusiness">0</h2>
+
+<p>Inactive</p>
+
+</div>
+
+<div class="statCard">
+
+<h2 id="expiredBusiness">0</h2>
+
+<p>Expired</p>
+
+</div>
+
+</div>
+  
+  <input
+
+id="searchBox"
+
+type="text"
+
+placeholder="🔍 Search by Business Name, Code, Phone or Location..."
+
+oninput="filterBusinesses()"
+
+style="width:100%;
+padding:14px;
+margin-bottom:20px;
+border:none;
+border-radius:12px;
+font-size:16px;
+outline:none;">
+
 <div id="list"></div>
 
 <script>
 
+let allBusinesses = [];
 async function loadBusinesses(){
 
   document.getElementById("list").innerHTML =
@@ -119,118 +219,34 @@ async function loadBusinesses(){
     );
 
     let data = await res.json();
+    
+    allBusinesses = data;
 
-    let output = "";
+let total = data.length;
 
+let active = 0;
+
+let inactive = 0;
+
+let expired = 0;
+
+let output = "";
+    
     if(data.length === 0){
 
       output = "<h3>No businesses found</h3>";
 
     }
 
-    data.forEach(b => {
+    renderBusinesses(data);
+    
+    document.getElementById("totalBusiness").innerHTML = total;
 
-      let countdownText = "Not active";
+document.getElementById("activeBusiness").innerHTML = active;
 
-      if(b.verified && b.approvedAt){
+document.getElementById("inactiveBusiness").innerHTML = inactive;
 
-        let approvedDate =
-          new Date(b.approvedAt);
-
-        let expiryDate =
-          new Date(approvedDate);
-
-        expiryDate.setDate(
-          expiryDate.getDate() + 30
-        );
-
-        let now = new Date();
-
-        let diff =
-          expiryDate - now;
-
-        let days =
-          Math.ceil(
-            diff / (1000 * 60 * 60 * 24)
-          );
-
-        countdownText =
-          days + " day(s) remaining";
-
-      }
-
-      output += `
-
-      <div class="card">
-
-        <h2>${b.name}</h2>
-
-        <p>
-        <b>Service:</b>
-        ${b.service}
-        </p>
-
-        <p>
-        <b>Location:</b>
-        ${b.location}
-        </p>
-
-        <p>
-        <b>Phone:</b>
-        ${b.phone}
-        </p>
-
-        <p>
-        <b>Rating:</b>
-        ${b.rating || 0}
-        </p>
-
-        <p>
-        <b>Status:</b>
-
-        ${
-          b.verified
-          ?
-          '<span class="active">ACTIVE</span>'
-          :
-          '<span class="inactive">INACTIVE</span>'
-        }
-
-        </p>
-
-        <div class="countdown">
-          ${countdownText}
-        </div>
-
-        <button
-        class="approveBtn"
-        onclick="approveBusiness('${b._id}')">
-        Activate Business
-        </button>
-
-        <button
-        class="disapproveBtn"
-        onclick="disapproveBusiness('${b._id}')">
-        Deactivate Business
-        </button>
-
-        <button
-        class="callBtn"
-        onclick="callBusiness('${b.phone}')">
-        Call Business
-        </button>
-
-        <button
-        class="whatsappBtn"
-        onclick="whatsappBusiness('${b.phone}')">
-        WhatsApp Business
-        </button>
-
-      </div>
-
-      `;
-
-    });
+document.getElementById("expiredBusiness").innerHTML = expired;
 
     document.getElementById("list").innerHTML =
     output;
@@ -243,6 +259,148 @@ async function loadBusinesses(){
     "Failed to load businesses";
 
   }
+
+}
+  function renderBusinesses(data){
+
+let output="";
+
+if(data.length===0){
+
+document.getElementById("list").innerHTML=
+"<h3>No businesses found</h3>";
+
+return;
+
+}
+
+data.forEach(b=>{
+
+let countdownText="Not active";
+
+if(b.verified && b.approvedAt){
+
+let approvedDate=new Date(b.approvedAt);
+
+let expiryDate=new Date(approvedDate);
+
+expiryDate.setDate(
+expiryDate.getDate()+30
+);
+
+let now=new Date();
+
+let diff=expiryDate-now;
+
+let days=Math.ceil(
+diff/(1000*60*60*24)
+);
+
+countdownText=days+" day(s) remaining";
+
+}
+
+output+=`
+
+<div class="card">
+
+<h2>${b.name}</h2>
+
+<p>
+
+<b>Business Code:</b>
+
+${b.businessCode}
+
+</p>
+
+<p>
+
+<b>Service:</b>
+
+${b.service}
+
+</p>
+
+<p>
+
+<b>Location:</b>
+
+${b.location}
+
+</p>
+
+<p>
+
+<b>Phone:</b>
+
+${b.phone}
+
+</p>
+
+<p>
+
+<b>Rating:</b>
+
+${b.rating||0}
+
+</p>
+
+<p>
+
+<b>Status:</b>
+
+${b.verified
+?'<span class="active">ACTIVE</span>'
+:'<span class="inactive">INACTIVE</span>'}
+
+</p>
+
+<div class="countdown">
+
+${countdownText}
+
+</div>
+
+<button
+class="approveBtn"
+onclick="approveBusiness('${b._id}')">
+
+Activate Business
+
+</button>
+
+<button
+class="disapproveBtn"
+onclick="disapproveBusiness('${b._id}')">
+
+Deactivate Business
+
+</button>
+
+<button
+class="callBtn"
+onclick="callBusiness('${b.phone}')">
+
+Call Business
+
+</button>
+
+<button
+class="whatsappBtn"
+onclick="whatsappBusiness('${b.phone}')">
+
+WhatsApp Business
+
+</button>
+
+</div>
+
+`;
+
+});
+
+document.getElementById("list").innerHTML=output;
 
 }
 
@@ -340,6 +498,43 @@ function whatsappBusiness(phone){
 }
 
 loadBusinesses();
+  function filterBusinesses(){
+
+const keyword =
+document.getElementById("searchBox")
+.value
+.toLowerCase();
+
+const filtered =
+allBusinesses.filter(b=>
+
+(b.name||"")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(b.businessCode||"")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(b.phone||"")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(b.location||"")
+.toLowerCase()
+.includes(keyword)
+
+);
+
+renderBusinesses(filtered);
+
+}
 
 </script>
 
