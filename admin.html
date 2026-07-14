@@ -230,26 +230,43 @@ let inactive = 0;
 
 let expired = 0;
 
-let output = "";
-    
-    if(data.length === 0){
+data.forEach(b=>{
 
-      output = "<h3>No businesses found</h3>";
+if(b.verified){
 
-    }
+active++;
 
-    renderBusinesses(data);
-    
-    document.getElementById("totalBusiness").innerHTML = total;
+if(b.approvedAt){
+
+let expiryDate = new Date(b.approvedAt);
+
+expiryDate.setDate(expiryDate.getDate()+30);
+
+if(expiryDate < new Date()){
+
+expired++;
+
+}
+
+}
+
+}else{
+
+inactive++;
+
+}
+
+});
+
+renderBusinesses(data);
+
+document.getElementById("totalBusiness").innerHTML = total;
 
 document.getElementById("activeBusiness").innerHTML = active;
 
 document.getElementById("inactiveBusiness").innerHTML = inactive;
 
 document.getElementById("expiredBusiness").innerHTML = expired;
-
-    document.getElementById("list").innerHTML =
-    output;
 
   }catch(err){
 
