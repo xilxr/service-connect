@@ -582,6 +582,17 @@ document.getElementById("notificationBox");
 const notifyText =
 document.getElementById("notificationText");
 
+const today = new Date();
+
+const dateString =
+today.toLocaleDateString();
+
+const timeString =
+today.toLocaleTimeString();
+
+const businessName =
+localStorage.getItem("businessName") || "Business Owner";
+
 notifyBox.style.display = "block";
 
 if(data.remainingDays > 0){
@@ -598,15 +609,45 @@ document.getElementById("renewBtn").style.display =
 if(data.remainingDays <= 3){
 
 notifyText.innerHTML =
-"⚠️ Your subscription will expire in <b>"
-+ data.remainingDays +
-"</b> day(s). Please renew now to avoid interruption.";
 
+"👋 Welcome back, <b>" +
+
+businessName +
+
+"</b><br><br>" +
+
+"⚠️ Your subscription expires in <b>" +
+
+data.remainingDays +
+
+"</b> day(s). Please renew now to avoid service interruption.<br><br>" +
+
+"📅 Last checked: " +
+
+dateString +
+
+" " +
+
+timeString;
 }else{
 
 notifyText.innerHTML =
-"✅ Your business account is active and visible to customers. Keep delivering excellent service.";
 
+"👋 Welcome back, <b>" +
+
+businessName +
+
+"</b><br><br>" +
+
+"✅ Your business account is active and visible to customers.<br><br>" +
+
+"📅 Last checked: " +
+
+dateString +
+
+" " +
+
+timeString;
 }
 
 }else{
@@ -623,8 +664,22 @@ document.getElementById("renewBtn").style.display =
 "block";
 
 notifyText.innerHTML =
-"❌ Your subscription has expired. Customers can no longer find your business until you renew.";
 
+"👋 Welcome back, <b>" +
+
+businessName +
+
+"</b><br><br>" +
+
+"❌ Your subscription has expired. Customers can no longer discover your business until your subscription is renewed.<br><br>" +
+
+"📅 Last checked: " +
+
+dateString +
+
+" " +
+
+timeString;
 }
 
 }catch(err){
