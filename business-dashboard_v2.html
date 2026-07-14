@@ -576,16 +576,38 @@ if(percent < 0){
 
 fill.style.width = percent + "%";
 
+const notifyBox =
+document.getElementById("notificationBox");
+
+const notifyText =
+document.getElementById("notificationText");
+
+notifyBox.style.display = "block";
+
 if(data.remainingDays > 0){
 
-    element.innerHTML =
-    "🟢 " + data.remainingDays + " day(s) remaining";
+element.innerHTML =
+"🟢 " + data.remainingDays + " day(s) remaining";
 
-    text.innerHTML =
-    "Subscription Active";
-    
-    document.getElementById("renewBtn").style.display =
+text.innerHTML =
+"Subscription Active";
+
+document.getElementById("renewBtn").style.display =
 "none";
+
+if(data.remainingDays <= 3){
+
+notifyText.innerHTML =
+"⚠️ Your subscription will expire in <b>"
++ data.remainingDays +
+"</b> day(s). Please renew now to avoid interruption.";
+
+}else{
+
+notifyText.innerHTML =
+"✅ Your business account is active and visible to customers. Keep delivering excellent service.";
+
+}
 
 }else{
 
@@ -599,6 +621,9 @@ text.innerHTML =
 
 document.getElementById("renewBtn").style.display =
 "block";
+
+notifyText.innerHTML =
+"❌ Your subscription has expired. Customers can no longer find your business until you renew.";
 
 }
 
