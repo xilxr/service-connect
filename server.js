@@ -1227,3 +1227,85 @@ reviews:[]
 }
 
 });
+
+/*
+====================================
+SUBMIT BUSINESS REVIEW
+====================================
+*/
+
+app.post("/business/review", async (req,res)=>{
+
+try{
+
+const{
+
+businessId,
+
+studentName,
+
+rating,
+
+comment
+
+}=req.body;
+
+const business=await Business.findById(businessId);
+
+if(!business){
+
+return res.json({
+
+error:"Business not found"
+
+});
+
+}
+
+business.reviewList.push({
+
+studentName,
+
+rating:Number(rating),
+
+comment
+
+});
+
+business.reviews=
+
+business.reviewList.length;
+
+let total=0;
+
+business.reviewList.forEach(r=>{
+
+total+=Number(r.rating);
+
+});
+
+business.rating=
+
+total/business.reviewList.length;
+
+await business.save();
+
+res.json({
+
+message:"Review submitted successfully."
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to submit review."
+
+});
+
+}
+
+});
