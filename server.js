@@ -80,6 +80,34 @@ type:Number,
 default:0
 },
 
+reviewList:[
+
+{
+
+studentName:{
+type:String,
+default:"Anonymous"
+},
+
+rating:{
+type:Number,
+default:5
+},
+
+comment:{
+type:String,
+default:""
+},
+
+createdAt:{
+type:Date,
+default:Date.now
+}
+
+}
+
+],
+
 jobsCompleted:{
 type:Number,
 default:0
@@ -1155,5 +1183,47 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
 
   console.log("🚀 Service Connect Backend V2 Running on Port " + PORT);
+
+});
+
+/*
+====================================
+GET BUSINESS REVIEWS
+====================================
+*/
+
+app.get("/business/:id/reviews", async (req,res)=>{
+
+try{
+
+const business = await Business.findById(req.params.id);
+
+if(!business){
+
+return res.json({
+
+reviews:[]
+
+});
+
+}
+
+res.json({
+
+reviews:business.reviewList || []
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+reviews:[]
+
+});
+
+}
 
 });
