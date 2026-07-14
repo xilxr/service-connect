@@ -146,6 +146,42 @@ default:Date.now
 });
 
 /*
+====================================
+CUSTOMER HISTORY SCHEMA
+====================================
+*/
+
+const CustomerHistory = mongoose.model("CustomerHistory",{
+
+businessId:String,
+
+studentName:String,
+
+studentPhone:{
+type:String,
+default:""
+},
+
+service:String,
+
+status:{
+type:String,
+default:"pending"
+},
+
+reviewed:{
+type:Boolean,
+default:false
+},
+
+createdAt:{
+type:Date,
+default:Date.now
+}
+
+});
+
+/*
 =========================================
 STUDENT SCHEMA
 =========================================
@@ -1303,6 +1339,62 @@ console.log(err);
 res.json({
 
 error:"Unable to submit review."
+
+});
+
+}
+
+});
+
+/*
+====================================
+CREATE CUSTOMER HISTORY
+====================================
+*/
+
+app.post("/customer-history", async (req,res)=>{
+
+try{
+
+const{
+
+businessId,
+
+studentName,
+
+studentPhone,
+
+service
+
+}=req.body;
+
+const history = new CustomerHistory({
+
+businessId,
+
+studentName,
+
+studentPhone,
+
+service
+
+});
+
+await history.save();
+
+res.json({
+
+message:"Customer history recorded."
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to record customer history."
 
 });
 
