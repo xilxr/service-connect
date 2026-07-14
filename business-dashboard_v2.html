@@ -495,9 +495,16 @@ Save Changes
 </button>
 
 <button
+id="renewBtn"
+style="display:none;background:#f59e0b;"
+onclick="renewSubscription()">
 
+🔄 Renew Subscription
+
+</button>
+
+<button
 class="logout"
-
 onclick="logout()">
 
 Logout
@@ -557,22 +564,77 @@ if(data.remainingDays > 0){
 
     text.innerHTML =
     "Subscription Active";
+    
+    document.getElementById("renewBtn").style.display =
+"none";
 
 }else{
 
-    element.innerHTML =
-    "🔴 Subscription Expired";
+element.innerHTML =
+"🔴 Subscription Expired";
 
-    fill.style.width = "0%";
+fill.style.width = "0%";
 
-    text.innerHTML =
-    "Please renew your subscription.";
+text.innerHTML =
+"Please renew your subscription.";
+
+document.getElementById("renewBtn").style.display =
+"block";
 
 }
 
 }catch(err){
 
 console.log(err);
+
+}
+
+}
+async function renewSubscription(){
+
+if(!businessId){
+
+alert("Business not found.");
+
+return;
+
+}
+
+try{
+
+const res = await fetch(
+
+API + "/business/renew",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+id:businessId
+
+})
+
+}
+
+);
+
+const data = await res.json();
+
+alert(data.message || data.error);
+
+}catch(err){
+
+console.log(err);
+
+alert("Unable to submit renewal request.");
 
 }
 
