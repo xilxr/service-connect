@@ -522,49 +522,6 @@ app.post("/business/pay", async (req, res) => {
 
 });
 /*
-================================================
-UPDATE BUSINESS PROFILE
-================================================
-*/
-
-app.post("/business/updateProfile", async (req, res) => {
-
-    try {
-
-        const {
-    id,
-    profilePicture,
-    shortBio
-} = req.body;
-
-        const business = await Business.findById(id);
-        if (!business) {
-            return res.json({
-                error: "Business not found"
-            });
-        }
-
-        business.profilePicture = profilePicture;
-        business.shortBio = shortBio;
-
-        await business.save();
-
-        res.json({
-    message: "Profile updated successfully ✅",
-    business
-});
-    } catch (err) {
-
-        console.log(err);
-
-        res.json({
-            error: "Failed to update profile"
-        });
-
-    }
-
-});
-/*
 =========================================
 GET SINGLE BUSINESS
 =========================================
@@ -967,6 +924,14 @@ app.post("/rate", async (req, res) => {
     business.rating =
       (total + Number(rating))
       / business.reviews;
+
+    business.trustScore = Math.min(
+100,
+Math.round(
+(business.rating * 20) +
+(business.reviews * 2)
+)
+);
 
     await business.save();
 
