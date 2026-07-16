@@ -261,6 +261,52 @@ background:#f59e0b;
 
 }
 
+.stats{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:12px;
+
+margin-bottom:20px;
+
+}
+
+.statCard{
+
+background:#0f172a;
+
+padding:18px;
+
+border-radius:16px;
+
+text-align:center;
+
+box-shadow:0 0 12px rgba(0,0,0,.3);
+
+}
+
+.statCard h2{
+
+color:#22c55e;
+
+font-size:28px;
+
+margin:0;
+
+}
+
+.statCard p{
+
+margin-top:8px;
+
+color:#94a3b8;
+
+font-size:14px;
+
+}
+
 .empty{
 
 text-align:center;
@@ -288,6 +334,34 @@ font-size:16px;
 </header>
 
 <div class="container">
+
+<div class="stats">
+
+<div class="statCard">
+
+<h2 id="totalWorkers">0</h2>
+
+<p>Workers</p>
+
+</div>
+
+<div class="statCard">
+
+<h2 id="verifiedWorkers">0</h2>
+
+<p>Verified</p>
+
+</div>
+
+<div class="statCard">
+
+<h2 id="locations">0</h2>
+
+<p>Locations</p>
+
+</div>
+
+</div>
 
 <div class="searchBox">
 
@@ -321,6 +395,60 @@ Searching nearby professionals...
 
 const API =
 "https://service-backend-jezm.onrender.com";
+
+async function loadStats(){
+
+try{
+
+const res = await fetch(
+
+API + "/admin/businesses"
+
+);
+
+const data = await res.json();
+
+document.getElementById("totalWorkers").innerHTML =
+data.length;
+
+let verified = 0;
+
+const locations = new Set();
+
+data.forEach(b=>{
+
+if(b.verified){
+
+verified++;
+
+}
+
+if(b.location){
+
+locations.add(
+b.location.toLowerCase()
+);
+
+}
+
+});
+
+document.getElementById("verifiedWorkers").innerHTML =
+verified;
+
+document.getElementById("locations").innerHTML =
+locations.size;
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+loadStats();
+
 async function findWorkers(){
 
 const service=
