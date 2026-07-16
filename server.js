@@ -1226,6 +1226,90 @@ app.get("/business/:id/remaining-days", async (req, res) => {
 }
 
 });
+
+/*
+====================================
+WHATSAPP CLICK
+====================================
+*/
+
+app.post("/business/whatsapp-click", async (req,res)=>{
+
+try{
+
+const { id } = req.body;
+
+const business = await Business.findById(id);
+
+if(!business){
+
+return res.json({
+error:"Business not found"
+});
+
+}
+
+business.whatsappClicks++;
+
+await business.save();
+
+res.json({
+message:"WhatsApp click recorded."
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+error:"Unable to record click."
+});
+
+}
+
+});
+
+/*
+====================================
+CALL CLICK
+====================================
+*/
+
+app.post("/business/call-click", async (req,res)=>{
+
+try{
+
+const { id } = req.body;
+
+const business = await Business.findById(id);
+
+if(!business){
+
+return res.json({
+error:"Business not found"
+});
+
+}
+
+business.callClicks++;
+
+await business.save();
+
+res.json({
+message:"Call click recorded."
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+error:"Unable to record click."
+});
+
+}
+
+});
 /*
 =========================================
 START SERVER
