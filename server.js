@@ -113,6 +113,31 @@ type:Number,
 default:0
 },
 
+profileViews:{
+type:Number,
+default:0
+},
+
+searchAppearances:{
+type:Number,
+default:0
+},
+
+whatsappClicks:{
+type:Number,
+default:0
+},
+
+callClicks:{
+type:Number,
+default:0
+},
+
+totalLeads:{
+type:Number,
+default:0
+},
+
 trustScore:{
 type:Number,
 default:100
@@ -873,6 +898,12 @@ app.post("/request", async (req, res) => {
     });
 
     for(const worker of matches){
+
+worker.searchAppearances++;
+
+worker.totalLeads++;
+
+await worker.save();
 
 await CustomerHistory.create({
 
