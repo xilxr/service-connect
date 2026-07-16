@@ -542,15 +542,6 @@ trustScore >= 80
 ? "#f59e0b"
 : "#ef4444";
 
-const trustScore =
-Math.min(
-100,
-Math.round(
-((worker.rating || 0) * 20) +
-((worker.reviews || 0) * 2)
-)
-);
-
 html+=`
 
 <div class="workerCard">
@@ -601,22 +592,6 @@ ${bio}
 style="background:${trustColor};">
 🛡️ Trust ${trustScore}%
 </div>
-
-</div>
-
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-
-<span class="badge">
-✅ VERIFIED
-</span>
-
-<span class="badge">
-🟢 AVAILABLE
-</span>
-
-<span class="badge">
-⭐ Trust Score: ${rating}/5
-</span>
 
 </div>
 
