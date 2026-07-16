@@ -548,10 +548,29 @@ Loading reviews...
 
 </div>
 
+<div class="card">
+
+<h3>
+
+📋 Customer History
+
+</h3>
+
+<div id="historyContainer">
+
+Loading customer history...
+
+</div>
+
+</div>
+
 `;
+
 loadRemainingDays();
 
 loadReviews();
+
+loadCustomerHistory();
 }catch(err){
 
 console.log(err);
@@ -773,6 +792,85 @@ console.log(err);
 
 container.innerHTML =
 "Unable to load reviews.";
+
+}
+
+}
+async function loadCustomerHistory(){
+
+const container =
+document.getElementById("historyContainer");
+
+if(!container) return;
+
+container.innerHTML =
+"Loading customer history...";
+
+try{
+
+const res = await fetch(
+
+API + "/customer-history/" + businessId
+
+);
+
+const data = await res.json();
+
+if(!data || data.length===0){
+
+container.innerHTML =
+"No customer history yet.";
+
+return;
+
+}
+
+let html="";
+
+data.forEach(c=>{
+
+html += `
+
+<div style="
+background:#1e293b;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+">
+
+<b>👤 ${c.studentName || "Anonymous"}</b>
+
+<br>
+
+📞 ${c.studentPhone || "No phone"}
+
+<br>
+
+🛠 ${c.service || "Unknown Service"}
+
+<br>
+
+📌 Status:
+<b>${c.status}</b>
+
+<br>
+
+🗓 ${new Date(c.createdAt).toLocaleDateString()}
+
+</div>
+
+`;
+
+});
+
+container.innerHTML = html;
+
+}catch(err){
+
+console.log(err);
+
+container.innerHTML =
+"Unable to load customer history.";
 
 }
 
