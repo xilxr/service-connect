@@ -593,17 +593,17 @@ style="background:${trustColor};">
 
 <div class="action">
 
-<button onclick="chat('${worker.phone}')">
+<button onclick="chat('${worker.phone}','${worker._id}')">
 
-WhatsApp
+💬 WhatsApp
 
 </button>
 
 <button class="call"
 
-onclick="callWorker('${worker.phone}')">
+onclick="callWorker('${worker.phone}','${worker._id}')">
 
-Call
+📞 Call
 
 </button>
 
@@ -639,7 +639,31 @@ document.getElementById("results").innerHTML=
 
 }
 
-function chat(phone){
+async function chat(phone,id){
+
+try{
+
+await fetch(API+"/business/whatsapp-click",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+id:id
+
+})
+
+});
+
+}catch(err){
+
+console.log(err);
+
+}
 
 let number=phone;
 
@@ -659,7 +683,31 @@ window.open(
 
 }
 
-function callWorker(phone){
+async function callWorker(phone,id){
+
+try{
+
+await fetch(API+"/business/call-click",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+id:id
+
+})
+
+});
+
+}catch(err){
+
+console.log(err);
+
+}
 
 window.location.href="tel:"+phone;
 
