@@ -1366,3 +1366,35 @@ error:"Unable to record customer history."
 }
 
 });
+
+/*
+====================================
+GET CUSTOMER HISTORY
+====================================
+*/
+
+app.get("/customer-history/:businessId", async (req,res)=>{
+
+try{
+
+const history = await CustomerHistory.find({
+
+businessId:req.params.businessId
+
+}).sort({
+
+createdAt:-1
+
+});
+
+res.json(history);
+
+}catch(err){
+
+console.log(err);
+
+res.json([]);
+
+}
+
+});
