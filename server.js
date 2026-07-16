@@ -567,6 +567,10 @@ app.get("/business/:id", async (req, res) => {
 
     }
 
+    business.profileViews++;
+
+await business.save();
+
     res.json(business);
 
   } catch (err) {
