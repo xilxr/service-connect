@@ -872,6 +872,24 @@ app.post("/request", async (req, res) => {
 
     });
 
+    for(const worker of matches){
+
+await CustomerHistory.create({
+
+businessId:worker._id,
+
+studentName:"Service Connect Visitor",
+
+studentPhone:"",
+
+service:worker.service,
+
+status:"New Lead"
+
+});
+
+}
+
     res.json({
 
       matches
