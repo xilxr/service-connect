@@ -280,6 +280,54 @@ default:Date.now
 
 });
 
+app.get("/business/:id/requests", async (req, res) => {
+
+try {
+
+const requests = await Request.find({
+  businessId: req.params.id
+}).sort({
+  createdAt: -1
+});
+
+res.json(requests);
+
+} catch (err) {
+
+console.log(err);
+res.json([]);
+
+}
+
+});
+
+app.post("/request/status", async (req, res) => {
+
+try {
+
+const { requestId, status } = req.body;
+
+const request = await Request.findById(requestId);
+
+if (!request) {
+  return res.json({ error: "Request not found" });
+}
+
+request.status = status;
+
+await request.save();
+
+res.json({ message: "Request updated successfully." });
+
+} catch (err) {
+
+console.log(err);
+res.json({ error: "Unable to update request." });
+
+}
+
+});
+
 /*
 =========================================
 NOTIFICATION SCHEMA
