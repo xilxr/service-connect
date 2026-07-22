@@ -599,6 +599,8 @@ loadRemainingDays();
 loadReviews();
 
 loadCustomerHistory();
+
+loadJobRequests();
 }catch(err){
 
 console.log(err);
@@ -899,6 +901,100 @@ console.log(err);
 
 container.innerHTML =
 "Unable to load customer history.";
+
+}
+
+async function loadJobRequests(){
+
+const container = document.getElementById("requestContainer");
+
+if(!container) return;
+
+container.innerHTML = "Loading job requests...";
+
+try{
+
+const res = await fetch(API + "/business/" + businessId + "/requests");
+
+const data = await res.json();
+
+if(!data || data.length===0){
+
+container.innerHTML = "No job requests yet.";
+
+return;
+
+}
+
+let html = "";
+
+data.forEach(r => {
+
+html += `
+
+<div style="background:#1e293b;padding:14px;border-radius:12px;margin-top:10px;"><b>👤 ${r.studentName || "Service Connect Visitor"}</b><br>
+
+📞 ${r.studentPhone || "No phone provided"}<br>
+
+🛠 ${r.service || r.message || "Service Request"}<br>
+
+📍 ${r.location || "Unknown location"}<br>
+
+📌 Status: <b>${r.status}</b><br>
+
+🗓 ${new Date(r.createdAt).toLocaleString()}
+
+<div style="display:flex;gap:10px;margin-top:12px;"><button style="background:#16a34a;"
+onclick="updateRequestStatus('${r._id}','Accepted')">
+
+✅ Accept
+
+</button><button style="background:#ef4444;"
+onclick="updateRequestStatus('${r._id}','Declined')">
+
+❌ Decline
+
+</button></div></div>`;});
+
+container.innerHTML = html;
+
+}catch(err){
+
+console.log(err);
+
+container.innerHTML = "Unable to load job requests.";
+
+}
+
+}
+
+async function updateRequestStatus(requestId,status){
+
+try{
+
+const res = await fetch(API + "/request/status",{
+
+method:"POST",
+
+headers:{ "Content-Type":"application/json" },
+
+body:JSON.stringify({ requestId, status })
+
+});
+
+const data = await res.json();
+
+alert(data.message || data.error);
+
+loadJobRequests();
+
+}catch(err){
+
+console.log(err);
+
+alert("Failed to update request status.");
+
+}
 
 }
 
