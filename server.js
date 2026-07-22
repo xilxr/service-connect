@@ -915,28 +915,6 @@ app.post("/request", async (req, res) => {
 
     }
 
-    for(const worker of matches){
-
-await Request.create({
-
-businessId: worker._id,
-
-studentName: "Service Connect Visitor",
-
-studentPhone: "",
-
-message,
-
-service,
-
-location,
-
-status: "Pending"
-
-});
-
-}
-
     const matches = await Business.find({
 
       verified: true,
@@ -964,6 +942,28 @@ status: "Pending"
       rating: -1
 
     });
+
+    for(const worker of matches){
+
+await Request.create({
+
+businessId: worker._id,
+
+studentName: "Service Connect Visitor",
+
+studentPhone: "",
+
+message,
+
+service,
+
+location,
+
+status: "Pending"
+
+});
+
+}
 
     for(const worker of matches){
 
