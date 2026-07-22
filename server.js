@@ -915,15 +915,27 @@ app.post("/request", async (req, res) => {
 
     }
 
-    await Request.create({
+    for(const worker of matches){
 
-      message,
+await Request.create({
 
-      service,
+businessId: worker._id,
 
-      location
+studentName: "Service Connect Visitor",
 
-    });
+studentPhone: "",
+
+message,
+
+service,
+
+location,
+
+status: "Pending"
+
+});
+
+}
 
     const matches = await Business.find({
 
