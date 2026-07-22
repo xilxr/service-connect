@@ -875,7 +875,7 @@ app.post("/request", async (req, res) => {
 
   try {
 
-    const { message, location } = req.body;
+    const { studentName, studentPhone, message, location } = req.body;
 
     const text = message.toLowerCase();
 
