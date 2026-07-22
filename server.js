@@ -915,33 +915,64 @@ app.post("/request", async (req, res) => {
 
     }
 
-    const matches = await Business.find({
+    const searchLocation = location.toLowerCase();
 
-      verified: true,
+const nearbyMap = {
 
-      availability: "Available",
+futo: ["futo","eziobodo","ihiagwa","umuchima"],
 
-      service: {
+eziobodo: ["eziobodo","futo","ihiagwa"],
 
-        $regex: service,
+ihiagwa: ["ihiagwa","futo","eziobodo"],
 
-        $options: "i"
+nekede: ["nekede","owerri","futo"],
 
-      },
+owerri: ["owerri","nekede","futo"]
 
-      location: {
+};
 
-        $regex: location,
+const allowedLocations =
+nearbyMap[searchLocation] || [searchLocation];
 
-        $options: "i"
+const matches = await Business.find({
 
-      }
+verified: true,
 
-    }).sort({
+availability: "Available",
 
-      rating: -1
+service: {
 
-    });
+$regex: service,
+
+$options: "i"
+
+},
+
+location: {
+
+$in: allowedLocations
+
+}
+
+});
+
+matches.sort((a,b)=>{
+
+const aIndex =
+allowedLocations.indexOf(a.location);
+
+const bIndex =
+allowedLocations.indexOf(b.location);
+
+if(aIndex !== bIndex){
+
+return aIndex - bIndex;
+
+}
+
+return b.rating - a.rating;
+
+});
 
     for(const worker of matches){
 
