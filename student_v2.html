@@ -366,6 +366,14 @@ font-size:16px;
 <div class="searchBox">
 
 <input
+id="studentName"
+placeholder="Your full name">
+
+<input
+id="studentPhone"
+placeholder="Your phone number">
+
+<input
 id="service"
 placeholder="What service do you need?">
 
@@ -451,13 +459,19 @@ loadStats();
 
 async function findWorkers(){
 
-const service=
+const studentName =
+document.getElementById("studentName").value.trim();
+
+const studentPhone =
+document.getElementById("studentPhone").value.trim();
+
+const service =
 document.getElementById("service").value.trim();
 
-const location=
+const location =
 document.getElementById("location").value.trim();
 
-if(!service || !location){
+if(!studentName || !studentPhone || !service || !location){
 
 alert("Please fill in all fields.");
 
@@ -480,6 +494,10 @@ headers:{
 },
 
 body:JSON.stringify({
+
+studentName,
+
+studentPhone,
 
 message:service,
 
