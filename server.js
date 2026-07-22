@@ -945,28 +945,6 @@ app.post("/request", async (req, res) => {
 
     for(const worker of matches){
 
-await Request.create({
-
-businessId: worker._id,
-
-studentName: "Service Connect Visitor",
-
-studentPhone: "",
-
-message,
-
-service,
-
-location,
-
-status: "Pending"
-
-});
-
-}
-
-    for(const worker of matches){
-
 worker.searchAppearances++;
 
 worker.totalLeads++;
@@ -984,6 +962,28 @@ studentPhone:"",
 service:worker.service,
 
 status:"New Lead"
+
+});
+
+}
+
+for(const worker of matches){
+
+await Request.create({
+
+businessId: worker._id,
+
+studentName: "Service Connect Visitor",
+
+studentPhone: "",
+
+message,
+
+service,
+
+location,
+
+status: "Pending"
 
 });
 
