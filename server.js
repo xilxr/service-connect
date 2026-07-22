@@ -955,9 +955,9 @@ await CustomerHistory.create({
 
 businessId:worker._id,
 
-studentName:"Service Connect Visitor",
+studentName: studentName,
 
-studentPhone:"",
+studentPhone: studentPhone,
 
 service:worker.service,
 
@@ -973,9 +973,9 @@ await Request.create({
 
 businessId: worker._id,
 
-studentName: "Service Connect Visitor",
+studentName: studentName,
 
-studentPhone: "",
+studentPhone: studentPhone,
 
 message,
 
