@@ -954,7 +954,7 @@ html += `
 
 🗓 ${new Date(r.createdAt).toLocaleString()}
 
-<div style="display:flex;gap:10px;margin-top:12px;"><button style="background:#16a34a;"
+<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;"><button style="background:#16a34a;"
 onclick="updateRequestStatus('${r._id}','Accepted')">
 
 ✅ Accept
@@ -964,7 +964,14 @@ onclick="updateRequestStatus('${r._id}','Declined')">
 
 ❌ Decline
 
-</button></div></div>`;});
+</button><button style="background:#2563eb;"
+onclick="contactCustomer('${r.studentPhone}','${r.studentName}','${r.service || r.message || 'Service Request'}','${r.location || 'your area'}')">
+
+💬 Contact Customer
+
+</button>
+
+</div>
 
 container.innerHTML = html;
 
@@ -1090,6 +1097,48 @@ console.log(err);
 alert("Profile update failed.");
 
 }
+
+}
+
+function contactCustomer(phone,name,service,location){
+
+if(!phone || phone===""){
+
+alert("Customer phone number is not available yet.");
+
+return;
+
+}
+
+let number = phone;
+
+if(number.startsWith("0")){
+
+number = "234" + number.substring(1);
+
+}
+
+const businessName =
+localStorage.getItem("businessName") || "Service Connect Professional";
+
+const message =
+
+`Hello ${name || "Customer"},
+
+I received your request for ${service} in ${location}.
+
+I am ${businessName} and I’m available to assist you.
+
+Please let me know the exact issue and your preferred time.`;
+
+window.open(
+
+"https://wa.me/" + number + "?text=" +
+encodeURIComponent(message),
+
+"_blank"
+
+);
 
 }
 
