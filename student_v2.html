@@ -482,7 +482,7 @@ console.log(err);
 loadStats();
 
 loadFeaturedWorker();
-Now scroll down and paste this before loadTopWorkers();
+
 async function loadFeaturedWorker(){
 
 try{
@@ -493,7 +493,7 @@ const w = await res.json();
 
 const container = document.getElementById("featuredWorker");
 
-if(!w || !w.id){
+if(!w || !w._id){
 
 container.innerHTML = "No featured worker available.";
 
@@ -533,7 +533,7 @@ container.innerHTML =
 
 '</div>' +
 
-'<button style="margin-top:15px;background:#f59e0b;" onclick="chat(\'' + w.phone + '\',\'' + w.id + '\')">🚀 Hire Now</button>' +
+'<button style="margin-top:15px;background:#f59e0b;" onclick="chat(\'' + w.phone + '\',\'' + w._id + '\')">🚀 Hire Now</button>' +
 
 '</div>';
 
