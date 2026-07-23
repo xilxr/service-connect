@@ -740,6 +740,42 @@ app.get("/admin/businesses", async (req, res) => {
 
 /*
 =========================================
+TOP WORKERS
+=========================================
+*/
+
+app.get("/top-workers", async (req, res) => {
+
+try {
+
+const workers = await Business.find({
+
+verified: true,
+
+availability: "Available"
+
+}).sort({
+
+rating: -1,
+
+trustScore: -1
+
+}).limit(5);
+
+res.json(workers);
+
+} catch (err) {
+
+console.log(err);
+
+res.json([]);
+
+}
+
+});
+
+/*
+=========================================
 ADMIN APPROVE
 =========================================
 */
