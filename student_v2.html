@@ -335,6 +335,18 @@ font-size:16px;
 
 <div class="container">
 
+<div class="searchBox" style="margin-bottom:20px;">
+
+<h2 style="color:#22c55e;margin-bottom:15px;">🏆 Top Verified Workers</h2>
+
+<div id="topWorkers">
+
+Loading top workers...
+
+</div>
+
+</div>
+
 <div class="stats">
 
 <div class="statCard">
@@ -456,6 +468,46 @@ console.log(err);
 }
 
 loadStats();
+
+loadTopWorkers();
+
+async function loadTopWorkers(){
+
+try{
+
+const res = await fetch(API + "/top-workers");
+
+const workers = await res.json();
+
+const container = document.getElementById("topWorkers");
+
+if(!workers || workers.length===0){
+
+container.innerHTML = "No verified workers yet.";
+
+return;
+
+}
+
+let html = "";
+
+workers.forEach(w => {
+
+html +=  <div style="background:#1e293b;padding:12px;border-radius:12px;margin-top:10px;">  <b>${w.name}</b><br>  🛠 ${w.service}<br>  📍 ${w.location}<br>  ⭐ ${Number(w.rating || 0).toFixed(1)} (${w.reviews || 0} reviews)<br>  🛡 ${w.trustScore || 100}% Trust  </div> ;
+
+});
+
+container.innerHTML = html;
+
+}catch(err){
+
+console.log(err);
+
+document.getElementById("topWorkers").innerHTML = "Unable to load top workers.";
+
+}
+
+}
 
 async function findWorkers(){
 
