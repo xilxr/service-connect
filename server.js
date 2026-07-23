@@ -740,6 +740,50 @@ app.get("/admin/businesses", async (req, res) => {
 
 /*
 =========================================
+FEATURED WORKER
+=========================================
+*/
+
+app.get("/featured-worker", async (req, res) => {
+
+try{
+
+const worker = await Business.findOne({
+
+verified: true,
+
+availability: "Available"
+
+}).sort({
+
+rating: -1,
+
+trustScore: -1,
+
+searchAppearances: -1
+
+});
+
+if(!worker){
+
+return res.json({});
+
+}
+
+res.json(worker);
+
+}catch(err){
+
+console.log(err);
+
+res.json({});
+
+}
+
+});
+
+/*
+=========================================
 TOP WORKERS
 =========================================
 */
