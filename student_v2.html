@@ -337,6 +337,18 @@ font-size:16px;
 
 <div class="searchBox" style="margin-bottom:20px;">
 
+<h2 style="color:#facc15;margin-bottom:15px;">⭐ Featured Worker of the Day</h2>
+
+<div id="featuredWorker">
+
+Loading featured worker...
+
+</div>
+
+</div>
+
+<div class="searchBox" style="margin-bottom:20px;">
+
 <h2 style="color:#22c55e;margin-bottom:15px;">🏆 Top Verified Workers</h2>
 
 <div id="topWorkers">
@@ -468,6 +480,72 @@ console.log(err);
 }
 
 loadStats();
+
+loadFeaturedWorker();
+Now scroll down and paste this before loadTopWorkers();
+async function loadFeaturedWorker(){
+
+try{
+
+const res = await fetch(API + "/featured-worker");
+
+const w = await res.json();
+
+const container = document.getElementById("featuredWorker");
+
+if(!w || !w.id){
+
+container.innerHTML = "No featured worker available.";
+
+return;
+
+}
+
+const photo =
+
+w.profilePicture && w.profilePicture !== ""
+
+? w.profilePicture
+
+: "https://cdn-icons-png.flaticon.com/512/149/149071.png" ;
+
+container.innerHTML =
+
+'<div style="background:#1e293b;padding:18px;border-radius:16px;">' +
+
+'<div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;">' +
+
+'<img src="' + photo + '" style="width:90px;height:90px;border-radius:50%;border:3px solid #22c55e;object-fit:cover;">' +
+
+'<div>' +
+
+'<h3 style="margin:0;color:#22c55e;">' + w.name + '</h3>' +
+
+'<div>🛠 ' + w.service + '</div>' +
+
+'<div>📍 ' + w.location + '</div>' +
+
+'<div>⭐ ' + Number(w.rating || 0).toFixed(1) + ' (' + (w.reviews || 0) + ' reviews)</div>' +
+
+'<div>🛡️ Trust ' + (w.trustScore || 100) + '%</div>' +
+
+'</div>' +
+
+'</div>' +
+
+'<button style="margin-top:15px;background:#f59e0b;" onclick="chat(\'' + w.phone + '\',\'' + w.id + '\')">🚀 Hire Now</button>' +
+
+'</div>';
+
+}catch(err){
+
+console.log(err);
+
+document.getElementById("featuredWorker").innerHTML = "Unable to load featured worker.";
+
+}
+
+}
 
 loadTopWorkers();
 
