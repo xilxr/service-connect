@@ -493,36 +493,26 @@ let html = "";
 
 workers.forEach(w => {
 
-html += <div style="background:#1e293b;padding:12px;border-radius:12px;margin-top:10px;">   
-
-<b>
-  
-  ${w.name}
-
-</b>
-
-<br>   
-  🛠 ${w.service}
-
-<br>
-
-  📍 ${w.location}
-
-<br>
-  
-  ⭐ ${Number(w.rating || 0).toFixed(1)}
-  
-  (${w.reviews || 0} reviews)
-
-<br>
+  html += `
+   
+    <div style="background:#1e293b;padding:12px;border-radius:12px;margin-top:10px;">
+      
+      <b>${w.name}</b><br>
+      
+      🛠 ${w.service}<br>
+      
+      📍 ${w.location}<br>
+      
+      ⭐ ${Number(w.rating \vert{}\vert{} 0).toFixed(1)} (${w.reviews || 0} reviews)<br>
+      
+      🛡 ${w.trustScore || 100}% Trust
     
-    🛡 ${w.trustScore || 100}% Trust 
-
-</div>
-
-;
+    </div>
+  
+  `;
 
 });
+
 
 container.innerHTML = html;
 
