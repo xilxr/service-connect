@@ -329,6 +329,75 @@ res.json({ error: "Unable to update request." });
 });
 
 /*
+====================================
+COMPLETE JOB
+====================================
+*/
+
+app.post("/request/complete", async (req,res)=>{
+
+try{
+
+const { requestId } = req.body;
+
+
+const request = await Request.findById(requestId);
+
+
+if(!request){
+
+return res.json({
+error:"Request not found"
+});
+
+}
+
+
+// update request status
+
+request.status="Completed";
+
+await request.save();
+
+
+// increase worker completed jobs
+
+const business = await Business.findById(
+request.businessId
+);
+
+
+if(business){
+
+business.jobsCompleted++;
+
+await business.save();
+
+}
+
+
+res.json({
+
+message:"Job completed successfully ✔"
+
+});
+
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to complete job"
+
+});
+
+}
+
+});
+
+/*
 =========================================
 NOTIFICATION SCHEMA
 =========================================
