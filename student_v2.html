@@ -411,6 +411,14 @@ Search Now
 
 </button>
 
+<button 
+style="background:#2563eb"
+onclick="loadStudentNotifications()">
+
+🔔 Check Notifications
+
+</button>
+
 <div id="loading">
 
 Searching nearby professionals...
@@ -916,6 +924,50 @@ console.log(err);
 alert("Rating failed.");
 
 }
+
+}
+
+async function loadStudentNotifications(){
+
+
+const phone =
+document.getElementById("studentPhone").value.trim();
+
+
+if(!phone) return;
+
+
+try{
+
+
+const res = await fetch(
+
+API+"/notifications/"+phone
+
+);
+
+
+const data = await res.json();
+
+
+
+if(data.length>0){
+
+
+alert(
+"🔔 "+data[0].title+"\n\n"+data[0].message
+);
+
+
+}
+
+
+}catch(err){
+
+console.log(err);
+
+}
+
 
 }
 
