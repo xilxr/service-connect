@@ -752,7 +752,10 @@ const worker = await Business.findOne({
 
 verified: true,
 
-availability: "Available"
+availability: {
+$regex:"available",
+$options:"i"
+}
 
 }).sort({
 
@@ -796,7 +799,10 @@ const workers = await Business.find({
 
 verified: true,
 
-availability: "Available"
+availability:{
+$regex:"available",
+$options:"i"
+}
 
 }).sort({
 
@@ -995,6 +1001,41 @@ app.post("/request", async (req, res) => {
 
     }
 
+   else if(
+
+text.includes("cake") ||
+text.includes("bake") ||
+text.includes("food")
+
+){
+
+service="bake";
+
+}
+
+else if(
+
+text.includes("cloth") ||
+text.includes("fashion") ||
+text.includes("tailor")
+
+){
+
+service="tail";
+
+}
+
+else if(
+
+text.includes("hair") ||
+text.includes("barber")
+
+){
+
+service="barb";
+
+}
+    
     const searchLocation = location.toLowerCase();
 
 const nearbyMap = {
