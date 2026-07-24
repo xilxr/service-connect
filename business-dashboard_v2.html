@@ -950,7 +950,7 @@ html += `
 
 📍 ${r.location || "Unknown location"}<br>
 
-📌 Status: <b>${r.status}</b><br>
+📌 Status: <b id="status-${r._id}">${r.status}</b><br>
 
 🗓 ${new Date(r.createdAt).toLocaleString()}
 
@@ -998,27 +998,40 @@ const res = await fetch(API + "/request/status",{
 
 method:"POST",
 
-headers:{ "Content-Type":"application/json" },
+headers:{
+"Content-Type":"application/json"
+},
 
-body:JSON.stringify({ requestId, status })
+body:JSON.stringify({
+
+requestId:requestId,
+
+status:status
+
+})
 
 });
 
+
 const data = await res.json();
+
 
 alert(data.message || data.error);
 
+
 loadJobRequests();
+
 
 }catch(err){
 
 console.log(err);
 
-alert("Failed to update request status.");
+alert("Failed to update request.");
 
 }
 
 }
+
 async function renewSubscription(){
 
 const businessCode =
