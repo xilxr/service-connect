@@ -953,6 +953,40 @@ app.get("/business/check-expiry", async (req, res) => {
 
 /*
 =========================================
+STUDENT REQUESTS PHONE
+=========================================
+*/
+
+app.get("/student/requests/:phone", async(req,res)=>{
+
+try{
+
+const requests = await Request.find({
+
+studentPhone:req.params.phone
+
+}).sort({
+
+createdAt:-1
+
+});
+
+
+res.json(requests);
+
+
+}catch(err){
+
+console.log(err);
+
+res.json([]);
+
+}
+
+});
+
+/*
+=========================================
 SMART SEARCH
 =========================================
 */
