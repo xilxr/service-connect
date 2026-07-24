@@ -301,28 +301,100 @@ res.json([]);
 
 });
 
-app.post("/request/status", async (req, res) => {
+app.post("/request/status", async (req,res)=>{
 
-try {
+try{
 
 const { requestId, status } = req.body;
 
+
 const request = await Request.findById(requestId);
 
-if (!request) {
-  return res.json({ error: "Request not found" });
+
+if(!request){
+
+return res.json({
+error:"Request not found"
+});
+
 }
+
 
 request.status = status;
 
 await request.save();
 
-res.json({ message: "Request updated successfully." });
 
-} catch (err) {
+
+const business = await Business.findById(
+request.businessId
+);
+
+
+
+if(business){
+
+
+let message="";
+
+
+if(status==="Accepted"){
+
+message =
+`${business.name} has accepted your ${request.service} request. The professional will contact you shortly.`;
+
+
+}
+
+
+if(status==="Declined"){
+
+message =
+`${business.name} declined your ${request.service} request. You can search for another professional.`;
+
+
+}
+
+
+
+if(message){
+
+await Notification.create({
+
+title:"Service Request Update",
+
+message,
+
+receiverType:"student",
+
+receiverId:request.studentPhone
+
+});
+
+
+}
+
+
+}
+
+
+
+res.json({
+
+message:"Request updated successfully ✔"
+
+});
+
+
+}catch(err){
 
 console.log(err);
-res.json({ error: "Unable to update request." });
+
+res.json({
+
+error:"Unable to update request"
+
+});
 
 }
 
@@ -370,6 +442,19 @@ request.businessId
 if(business){
 
 business.jobsCompleted++;
+
+await Notification.create({
+
+title:"Job Completed",
+
+message:
+`Your ${request.service} request has been completed. Please rate the professional.`,
+
+receiverType:"student",
+
+receiverId:request.studentPhone
+
+});
 
 await business.save();
 
