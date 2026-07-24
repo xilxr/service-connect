@@ -553,6 +553,9 @@ Logout
 <div>🎯 Total Leads:
 <b>${business.totalLeads}</b></div>
 
+<div>✅ Jobs Completed:
+<b>${business.jobsCompleted}</b></div>
+
 <div>🏆 Trust Score:
 <b>${business.trustScore}%</b></div>
 
@@ -954,22 +957,98 @@ html += `
 
 🗓 ${new Date(r.createdAt).toLocaleString()}
 
-<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;"><button style="background:#16a34a;"
+let buttons="";
+
+
+if(r.status==="Pending"){
+
+buttons = `
+
+<button style="background:#16a34a;"
 onclick="updateRequestStatus('${r._id}','Accepted')">
 
 ✅ Accept
 
-</button><button style="background:#ef4444;"
+</button>
+
+
+<button style="background:#ef4444;"
 onclick="updateRequestStatus('${r._id}','Declined')">
 
 ❌ Decline
 
-</button><button style="background:#2563eb;"
-onclick="contactCustomer('${r.studentPhone}','${r.studentName}','${r.service || r.message || 'Service Request'}','${r.location || 'your area'}')">
+</button>
+
+`;
+
+}
+
+
+else if(r.status==="Accepted"){
+
+buttons = `
+
+
+<button style="background:#22c55e;">
+
+🟢 Accepted
+
+</button>
+
+
+<button style="background:#2563eb;"
+onclick="contactCustomer('${r.studentPhone}','${r.studentName}','${r.service || r.message}','${r.location}')">
 
 💬 Contact Customer
 
 </button>
+
+
+<button style="background:#f59e0b;"
+onclick="completeJob('${r._id}')">
+
+🏆 Mark Job Completed
+
+</button>
+
+
+`;
+
+}
+
+
+else if(r.status==="Completed"){
+
+buttons = `
+
+<button style="background:#16a34a;">
+
+✅ Job Completed
+
+</button>
+
+`;
+
+}
+
+
+else if(r.status==="Declined"){
+
+buttons = `
+
+<button style="background:#ef4444;">
+
+❌ Request Declined
+
+</button>
+
+`;
+
+}
+
+<div style="margin-top:12px;">
+
+${buttons}
 
 </div>
 
@@ -1157,6 +1236,47 @@ encodeURIComponent(message),
 "_blank"
 
 );
+
+}
+
+async function completeJob(requestId){
+
+try{
+
+
+const res = await fetch(API+"/request/complete",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+requestId
+
+})
+
+});
+
+
+const data = await res.json();
+
+
+alert(data.message || data.error);
+
+
+loadBusiness();
+
+
+}catch(err){
+
+console.log(err);
+
+alert("Failed to complete job");
+
+}
 
 }
 
