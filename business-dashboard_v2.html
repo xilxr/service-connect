@@ -258,15 +258,41 @@ text-align:center;
 
 <div class="header">
 
-<h1>
-💼 Business Dashboard
-</h1>
+<div style="display:flex;justify-content:space-between;align-items:center;">
 
-<p>
+<h1>💼 Business Dashboard</h1>
 
-Welcome back to Service Connect
+<div
+onclick="openNotifications()"
+style="
+position:relative;
+font-size:28px;
+cursor:pointer;
+">
 
-</p>
+🔔
+
+<span
+id="notificationCount"
+style="
+position:absolute;
+top:-8px;
+right:-8px;
+background:red;
+color:white;
+font-size:11px;
+padding:2px 6px;
+border-radius:50%;
+display:none;
+">
+0
+</span>
+
+</div>
+
+</div>
+
+<p>Welcome back to Service Connect</p>
 
 </div>
 
@@ -571,14 +597,17 @@ Logout
 
 <button onclick="location.href='my-job-requests.html'">
 📥 My Job Requests
+<span id="requestCount"></span>
 </button>
 
 <button onclick="location.href='my-reviews.html'">
 ⭐ Recent Reviews
+<span id="reviewCount"></span>
 </button>
 
 <button onclick="location.href='customer-history.html'">
 📋 Customer History
+<span id="historyCount"></span>
 </button>
 
 </div>
@@ -592,6 +621,8 @@ loadReviews();
 loadCustomerHistory();
 
 loadJobRequests();
+
+loadQuickMenuCounts();
 }catch(err){
 
 console.log(err);
@@ -747,6 +778,46 @@ console.log(err);
 }
 
 }
+
+async function loadQuickMenuCounts(){
+
+try{
+
+const requests =
+await fetch(API+"/business/"+businessId+"/requests/count");
+const requestData = await requests.json();
+
+const reviews =
+await fetch(API+"/business/"+businessId+"/reviews/count");
+const reviewData = await reviews.json();
+
+const history =
+await fetch(API+"/business/"+businessId+"/history/count");
+const historyData = await history.json();
+
+document.getElementById("requestCount").innerHTML =
+requestData.count > 0
+? ` 🔴 ${requestData.count}`
+: "";
+
+document.getElementById("reviewCount").innerHTML =
+reviewData.count > 0
+? ` 🔴 ${reviewData.count}`
+: "";
+
+document.getElementById("historyCount").innerHTML =
+historyData.count > 0
+? ` 🔴 ${historyData.count}`
+: "";
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
 async function loadReviews(){
 
 const container =
@@ -1251,6 +1322,49 @@ window.location.href="business-login_v2.html";
 }
 
 </script>
+
+<div
+id="notificationModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.7);
+z-index:999;
+">
+
+<div
+style="
+background:#0f172a;
+width:90%;
+max-width:500px;
+margin:60px auto;
+padding:20px;
+border-radius:15px;
+max-height:80%;
+overflow:auto;
+">
+
+<h2>🔔 Notifications</h2>
+
+<div
+id="notificationList"
+style="margin-top:20px;">
+Loading...
+</div>
+
+<button
+onclick="closeNotifications()"
+style="background:#ef4444;">
+Close
+</button>
+
+</div>
+
+</div>
 
 </body>
 
