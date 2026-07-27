@@ -1,1 +1,327 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>My Job Requests</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#020617;
+color:white;
+padding:18px;
+}
+
+.header{
+text-align:center;
+margin-bottom:20px;
+}
+
+.header h1{
+color:#22c55e;
+}
+
+.card{
+background:#0f172a;
+padding:15px;
+border-radius:15px;
+margin-top:15px;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#22c55e;
+color:white;
+font-size:15px;
+cursor:pointer;
+}
+
+.backBtn{
+background:#475569;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+<h1>📥 My Job Requests</h1>
+</div>
+
+<button class="backBtn"
+onclick="window.location.href='business-dashboard_v2.html'">
+⬅ Back To Dashboard
+</button>
+
+<div id="requestContainer">
+Loading requests...
+</div>
+
+<script>
+
+const API =
+"https://service-backend-jezm.onrender.com";
+
+const businessId =
+localStorage.getItem("businessId");
+
+loadJobRequests();
+
+async function loadJobRequests(){
+
+const container =
+document.getElementById("requestContainer");
+
+container.innerHTML =
+"Loading requests...";
+
+try{
+
+const res = await fetch(
+API + "/business/" + businessId + "/requests"
+);
+
+const data = await res.json();
+
+if(!data || data.length===0){
+
+container.innerHTML =
+"No requests yet.";
+
+return;
+}
+
+let html = "";
+
+data.forEach(r=>{
+
+let buttons = "";
+
+if(r.status==="Pending"){
+
+buttons = `
+
+<button style="background:#16a34a;"
+onclick="updateRequestStatus('${r._id}','Accepted')">
+✅ Accept
+</button>
+
+<button style="background:#ef4444;"
+onclick="updateRequestStatus('${r._id}','Declined')">
+❌ Decline
+</button>
+
+`;
+
+}
+
+else if(r.status==="Accepted"){
+
+buttons = `
+
+<button disabled>
+🟢 Accepted
+</button>
+
+<button
+style="background:#2563eb;"
+onclick="contactCustomer(
+'${r.studentPhone}',
+'${r.studentName}',
+'${r.service}',
+'${r.location}'
+)">
+💬 Contact Customer
+</button>
+
+<button
+style="background:#f59e0b;"
+onclick="completeJob('${r._id}')">
+🏆 Complete Job
+</button>
+
+`;
+
+}
+
+else if(r.status==="Completed"){
+
+buttons = `
+<button disabled>
+✅ Job Completed
+</button>
+`;
+
+}
+
+else if(r.status==="Declined"){
+
+buttons = `
+<button style="background:#ef4444;" disabled>
+❌ Declined
+</button>
+`;
+
+}
+
+html += `
+
+<div class="card">
+
+<b>👤 ${r.studentName || "Customer"}</b><br><br>
+
+📞 ${r.studentPhone || "No Phone"}<br><br>
+
+🛠 ${r.service || "Service"}<br><br>
+
+📍 ${r.location || "Unknown"}<br><br>
+
+📌 Status:
+<b>${r.status}</b><br><br>
+
+🗓
+${new Date(r.createdAt).toLocaleString()}
+
+${buttons}
+
+</div>
+
+`;
+
+});
+
+container.innerHTML = html;
+
+}catch(err){
+
+console.log(err);
+
+container.innerHTML =
+"Failed to load requests";
+
+}
+
+}
+
+async function updateRequestStatus(requestId,status){
+
+try{
+
+const res = await fetch(
+API+"/request/status",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+requestId,
+status
+})
+});
+
+const data = await res.json();
+
+alert(data.message);
+
+loadJobRequests();
+
+}catch(err){
+
+alert("Error");
+
+}
+
+}
+
+function contactCustomer(phone,name,service,location){
+
+if(!phone){
+
+alert("No phone number");
+
+return;
+
+}
+
+if(phone.startsWith("0")){
+
+phone =
+"234" + phone.substring(1);
+
+}
+
+const businessName =
+localStorage.getItem("businessName");
+
+const message =
+
+`Hello ${name},
+
+I received your request for ${service} in ${location}.
+
+I am ${businessName} and I am available to assist you.`;
+
+window.open(
+
+"https://wa.me/" +
+phone +
+"?text=" +
+encodeURIComponent(message),
+
+"_blank"
+
+);
+
+}
+
+async function completeJob(requestId){
+
+try{
+
+const res = await fetch(
+API+"/request/complete",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+requestId
+})
+});
+
+const data = await res.json();
+
+alert(data.message);
+
+loadJobRequests();
+
+}catch(err){
+
+alert("Error");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
