@@ -317,6 +317,14 @@ window.location.href=
 }
 
 loadBusiness();
+
+setInterval(()=>{
+
+loadNotificationBadge();
+
+loadQuickMenuCounts();
+
+},10000);
 async function loadBusiness(){
 
 try{
@@ -623,6 +631,9 @@ loadCustomerHistory();
 loadJobRequests();
 
 loadQuickMenuCounts();
+
+loadNotificationBadge();
+
 }catch(err){
 
 console.log(err);
@@ -1306,6 +1317,120 @@ console.log(err);
 alert("Failed to complete job");
 
 }
+
+}
+
+async function loadNotificationBadge(){
+
+try{
+
+const res=await fetch(
+API+"/notifications/business/"+businessId
+);
+
+const data=await res.json();
+
+const badge=document.getElementById("notificationCount");
+
+if(data.length>0){
+
+badge.style.display="block";
+
+badge.innerHTML=data.length;
+
+}else{
+
+badge.style.display="none";
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+async function openNotifications(){
+
+document.getElementById("notificationModal").style.display="block";
+
+const list=document.getElementById("notificationList");
+
+list.innerHTML="Loading...";
+
+try{
+
+await fetch(
+API+"/notifications/business/"+businessId+"/read",
+{
+method:"POST"
+}
+);
+
+const res=await fetch(
+API+"/notifications/business/"+businessId
+);
+
+const data=await res.json();
+
+document.getElementById("notificationCount").style.display="none";
+
+if(data.length===0){
+
+list.innerHTML="No notifications.";
+
+return;
+
+}
+
+let html="";
+
+data.forEach(n=>{
+
+html+=`
+
+<div style="
+background:#1e293b;
+padding:12px;
+border-radius:12px;
+margin-bottom:12px;
+">
+
+<b>${n.title}</b>
+
+<br><br>
+
+${n.message}
+
+<br><br>
+
+<small style="color:#94a3b8;">
+${new Date(n.createdAt).toLocaleString()}
+</small>
+
+</div>
+
+`;
+
+});
+
+list.innerHTML=html;
+
+}catch(err){
+
+console.log(err);
+
+list.innerHTML="Unable to load notifications.";
+
+}
+
+}
+
+function closeNotifications(){
+
+document.getElementById("notificationModal").style.display="none";
 
 }
 
