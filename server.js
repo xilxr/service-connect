@@ -488,6 +488,12 @@ NOTIFICATION SCHEMA
 =========================================
 */
 
+/*
+=========================================
+NOTIFICATION SCHEMA
+=========================================
+*/
+
 const Notification = mongoose.model("Notification",{
 
 title:String,
@@ -497,6 +503,21 @@ message:String,
 receiverType:String,
 
 receiverId:String,
+
+businessId:{
+type:String,
+default:""
+},
+
+studentPhone:{
+type:String,
+default:""
+},
+
+type:{
+type:String,
+default:"general"
+},
 
 read:{
 type:Boolean,
@@ -1013,6 +1034,20 @@ expiryDate.setDate(expiryDate.getDate() + 30);
 business.expiryDate = expiryDate;
     await business.save();
 
+    await Notification.create({
+
+title:"Account Approved",
+
+message:"Congratulations! Your business has been approved and is now visible to customers.",
+
+receiverType:"business",
+
+businessId:business._id,
+
+type:"approval"
+
+});
+
     res.json({
       message: "Business approved ✔"
     });
@@ -1311,11 +1346,11 @@ for(const worker of matches){
 
 await Request.create({
 
-businessId: worker._id,
+businessId:worker._id,
 
-studentName: studentName,
+studentName,
 
-studentPhone: studentPhone,
+studentPhone,
 
 message,
 
@@ -1323,7 +1358,23 @@ service,
 
 location,
 
-status: "Pending"
+status:"Pending"
+
+});
+
+await Notification.create({
+
+title:"New Job Request",
+
+message:`${studentName} requested ${worker.service}.`,
+
+receiverType:"business",
+
+businessId:worker._id,
+
+studentPhone,
+
+type:"job"
 
 });
 
@@ -1555,6 +1606,86 @@ res.json([]);
 
 /*
 ====================================
+GET BUSINESS NOTIFICATIONS
+====================================
+*/
+
+app.get("/notifications/business/:businessId",async(req,res)=>{
+
+try{
+
+const notifications=await Notification.find({
+
+businessId:req.params.businessId
+
+}).sort({
+
+createdAt:-1
+
+});
+
+res.json(notifications);
+
+}catch(err){
+
+console.log(err);
+
+res.json([]);
+
+}
+
+});
+
+/*
+====================================
+MARK BUSINESS NOTIFICATIONS AS READ
+====================================
+*/
+
+app.post("/notifications/business/:businessId/read",async(req,res)=>{
+
+try{
+
+await Notification.updateMany(
+
+{
+
+businessId:req.params.businessId,
+
+read:false
+
+},
+
+{
+
+$set:{read:true}
+
+}
+
+);
+
+res.json({
+
+message:"Notifications marked as read."
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.status(500).json({
+
+error:err.message
+
+});
+
+}
+
+});
+
+/*
+====================================
 AUTO EXPIRE BUSINESSES
 ====================================
 */
@@ -1586,6 +1717,20 @@ app.get("/admin/check-expiry", async (req, res) => {
       business.expiryDate = null;
 
       await business.save();
+
+      await Notification.create({
+
+title:"Subscription Expired",
+
+message:"Your subscription has expired. Renew now to continue receiving customers.",
+
+receiverType:"business",
+
+businessId:business._id,
+
+type:"subscription"
+
+});
 
     }
 
@@ -1957,6 +2102,20 @@ business.rating=
 total/business.reviewList.length;
 
 await business.save();
+
+await Notification.create({
+
+title:"New Review",
+
+message:`${studentName} left a ${rating}⭐ review.`,
+
+receiverType:"business",
+
+businessId:business._id,
+
+type:"review"
+
+});
 
 res.json({
 
