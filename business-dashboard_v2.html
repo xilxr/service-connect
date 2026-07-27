@@ -941,11 +941,76 @@ return;
 
 let html = "";
 
-data.forEach(r => {
+data.forEach(r=>{
+
+let buttons = "";
+
+if(r.status==="Pending"){
+
+buttons = `
+<button style="background:#16a34a;"
+onclick="updateRequestStatus('${r._id}','Accepted')">
+✅ Accept
+</button>
+
+<button style="background:#ef4444;"
+onclick="updateRequestStatus('${r._id}','Declined')">
+❌ Decline
+</button>
+`;
+
+}
+
+else if(r.status==="Accepted"){
+
+buttons = `
+<button style="background:#22c55e;" disabled>
+🟢 Accepted
+</button>
+
+<button style="background:#2563eb;"
+onclick="contactCustomer(
+'${r.studentPhone}',
+'${r.studentName}',
+'${r.service || r.message}',
+'${r.location}'
+)">
+💬 Contact Customer
+</button>
+
+<button style="background:#f59e0b;"
+onclick="completeJob('${r._id}')">
+🏆 Mark Job Completed
+</button>
+`;
+
+}
+
+else if(r.status==="Completed"){
+
+buttons = `
+<button style="background:#16a34a;" disabled>
+✅ Job Completed
+</button>
+`;
+
+}
+
+else if(r.status==="Declined"){
+
+buttons = `
+<button style="background:#ef4444;" disabled>
+❌ Request Declined
+</button>
+`;
+
+}
 
 html += `
 
-<div style="background:#1e293b;padding:14px;border-radius:12px;margin-top:10px;"><b>👤 ${r.studentName || "Service Connect Visitor"}</b><br>
+<div style="background:#1e293b;padding:14px;border-radius:12px;margin-top:12px;">
+
+<b>👤 ${r.studentName || "Service Connect Visitor"}</b><br>
 
 📞 ${r.studentPhone || "No phone provided"}<br>
 
@@ -953,100 +1018,12 @@ html += `
 
 📍 ${r.location || "Unknown location"}<br>
 
-📌 Status: <b id="status-${r._id}">${r.status}</b><br>
+📌 Status:
+<b>${r.status}</b><br>
 
 🗓 ${new Date(r.createdAt).toLocaleString()}
 
-let buttons="";
-
-
-if(r.status==="Pending"){
-
-buttons = `
-
-<button style="background:#16a34a;"
-onclick="updateRequestStatus('${r._id}','Accepted')">
-
-✅ Accept
-
-</button>
-
-
-<button style="background:#ef4444;"
-onclick="updateRequestStatus('${r._id}','Declined')">
-
-❌ Decline
-
-</button>
-
-`;
-
-}
-
-
-else if(r.status==="Accepted"){
-
-buttons = `
-
-
-<button style="background:#22c55e;">
-
-🟢 Accepted
-
-</button>
-
-
-<button style="background:#2563eb;"
-onclick="contactCustomer('${r.studentPhone}','${r.studentName}','${r.service || r.message}','${r.location}')">
-
-💬 Contact Customer
-
-</button>
-
-
-<button style="background:#f59e0b;"
-onclick="completeJob('${r._id}')">
-
-🏆 Mark Job Completed
-
-</button>
-
-
-`;
-
-}
-
-
-else if(r.status==="Completed"){
-
-buttons = `
-
-<button style="background:#16a34a;">
-
-✅ Job Completed
-
-</button>
-
-`;
-
-}
-
-
-else if(r.status==="Declined"){
-
-buttons = `
-
-<button style="background:#ef4444;">
-
-❌ Request Declined
-
-</button>
-
-`;
-
-}
-
-<div style="margin-top:12px;">
+<div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
 
 ${buttons}
 
@@ -1059,6 +1036,7 @@ ${buttons}
 });
 
 container.innerHTML = html;
+
 }catch(err){
 
 console.log(err);
