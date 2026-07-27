@@ -1520,6 +1520,39 @@ app.post("/business/availability", async (req, res) => {
   }
 
 });
+
+/*
+====================================
+GET STUDENT NOTIFICATIONS
+====================================
+*/
+
+app.get("/student/notifications/:phone", async (req,res)=>{
+
+try{
+
+const notifications = await Notification.find({
+
+receiverId:req.params.phone
+
+}).sort({
+
+createdAt:-1
+
+});
+
+res.json(notifications);
+
+}catch(err){
+
+console.log(err);
+
+res.json([]);
+
+}
+
+});
+
 /*
 ====================================
 AUTO EXPIRE BUSINESSES
