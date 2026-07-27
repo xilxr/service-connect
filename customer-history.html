@@ -1,1 +1,165 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Customer History</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#020617;
+color:white;
+padding:18px;
+}
+
+.header{
+text-align:center;
+margin-bottom:20px;
+}
+
+.header h1{
+color:#22c55e;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border:none;
+border-radius:10px;
+background:#475569;
+color:white;
+cursor:pointer;
+}
+
+.card{
+background:#0f172a;
+padding:15px;
+border-radius:15px;
+margin-top:15px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>📋 Customer History</h1>
+
+</div>
+
+<button onclick="location.href='business-dashboard_v2.html'">
+
+⬅ Back To Dashboard
+
+</button>
+
+<div id="historyContainer">
+
+Loading...
+
+</div>
+
+<script>
+
+const API="https://service-backend-jezm.onrender.com";
+
+const businessId=
+localStorage.getItem("businessId");
+
+loadCustomerHistory();
+
+async function loadCustomerHistory(){
+
+const container=
+document.getElementById("historyContainer");
+
+container.innerHTML="Loading...";
+
+try{
+
+const res=
+await fetch(API+"/customer-history/"+businessId);
+
+const data=
+await res.json();
+
+if(!data || data.length===0){
+
+container.innerHTML="No customer history yet.";
+
+return;
+
+}
+
+let html="";
+
+data.forEach(c=>{
+
+html+=`
+
+<div class="card">
+
+<h3>👤 ${c.studentName || "Anonymous"}</h3>
+
+<p style="margin-top:10px;">
+
+📞 ${c.studentPhone || "No phone"}
+
+</p>
+
+<p style="margin-top:10px;">
+
+🛠 ${c.service || "Unknown Service"}
+
+</p>
+
+<p style="margin-top:10px;">
+
+📌 ${c.status}
+
+</p>
+
+<p style="margin-top:10px;color:#94a3b8;">
+
+${new Date(c.createdAt).toLocaleDateString()}
+
+</p>
+
+</div>
+
+`;
+
+});
+
+container.innerHTML=html;
+
+}catch(err){
+
+console.log(err);
+
+container.innerHTML="Unable to load history.";
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>
