@@ -1714,6 +1714,99 @@ error:"Unable to record click."
 }
 
 });
+
+/*
+====================================
+BUSINESS REQUEST COUNT
+====================================
+*/
+
+app.get("/business/:id/requests/count", async (req,res)=>{
+
+try{
+
+const count = await Request.countDocuments({
+
+businessId:req.params.id,
+
+status:"Pending"
+
+});
+
+res.json({count});
+
+}catch(err){
+
+console.log(err);
+
+res.json({count:0});
+
+}
+
+});
+
+/*
+====================================
+BUSINESS REVIEW COUNT
+====================================
+*/
+
+app.get("/business/:id/reviews/count", async(req,res)=>{
+
+try{
+
+const business = await Business.findById(req.params.id);
+
+if(!business){
+
+return res.json({count:0});
+
+}
+
+res.json({
+
+count:business.reviewList.length
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({count:0});
+
+}
+
+});
+
+/*
+====================================
+CUSTOMER HISTORY COUNT
+====================================
+*/
+
+app.get("/business/:id/history/count", async(req,res)=>{
+
+try{
+
+const count = await CustomerHistory.countDocuments({
+
+businessId:req.params.id
+
+});
+
+res.json({count});
+
+}catch(err){
+
+console.log(err);
+
+res.json({count:0});
+
+}
+
+});
+
 /*
 =========================================
 START SERVER
