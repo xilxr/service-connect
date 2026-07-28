@@ -993,6 +993,20 @@ const res = await fetch(API + "/business/" + businessId + "/requests");
 
 const data = await res.json();
 
+await fetch(
+
+API + "/business/" + businessId + "/requests/viewed",
+
+{
+
+method:"POST"
+
+}
+
+);
+
+loadQuickMenuCounts();
+
 if(!data || data.length===0){
 
 container.innerHTML = "No job requests yet.";
