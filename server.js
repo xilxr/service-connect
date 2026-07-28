@@ -1333,7 +1333,7 @@ return b.rating - a.rating;
 
 });
 
-    for(const worker of matches){
+for(const worker of matches){
 
 worker.searchAppearances++;
 
@@ -1341,27 +1341,25 @@ worker.totalLeads++;
 
 await worker.save();
 
-await CustomerHistory.create({
-
-businessId:worker._id,
-
-studentName: studentName,
-
-studentPhone: studentPhone,
-
-service:worker.service,
-
-status:"New Lead"
-
-});
-
 }
 
 for(const worker of matches){
 
+const existingRequest = await Request.findOne({
+
+businessId: worker._id,
+
+studentPhone,
+
+status: "Pending"
+
+});
+
+if(!existingRequest){
+
 await Request.create({
 
-businessId:worker._id,
+businessId: worker._id,
 
 studentName,
 
@@ -1376,6 +1374,8 @@ location,
 status:"Pending"
 
 });
+
+}
 
 await Notification.create({
 
