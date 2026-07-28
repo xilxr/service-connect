@@ -1332,15 +1332,17 @@ const data=await res.json();
 
 const badge=document.getElementById("notificationCount");
 
-if(data.length>0){
+const unread = data.filter(n => !n.read);
 
-badge.style.display="block";
+if(unread.length > 0){
 
-badge.innerHTML=data.length;
+    badge.style.display = "block";
+    badge.innerHTML = unread.length;
 
 }else{
 
-badge.style.display="none";
+    badge.style.display = "none";
+    badge.innerHTML = "0";
 
 }
 
