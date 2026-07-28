@@ -273,6 +273,11 @@ type:String,
 default:"Pending"
 },
 
+viewed:{
+type:Boolean,
+default:false
+},
+
 createdAt:{
 type:Date,
 default:Date.now
@@ -1907,7 +1912,9 @@ const count = await Request.countDocuments({
 
 businessId:req.params.id,
 
-status:"Pending"
+status:"Pending",
+
+viewed:false
 
 });
 
@@ -1918,6 +1925,54 @@ res.json({count});
 console.log(err);
 
 res.json({count:0});
+
+}
+
+});
+
+/*
+====================================
+MARK REQUESTS AS VIEWED
+====================================
+*/
+
+app.post("/business/:id/requests/viewed", async (req,res)=>{
+
+try{
+
+await Request.updateMany(
+
+{
+
+businessId:req.params.id,
+
+viewed:false
+
+},
+
+{
+
+$set:{viewed:true}
+
+}
+
+);
+
+res.json({
+
+message:"Requests marked as viewed."
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to update requests."
+
+});
 
 }
 
