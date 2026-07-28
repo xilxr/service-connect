@@ -326,6 +326,8 @@ loadQuickMenuCounts();
 
 loadJobRequests();
 
+loadBusinessAnalytics();
+
 },10000);
 async function loadBusiness(){
 
@@ -575,25 +577,25 @@ Logout
 <div style="line-height:2.2;margin-top:15px;">
 
 <div>👀 Profile Views:
-<b>${business.profileViews}</b></div>
+<b id="analyticsViews">${business.profileViews}</b></div>
 
 <div>🔍 Search Appearances:
-<b>${business.searchAppearances}</b></div>
+<b id="analyticsSearch">${business.searchAppearances}</b></div>
 
 <div>📞 Call Clicks:
-<b>${business.callClicks}</b></div>
+<b id="analyticsCalls">${business.callClicks}</b></div>
 
 <div>💬 WhatsApp Clicks:
-<b>${business.whatsappClicks}</b></div>
+<b id="analyticsWhatsapp">${business.whatsappClicks}</b></div>
 
 <div>🎯 Total Leads:
-<b>${business.totalLeads}</b></div>
+<b id="analyticsLeads">${business.totalLeads}</b></div>
 
 <div>✅ Jobs Completed:
-<b>${business.jobsCompleted}</b></div>
+<b id="analyticsJobs">${business.jobsCompleted}</b></div>
 
 <div>🏆 Trust Score:
-<b>${business.trustScore}%</b></div>
+<b id="analyticsTrust">${business.trustScore}%</b></div>
 
 </div>
 
@@ -822,6 +824,43 @@ document.getElementById("historyCount").innerHTML =
 historyData.count > 0
 ? ` 🔴 ${historyData.count}`
 : "";
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+async function loadBusinessAnalytics(){
+
+try{
+
+const res = await fetch(API + "/business/" + businessId);
+
+const business = await res.json();
+
+document.getElementById("analyticsViews").innerHTML =
+business.profileViews;
+
+document.getElementById("analyticsSearch").innerHTML =
+business.searchAppearances;
+
+document.getElementById("analyticsCalls").innerHTML =
+business.callClicks;
+
+document.getElementById("analyticsWhatsapp").innerHTML =
+business.whatsappClicks;
+
+document.getElementById("analyticsLeads").innerHTML =
+business.totalLeads;
+
+document.getElementById("analyticsJobs").innerHTML =
+business.jobsCompleted;
+
+document.getElementById("analyticsTrust").innerHTML =
+business.trustScore + "%";
 
 }catch(err){
 
@@ -1319,12 +1358,15 @@ requestId
 
 const data = await res.json();
 
-
 alert(data.message || data.error);
 
+loadJobRequests();
 
-loadBusiness();
+loadQuickMenuCounts();
 
+loadNotificationBadge();
+
+loadRemainingDays();
 
 }catch(err){
 
