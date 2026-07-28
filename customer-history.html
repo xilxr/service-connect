@@ -98,6 +98,18 @@ await fetch(API+"/customer-history/"+businessId);
 const data=
 await res.json();
 
+await fetch(
+
+API + "/customer-history/" + businessId + "/viewed",
+
+{
+
+method:"POST"
+
+}
+
+);
+
 if(!data || data.length===0){
 
 container.innerHTML="No customer history yet.";
