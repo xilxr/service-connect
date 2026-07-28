@@ -204,6 +204,11 @@ type:Boolean,
 default:false
 },
 
+viewed:{
+type:Boolean,
+default:false
+},
+
 createdAt:{
 type:Date,
 default:Date.now
@@ -2031,7 +2036,9 @@ try{
 
 const count = await CustomerHistory.countDocuments({
 
-businessId:req.params.id
+businessId:req.params.id,
+
+viewed:false
 
 });
 
@@ -2332,6 +2339,54 @@ res.json(history);
 console.log(err);
 
 res.json([]);
+
+}
+
+});
+
+/*
+====================================
+MARK CUSTOMER HISTORY AS VIEWED
+====================================
+*/
+
+app.post("/customer-history/:businessId/viewed", async (req,res)=>{
+
+try{
+
+await CustomerHistory.updateMany(
+
+{
+
+businessId:req.params.businessId,
+
+viewed:false
+
+},
+
+{
+
+$set:{viewed:true}
+
+}
+
+);
+
+res.json({
+
+message:"Customer history marked as viewed."
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to update customer history."
+
+});
 
 }
 
