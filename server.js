@@ -99,6 +99,11 @@ type:String,
 default:""
 },
 
+viewed:{
+type:Boolean,
+default:false
+},
+
 createdAt:{
 type:Date,
 default:Date.now
@@ -1996,9 +2001,11 @@ return res.json({count:0});
 
 }
 
+const unreadReviews = business.reviewList.filter(r => !r.viewed);
+
 res.json({
 
-count:business.reviewList.length
+count: unreadReviews.length
 
 });
 
@@ -2051,6 +2058,56 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
 
   console.log("🚀 Service Connect Backend V2 Running on Port " + PORT);
+
+});
+
+/*
+====================================
+MARK REVIEWS AS VIEWED
+====================================
+*/
+
+app.post("/business/:id/reviews/viewed", async(req,res)=>{
+
+try{
+
+const business = await Business.findById(req.params.id);
+
+if(!business){
+
+return res.json({
+
+error:"Business not found"
+
+});
+
+}
+
+business.reviewList.forEach(review=>{
+
+review.viewed = true;
+
+});
+
+await business.save();
+
+res.json({
+
+message:"Reviews marked as viewed."
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to update reviews."
+
+});
+
+}
 
 });
 
