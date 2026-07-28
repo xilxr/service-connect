@@ -1826,6 +1826,62 @@ app.get("/business/:id/remaining-days", async (req, res) => {
 
 /*
 ====================================
+BUSINESS ANALYTICS
+====================================
+*/
+
+app.get("/business/:id/analytics", async (req,res)=>{
+
+try{
+
+const business = await Business.findById(req.params.id);
+
+if(!business){
+
+return res.json({
+error:"Business not found"
+});
+
+}
+
+res.json({
+
+profileViews:business.profileViews,
+
+searchAppearances:business.searchAppearances,
+
+callClicks:business.callClicks,
+
+whatsappClicks:business.whatsappClicks,
+
+totalLeads:business.totalLeads,
+
+jobsCompleted:business.jobsCompleted,
+
+trustScore:business.trustScore,
+
+rating:business.rating,
+
+reviews:business.reviews
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to load analytics"
+
+});
+
+}
+
+});
+
+/*
+====================================
 WHATSAPP CLICK
 ====================================
 */
