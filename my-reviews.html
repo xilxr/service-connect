@@ -132,6 +132,18 @@ API+"/business/"+businessId+"/reviews"
 const data =
 await res.json();
 
+await fetch(
+
+API + "/business/" + businessId + "/reviews/viewed",
+
+{
+
+method:"POST"
+
+}
+
+);
+
 if(!data.reviews || data.reviews.length===0){
 
 summary.innerHTML=`
