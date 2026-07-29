@@ -954,43 +954,35 @@ localStorage.getItem("studentName");
 const studentPhone =
 localStorage.getItem("studentPhone");
 
-if(!studentName || !studentPhone){
+const service =
+document.getElementById("service").value.trim();
 
-alert("Please search for a worker first.");
-
-return;
-
-}
+const location =
+localStorage.getItem("studentLocation");
 
 try{
 
-const res = await fetch(API+"/business/"+id+"/requests");
+const res = await fetch(API+"/request",{
 
-const requests = await res.json();
+method:"POST",
 
-let request = null;
+headers:{
+"Content-Type":"application/json"
+},
 
-for(const r of requests){
+body:JSON.stringify({
 
-if(
-r.studentPhone === studentPhone &&
-r.status === "Accepted"
-){
+studentName,
+studentPhone,
+message:service,
+location,
+businessId:id
 
-request = r;
-break;
+})
 
-}
+});
 
-}
-
-if(!request){
-
-alert("The worker has not accepted your request yet.");
-
-return;
-
-}
+const request = await res.json();
 
 localStorage.setItem(
 "chatRequestId",
@@ -1007,9 +999,7 @@ window.location.href =
 
 }catch(err){
 
-console.log(err);
-
-alert("Unable to open chat.");
+alert("Unable to start chat.");
 
 }
 
