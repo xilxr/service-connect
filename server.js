@@ -503,12 +503,6 @@ NOTIFICATION SCHEMA
 =========================================
 */
 
-/*
-=========================================
-NOTIFICATION SCHEMA
-=========================================
-*/
-
 const Notification = mongoose.model("Notification",{
 
 title:String,
@@ -1374,8 +1368,6 @@ location,
 status:"Pending"
 
 });
-
-}
 
 await Notification.create({
 
