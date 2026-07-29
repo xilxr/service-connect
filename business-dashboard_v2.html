@@ -256,6 +256,10 @@ text-align:center;
 
 <body>
 
+<audio id="jobAlertSound" preload="auto">
+<source src="https://actions.google.com/sounds/v1/alarms/notification.ogg" type="audio/ogg">
+</audio>
+
 <div class="header">
 
 <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -303,6 +307,8 @@ Loading...
 </div>
 
 <script>
+
+let lastPopupRequestId = "";
 
 const API="https://service-backend-jezm.onrender.com";
 
@@ -1034,6 +1040,52 @@ const res = await fetch(API + "/business/" + businessId + "/requests");
 
 const data = await res.json();
 
+// Show popup if there is any new pending request
+
+const pendingRequests = data.filter(r => r.status === "Pending");
+
+if (pendingRequests.length > 0) {
+
+    const newest = pendingRequests[0];
+
+    if (newest._id !== lastPopupRequestId) {
+
+        lastPopupRequestId = newest._id;
+
+        const popup = document.getElementById("jobPopup");
+        const text = document.getElementById("jobPopupText");
+
+        if (popup && text) {
+
+            text.innerHTML =
+            "👤 " + (newest.studentName || "Customer") +
+            "<br>🛠 " + (newest.service || "Service Request") +
+            "<br>📍 " + (newest.location || "Unknown Location");
+
+            popup.style.display = "block";
+
+            const sound = document.getElementById("jobAlertSound");
+
+if(sound){
+
+sound.currentTime = 0;
+
+sound.play().catch(()=>{});
+
+}
+
+            setTimeout(() => {
+
+                popup.style.display = "none";
+
+            }, 8000);
+
+        }
+
+    }
+
+}
+
 await fetch(
 
 API + "/business/" + businessId + "/requests/viewed",
@@ -1539,6 +1591,39 @@ overflow:auto;
 id="notificationList"
 style="margin-top:20px;">
 Loading...
+</div>
+
+<div id="jobPopup" style="
+display:none;
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#16a34a;
+color:white;
+padding:18px;
+border-radius:15px;
+width:90%;
+max-width:360px;
+box-shadow:0 10px 30px rgba(0,0,0,.4);
+z-index:1000;
+text-align:center;
+">
+
+<h3>🔔 New Job Request</h3>
+
+<p id="jobPopupText">
+You have a new customer.
+</p>
+
+<button
+style="background:#0f172a;margin-top:10px;"
+onclick="
+location.href='my-job-requests.html';
+">
+View Request
+</button>
+
 </div>
 
 <button
