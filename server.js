@@ -2152,6 +2152,58 @@ res.json({count:0});
 });
 
 /*
+====================================
+SEND CHAT MESSAGE
+====================================
+*/
+
+app.post("/chat/send", async (req,res)=>{
+
+try{
+
+const{
+
+requestId,
+businessId,
+studentPhone,
+senderType,
+message
+
+}=req.body;
+
+const chat = await Chat.create({
+
+requestId,
+businessId,
+studentPhone,
+senderType,
+message
+
+});
+
+res.json({
+
+message:"Message sent ✔",
+
+chat
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to send message."
+
+});
+
+}
+
+});
+
+/*
 =========================================
 START SERVER
 =========================================
