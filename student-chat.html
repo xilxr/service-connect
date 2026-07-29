@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Student Chat</title>
+
+<style>
+
+body{
+
+margin:0;
+font-family:Arial,sans-serif;
+background:#020617;
+color:white;
+
+}
+
+.header{
+
+background:#16a34a;
+padding:18px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+
+}
+
+#messages{
+
+height:65vh;
+overflow-y:auto;
+padding:15px;
+
+}
+
+.message{
+
+padding:12px;
+border-radius:12px;
+margin:10px 0;
+max-width:80%;
+
+}
+
+.student{
+
+background:#2563eb;
+margin-left:auto;
+
+}
+
+.business{
+
+background:#1e293b;
+margin-right:auto;
+
+}
+
+.bottom{
+
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+display:flex;
+padding:10px;
+background:#0f172a;
+
+}
+
+input{
+
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+outline:none;
+
+}
+
+button{
+
+margin-left:10px;
+padding:12px 18px;
+background:#22c55e;
+border:none;
+color:white;
+border-radius:10px;
+cursor:pointer;
+
+}
+
+.back{
+
+background:#475569;
+margin:10px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<button class="back"
+onclick="history.back()">
+
+⬅ Back
+
+</button>
+
+<div class="header">
+
+💬 Student Chat
+
+</div>
+
+<div id="messages">
+
+Loading...
+
+</div>
+
+<div class="bottom">
+
+<input
+id="message"
+placeholder="Type message...">
+
+<button
+onclick="sendMessage()">
+
+Send
+
+</button>
+
+</div>
+
+<script>
+
+const API =
+"https://service-backend-jezm.onrender.com";
+
+const requestId =
+localStorage.getItem("chatRequestId");
+
+const studentPhone =
+localStorage.getItem("studentPhone");
+
+const businessId =
+localStorage.getItem("chatBusinessId");
+
+loadMessages();
+
+setInterval(loadMessages,2000);
+
+async function loadMessages(){
+
+try{
+
+const res =
+await fetch(
+API+"/chat/messages/"+requestId
+);
+
+const data =
+await res.json();
+
+const box =
+document.getElementById("messages");
+
+let html="";
+
+data.forEach(m=>{
+
+html +=
+
+`<div class="message ${
+m.senderType==="student"
+?"student"
+:"business"
+}">
+
+${m.message}
+
+</div>`;
+
+});
+
+box.innerHTML=html;
+
+box.scrollTop=
+box.scrollHeight;
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+async function sendMessage(){
+
+const message =
+document.getElementById("message").value.trim();
+
+if(message==="") return;
+
+await fetch(
+
+API+"/chat/send",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+requestId,
+
+businessId,
+
+studentPhone,
+
+senderType:"student",
+
+message
+
+})
+
+}
+
+);
+
+document.getElementById("message").value="";
+
+loadMessages();
+
+}
+
+</script>
+
+</body>
+
+</html>
