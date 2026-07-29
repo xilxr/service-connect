@@ -321,6 +321,11 @@ alert("Error");
 
 }
 
+// Automatically refresh job requests every 5 seconds
+setInterval(() => {
+    loadJobRequests();
+}, 5000);
+
 </script>
 
 </body>
