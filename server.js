@@ -185,6 +185,8 @@ const CustomerHistory = mongoose.model("CustomerHistory",{
 
 businessId:String,
 
+requestId:String,
+
 studentName:String,
 
 studentPhone:{
@@ -358,6 +360,21 @@ if(status==="Accepted"){
 message =
 `${business.name} has accepted your ${request.service} request. The professional will contact you shortly.`;
 
+await CustomerHistory.create({
+
+businessId: business._id,
+
+requestId: request._id,
+
+studentName: request.studentName,
+
+studentPhone: request.studentPhone,
+
+service: request.service,
+
+status: "Accepted"
+
+});
 
 }
 
