@@ -297,6 +297,36 @@ default:Date.now
 
 });
 
+/*
+=========================================
+CHAT SCHEMA
+=========================================
+*/
+
+const Chat = mongoose.model("Chat",{
+
+requestId:String,
+
+businessId:String,
+
+studentPhone:String,
+
+senderType:String,
+
+message:String,
+
+read:{
+type:Boolean,
+default:false
+},
+
+createdAt:{
+type:Date,
+default:Date.now
+}
+
+});
+
 app.get("/business/:id/requests", async (req, res) => {
 
 try {
