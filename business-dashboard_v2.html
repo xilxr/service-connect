@@ -1064,6 +1064,13 @@ if (pendingRequests.length > 0) {
 
             popup.style.display = "block";
 
+setTimeout(()=>{
+
+popup.style.bottom = "20px";
+popup.style.opacity = "1";
+
+},20);
+
             const sound = document.getElementById("jobAlertSound");
 
 if(sound){
@@ -1074,11 +1081,18 @@ sound.play().catch(()=>{});
 
 }
 
-            setTimeout(() => {
+            setTimeout(()=>{
 
-                popup.style.display = "none";
+popup.style.opacity = "0";
+popup.style.bottom = "-200px";
 
-            }, 8000);
+setTimeout(()=>{
+
+popup.style.display = "none";
+
+},400);
+
+},8000);
 
         }
 
@@ -1596,9 +1610,11 @@ Loading...
 <div id="jobPopup" style="
 display:none;
 position:fixed;
-bottom:20px;
+bottom:-200px;
 left:50%;
 transform:translateX(-50%);
+opacity:0;
+transition:all .4s ease;
 background:#16a34a;
 color:white;
 padding:18px;
