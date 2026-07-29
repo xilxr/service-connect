@@ -2204,6 +2204,38 @@ error:"Unable to send message."
 });
 
 /*
+====================================
+GET CHAT MESSAGES
+====================================
+*/
+
+app.get("/chat/messages/:requestId", async (req,res)=>{
+
+try{
+
+const messages = await Chat.find({
+
+requestId:req.params.requestId
+
+}).sort({
+
+createdAt:1
+
+});
+
+res.json(messages);
+
+}catch(err){
+
+console.log(err);
+
+res.json([]);
+
+}
+
+});
+
+/*
 =========================================
 START SERVER
 =========================================
