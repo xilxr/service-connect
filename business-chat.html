@@ -1,9 +1,261 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>Business Chat</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#020617;
+color:white;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+.header{
+background:#0f172a;
+padding:18px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.header h2{
+color:#22c55e;
+font-size:22px;
+}
+
+#chatBox{
+flex:1;
+overflow-y:auto;
+padding:15px;
+}
+
+.message{
+max-width:80%;
+padding:12px;
+margin:10px 0;
+border-radius:12px;
+word-wrap:break-word;
+}
+
+.me{
+background:#22c55e;
+margin-left:auto;
+color:white;
+}
+
+.other{
+background:#1e293b;
+margin-right:auto;
+}
+
+.time{
+font-size:11px;
+opacity:.7;
+margin-top:5px;
+}
+
+.footer{
+display:flex;
+padding:15px;
+background:#0f172a;
+gap:10px;
+}
+
+input{
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+outline:none;
+}
+
+button{
+padding:12px 18px;
+border:none;
+border-radius:10px;
+background:#22c55e;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.back{
+background:#475569;
+margin:10px;
+}
+
+</style>
+
 </head>
+
 <body>
 
+<button class="back"
+onclick="history.back()">
+⬅ Back
+</button>
+
+<div class="header">
+
+<h2 id="customerName">
+Business Chat
+</h2>
+
+</div>
+
+<div id="chatBox">
+
+Loading conversation...
+
+</div>
+
+<div class="footer">
+
+<input
+id="message"
+placeholder="Type your message...">
+
+<button
+onclick="sendMessage()">
+Send
+</button>
+
+</div>
+
+<script>
+
+const API="https://service-backend-jezm.onrender.com";
+
+const businessId=localStorage.getItem("businessId");
+
+const roomId=
+localStorage.getItem("chatRoomId");
+
+const customerName=
+localStorage.getItem("chatCustomerName");
+
+document.getElementById("customerName").innerHTML=
+customerName || "Customer";
+
+loadMessages();
+
+setInterval(loadMessages,3000);
+
+async function loadMessages(){
+
+try{
+
+const res=await fetch(
+API+"/chat/"+roomId
+);
+
+const messages=await res.json();
+
+const chat=document.getElementById("chatBox");
+
+if(!messages.length){
+
+chat.innerHTML="No messages yet.";
+
+return;
+
+}
+
+let html="";
+
+messages.forEach(m=>{
+
+html+=`
+
+<div class="message ${m.senderType==="business"?"me":"other"}">
+
+${m.message}
+
+<div class="time">
+
+${new Date(m.createdAt).toLocaleTimeString()}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+chat.innerHTML=html;
+
+chat.scrollTop=chat.scrollHeight;
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+async function sendMessage(){
+
+const input=document.getElementById("message");
+
+const message=input.value.trim();
+
+if(!message) return;
+
+try{
+
+await fetch(API+"/chat/send",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+roomId,
+
+senderType:"business",
+
+senderId:businessId,
+
+message
+
+})
+
+});
+
+input.value="";
+
+loadMessages();
+
+}catch(err){
+
+alert("Unable to send message");
+
+}
+
+}
+
+</script>
+
 </body>
+
 </html>
