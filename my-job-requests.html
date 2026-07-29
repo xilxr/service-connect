@@ -143,10 +143,9 @@ buttons = `
 style="background:#2563eb;"
 onclick="openChat(
 '${r._id}',
-'${r.studentPhone}',
-'${r.studentName}'
-)"
-💬 Contact Customer
+'${r.studentPhone}'
+)">
+💬 Open Chat
 </button>
 
 <button
@@ -288,6 +287,23 @@ loadJobRequests();
 alert("Error");
 
 }
+
+}
+
+function openChat(requestId,studentPhone){
+
+localStorage.setItem(
+"chatRequestId",
+requestId
+);
+
+localStorage.setItem(
+"chatStudentPhone",
+studentPhone
+);
+
+window.location.href =
+"business-chat.html";
 
 }
 
