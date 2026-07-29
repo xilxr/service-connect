@@ -141,12 +141,11 @@ buttons = `
 
 <button
 style="background:#2563eb;"
-onclick="contactCustomer(
+onclick="openChat(
+'${r._id}',
 '${r.studentPhone}',
-'${r.studentName}',
-'${r.service}',
-'${r.location}'
-)">
+'${r.studentName}'
+)"
 💬 Contact Customer
 </button>
 
@@ -250,44 +249,15 @@ alert("Error");
 
 }
 
-function contactCustomer(phone,name,service,location){
+function openChat(requestId,studentPhone,studentName){
 
-if(!phone){
+localStorage.setItem("chatRoomId",requestId);
 
-alert("No phone number");
+localStorage.setItem("chatCustomerPhone",studentPhone);
 
-return;
+localStorage.setItem("chatCustomerName",studentName);
 
-}
-
-if(phone.startsWith("0")){
-
-phone =
-"234" + phone.substring(1);
-
-}
-
-const businessName =
-localStorage.getItem("businessName");
-
-const message =
-
-`Hello ${name},
-
-I received your request for ${service} in ${location}.
-
-I am ${businessName} and I am available to assist you.`;
-
-window.open(
-
-"https://wa.me/" +
-phone +
-"?text=" +
-encodeURIComponent(message),
-
-"_blank"
-
-);
+window.location.href="business-chat.html";
 
 }
 
