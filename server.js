@@ -317,6 +317,11 @@ senderType:String,
 
 message:String,
 
+unread:{
+type:Boolean,
+default:true
+},
+
 read:{
 type:Boolean,
 default:false
@@ -2246,7 +2251,11 @@ requestId,
 businessId,
 studentPhone,
 senderType,
-message
+message,
+
+unread:true,
+
+read:false
 
 });
 
