@@ -1681,6 +1681,56 @@ res.json([]);
 
 /*
 ====================================
+MARK STUDENT NOTIFICATIONS AS READ
+====================================
+*/
+
+app.post("/student/notifications/read", async (req,res)=>{
+
+try{
+
+const { phone } = req.body;
+
+await Notification.updateMany(
+
+{
+
+receiverId: phone,
+receiverType: "student",
+read: false
+
+},
+
+{
+
+$set:{read:true}
+
+}
+
+);
+
+res.json({
+
+message:"Student notifications marked as read."
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+error:"Unable to update notifications."
+
+});
+
+}
+
+});
+
+/*
+====================================
 GET BUSINESS NOTIFICATIONS
 ====================================
 */
