@@ -1089,40 +1089,28 @@ alert("Rating failed.");
 
 async function loadStudentNotifications(){
 
-const phone =
-localStorage.getItem("studentPhone");
+const phone = localStorage.getItem("studentPhone");
 
 if(!phone){
-
 alert("Search for a worker first.");
-
 return;
-
 }
 
-document.getElementById(
-"studentNotificationModal"
-).style.display="block";
+document.getElementById("studentNotificationModal").style.display="block";
 
-const list =
-document.getElementById(
-"studentNotificationList"
-);
+const list=document.getElementById("studentNotificationList");
 
 list.innerHTML="Loading...";
 
 try{
 
-const res = await fetch(
-API+"/student/notifications/"+phone
-);
+const res=await fetch(API+"/student/notifications/"+phone);
 
-const notifications = await res.json();
+const notifications=await res.json();
 
 if(notifications.length===0){
 
 list.innerHTML="No notifications yet.";
-
 return;
 
 }
@@ -1131,14 +1119,31 @@ let html="";
 
 notifications.forEach(n=>{
 
-html += `
+let button="";
+
+if(n.type==="chat"){
+
+button=`
+
+<button
+style="margin-top:10px;background:#22c55e;"
+onclick="openStudentChat('${n.requestId}','${n.businessId}')">
+
+💬 Open Chat
+
+</button>
+
+`;
+
+}
+
+html+=`
 
 <div style="
 background:#1e293b;
 padding:12px;
 border-radius:12px;
-margin-bottom:12px;
-">
+margin-bottom:12px;">
 
 <b>${n.title}</b>
 
@@ -1147,6 +1152,8 @@ margin-bottom:12px;
 ${n.message}
 
 <br><br>
+
+${button}
 
 <small style="color:#94a3b8;">
 ${new Date(n.createdAt).toLocaleString()}
@@ -1160,10 +1167,6 @@ ${new Date(n.createdAt).toLocaleString()}
 
 list.innerHTML=html;
 
-document.getElementById(
-"studentNotificationCount"
-).style.display="none";
-
 }catch(err){
 
 console.log(err);
@@ -1171,6 +1174,16 @@ console.log(err);
 list.innerHTML="Unable to load notifications.";
 
 }
+
+}
+
+async function openStudentChat(requestId,businessId){
+
+localStorage.setItem("chatRequestId",requestId);
+
+localStorage.setItem("chatBusinessId",businessId);
+
+window.location.href="student-chat.html";
 
 }
 
