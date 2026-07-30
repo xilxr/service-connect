@@ -1179,12 +1179,12 @@ list.innerHTML="Unable to load notifications.";
 
 async function openStudentChat(requestId,businessId){
 
-localStorage.setItem("chatRequestId",requestId);
+localStorage.setItem("chatRequestId", request._id);
 
-localStorage.setItem("chatBusinessId",businessId);
+localStorage.setItem("chatBusinessId", id);
 
-window.location.href="student-chat.html";
-
+window.location.href =
+"student-chat.html?requestId=" + request._id;
 }
 
 function closeStudentNotifications(){
