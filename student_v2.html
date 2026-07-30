@@ -900,7 +900,7 @@ style="background:${trustColor};">
 
 <div class="action">
 
-<button onclick="chat('${worker.phone}','${worker._id}')">
+<button onclick="chat('${worker.phone}','${worker._id}','${worker.requestId}')"
 
 💬 WhatsApp
 
@@ -946,47 +946,11 @@ document.getElementById("results").innerHTML=
 
 }
 
-async function chat(phone,id){
-
-const studentName =
-localStorage.getItem("studentName");
-
-const studentPhone =
-localStorage.getItem("studentPhone");
-
-const service =
-document.getElementById("service").value.trim();
-
-const location =
-localStorage.getItem("studentLocation");
-
-try{
-
-const res = await fetch(API+"/request",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-studentName,
-studentPhone,
-message:service,
-location,
-businessId:id
-
-})
-
-});
-
-const request = await res.json();
+async function chat(phone,id,requestId){
 
 localStorage.setItem(
 "chatRequestId",
-request._id
+requestId
 );
 
 localStorage.setItem(
@@ -994,14 +958,7 @@ localStorage.setItem(
 id
 );
 
-window.location.href =
-"student-chat.html";
-
-}catch(err){
-
-alert("Unable to start chat.");
-
-}
+window.location.href="student-chat.html";
 
 }
 
