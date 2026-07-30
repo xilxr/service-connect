@@ -1410,32 +1410,23 @@ await worker.save();
 
 for(const worker of matches){
 
-const existingRequest = await Request.findOne({
+let request = await Request.findOne({
 
-businessId: worker._id,
-
-studentPhone,
-
-status: "Pending"
+businessId:worker._id,
+studentPhone
 
 });
 
-if(!existingRequest){
+if(!request){
 
-await Request.create({
+request = await Request.create({
 
-businessId: worker._id,
-
+businessId:worker._id,
 studentName,
-
 studentPhone,
-
 message,
-
 service,
-
 location,
-
 status:"Pending"
 
 });
@@ -1452,11 +1443,23 @@ businessId:worker._id,
 
 studentPhone,
 
+requestId:request._id,
+
 type:"job"
 
 });
 
+}else{
+
+request.message = message;
+request.service = service;
+request.location = location;
+
+await request.save();
+
 }
+
+worker.requestId = request._id;
 
 }
 
@@ -2236,13 +2239,12 @@ app.post("/chat/send", async (req,res)=>{
 try{
 
 const{
-
 requestId,
 businessId,
 studentPhone,
+studentName,
 senderType,
 message
-
 }=req.body;
 
 const chat = await Chat.create({
@@ -2250,14 +2252,53 @@ const chat = await Chat.create({
 requestId,
 businessId,
 studentPhone,
+studentName,
 senderType,
 message,
-
 unread:true,
-
 read:false
 
 });
+
+if(senderType==="student"){
+
+await Notification.create({
+
+title:"New Message",
+
+message:`${studentName} sent you a message.`,
+
+receiverType:"business",
+
+businessId,
+
+requestId,
+
+type:"chat"
+
+});
+
+}else{
+
+await Notification.create({
+
+title:"New Message",
+
+message:"You have received a new message.",
+
+receiverType:"student",
+
+receiverId:studentPhone,
+
+requestId,
+
+businessId,
+
+type:"chat"
+
+});
+
+}
 
 res.json({
 
