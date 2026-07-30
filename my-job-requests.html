@@ -280,11 +280,12 @@ alert("Error");
 
 function openBusinessChat(requestId,studentName){
 
-localStorage.setItem("chatRoomId",requestId);
+localStorage.setItem("chatRequestId",requestId);
 
 localStorage.setItem("chatCustomerName",studentName);
 
-window.location.href="business-chat.html";
+window.location.href =
+"business-chat.html?requestId=" + requestId;
 
 }
 
