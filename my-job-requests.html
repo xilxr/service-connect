@@ -141,10 +141,10 @@ buttons = `
 
 <button
 style="background:#2563eb;"
-onclick="openChat(
+onclick="openBusinessChat(
 '${r._id}',
-'${r.studentPhone}'
-)">
+'${r.studentName}'
+)"
 💬 Open Chat
 </button>
 
@@ -248,18 +248,6 @@ alert("Error");
 
 }
 
-function openChat(requestId,studentPhone,studentName){
-
-localStorage.setItem("chatRoomId",requestId);
-
-localStorage.setItem("chatCustomerPhone",studentPhone);
-
-localStorage.setItem("chatCustomerName",studentName);
-
-window.location.href="business-chat.html";
-
-}
-
 async function completeJob(requestId){
 
 try{
@@ -290,20 +278,13 @@ alert("Error");
 
 }
 
-function openChat(requestId,studentPhone){
+function openBusinessChat(requestId,studentName){
 
-localStorage.setItem(
-"chatRequestId",
-requestId
-);
+localStorage.setItem("chatRoomId",requestId);
 
-localStorage.setItem(
-"chatStudentPhone",
-studentPhone
-);
+localStorage.setItem("chatCustomerName",studentName);
 
-window.location.href =
-"business-chat.html";
+window.location.href="business-chat.html";
 
 }
 
