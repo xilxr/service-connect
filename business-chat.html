@@ -143,7 +143,10 @@ const API="https://service-backend-jezm.onrender.com";
 
 const businessId=localStorage.getItem("businessId");
 
+const params = new URLSearchParams(window.location.search);
+
 const requestId =
+params.get("requestId") ||
 localStorage.getItem("chatRequestId");
 
 const customerName=
