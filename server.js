@@ -348,6 +348,12 @@ res.json([]);
 
 });
 
+/*
+=========================================
+REQUEST STATUS
+=========================================
+*/
+
 app.post("/request/status", async (req,res)=>{
 
 try{
@@ -429,7 +435,13 @@ message,
 
 receiverType:"student",
 
-receiverId:request.studentPhone
+receiverId:request.studentPhone,
+
+type:"chat",
+
+requestId:request._id,
+
+businessId:business._id
 
 });
 
@@ -566,6 +578,11 @@ default:""
 },
 
 studentPhone:{
+type:String,
+default:""
+},
+
+requestId:{
 type:String,
 default:""
 },
@@ -2230,6 +2247,40 @@ res.json(messages);
 console.log(err);
 
 res.json([]);
+
+}
+
+});
+
+/*
+====================================
+GET SINGLE REQUEST
+====================================
+*/
+
+app.get("/request/:id", async (req,res)=>{
+
+try{
+
+const request = await Request.findById(req.params.id);
+
+if(!request){
+
+return res.json({
+error:"Request not found"
+});
+
+}
+
+res.json(request);
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+error:"Unable to load request"
+});
 
 }
 
