@@ -1096,6 +1096,22 @@ alert("Search for a worker first.");
 return;
 }
 
+await fetch(API + "/student/notifications/read",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+phone
+
+})
+
+});
+  
 document.getElementById("studentNotificationModal").style.display="block";
 
 const list=document.getElementById("studentNotificationList");
