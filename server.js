@@ -2356,6 +2356,38 @@ res.json([]);
 
 /*
 ====================================
+GET LAST MESSAGE
+====================================
+*/
+
+app.get("/chat/last/:requestId", async (req,res)=>{
+
+try{
+
+const message = await Chat.findOne({
+
+requestId:req.params.requestId
+
+}).sort({
+
+createdAt:-1
+
+});
+
+res.json(message || {});
+
+}catch(err){
+
+console.log(err);
+
+res.json({});
+
+}
+
+});
+
+/*
+====================================
 BUSINESS UNREAD MESSAGE COUNT
 ====================================
 */
