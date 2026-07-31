@@ -2356,6 +2356,38 @@ res.json([]);
 
 /*
 ====================================
+BUSINESS CONVERSATIONS
+====================================
+*/
+
+app.get("/chat/business/:businessId", async (req,res)=>{
+
+try{
+
+const requests = await Request.find({
+
+businessId:req.params.businessId
+
+}).sort({
+
+createdAt:-1
+
+});
+
+res.json(requests);
+
+}catch(err){
+
+console.log(err);
+
+res.json([]);
+
+}
+
+});
+
+/*
+====================================
 GET SINGLE REQUEST
 ====================================
 */
