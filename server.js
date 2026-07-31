@@ -2356,6 +2356,38 @@ res.json([]);
 
 /*
 ====================================
+BUSINESS UNREAD MESSAGE COUNT
+====================================
+*/
+
+app.get("/chat/unread/:businessId", async (req,res)=>{
+
+try{
+
+const count = await Chat.countDocuments({
+
+businessId:req.params.businessId,
+
+senderType:"student",
+
+read:false
+
+});
+
+res.json({count});
+
+}catch(err){
+
+console.log(err);
+
+res.json({count:0});
+
+}
+
+});
+
+/*
+====================================
 BUSINESS CONVERSATIONS
 ====================================
 */
