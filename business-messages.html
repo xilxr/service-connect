@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>Messages</title>
+
+</head>
+
+<body>
+
+<h2 style="text-align:center;">
+💬 Messages
+</h2>
+
+<div id="conversationList">
+
+Loading conversations...
+
+</div>
+
+<script>
+
+const API="https://service-backend-jezm.onrender.com";
+
+const businessId=
+localStorage.getItem("businessId");
+
+loadConversations();
+
+async function loadConversations(){
+
+try{
+
+const res = await fetch(
+
+API+"/business/"+businessId+"/requests"
+
+);
+
+const requests = await res.json();
+
+const uniqueRequests = [];
+
+const seen = {};
+
+requests.forEach(r=>{
+
+if(!seen[r.studentPhone]){
+
+seen[r.studentPhone]=true;
+
+uniqueRequests.push(r);
+
+}
+
+});
+
+const list =
+document.getElementById("conversationList");
+
+if(!requests.length){
+
+list.innerHTML="No conversations yet.";
+
+return;
+
+}
+
+let html="";
+
+uniqueRequests.forEach(r=>{
+
+html += `
+
+<div
+onclick="openChat('${r._id}','${r.studentName}')"
+style="
+background:#1e293b;
+margin:12px;
+padding:15px;
+border-radius:12px;
+cursor:pointer;
+">
+
+<b>${r.studentName}</b>
+
+<br><br>
+
+${r.service}
+
+</div>
+
+`;
+
+});
+
+list.innerHTML = html;
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+function openChat(requestId,name){
+
+localStorage.setItem(
+
+"chatCustomerName",
+
+name
+
+);
+
+window.location.href=
+
+"business-chat.html?requestId="+requestId;
+
+}
+
+</script>
+
+</body>
+
+</html>
