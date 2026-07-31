@@ -364,6 +364,8 @@ setInterval(()=>{
 
 loadNotificationBadge();
 
+loadMessageBadge();
+
 loadQuickMenuCounts();
 
 loadJobRequests();
@@ -679,6 +681,8 @@ loadJobRequests();
 loadQuickMenuCounts();
 
 loadNotificationBadge();
+
+loadMessageBadge();
 
 }catch(err){
 
@@ -1503,6 +1507,41 @@ if(unread.length > 0){
 
     badge.style.display = "none";
     badge.innerHTML = "0";
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+async function loadMessageBadge(){
+
+try{
+
+const res = await fetch(
+API + "/chat/unread/" + businessId
+);
+
+const data = await res.json();
+
+const badge =
+document.getElementById("messageCount");
+
+if(data.count > 0){
+
+badge.style.display = "block";
+
+badge.innerHTML = data.count;
+
+}else{
+
+badge.style.display = "none";
+
+badge.innerHTML = "0";
 
 }
 
