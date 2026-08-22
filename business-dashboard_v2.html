@@ -8,107 +8,430 @@
 <meta name="viewport"
 content="width=device-width,initial-scale=1.0">
 
-<title>
-Business Dashboard
-</title>
+<title>Business Dashboard</title>
 
 <style>
 
 *{
-
 margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:Arial,sans-serif;
-
 }
 
 body{
-
 background:#020617;
 color:white;
-padding:18px;
+min-height:100vh;
+}
+
+/* ==============================
+TOP BAR
+============================== */
+
+.topbar{
+
+height:70px;
+
+background:#0f172a;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:0 18px;
+
+position:sticky;
+
+top:0;
+
+z-index:100;
+
+box-shadow:0 2px 10px rgba(0,0,0,.3);
 
 }
 
-.header{
+.leftTop{
 
-text-align:center;
-margin-bottom:20px;
+display:flex;
+
+align-items:center;
+
+gap:15px;
 
 }
 
-.header h1{
+.menuButton{
+
+font-size:28px;
+
+cursor:pointer;
+
+width:42px;
+
+height:42px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+border-radius:10px;
+
+}
+
+.menuButton:active{
+
+background:#1e293b;
+
+}
+
+.logoTitle{
+
+font-size:19px;
+
+font-weight:bold;
+
+}
+
+.logoTitle span{
 
 color:#22c55e;
-font-size:30px;
 
 }
 
-.header p{
+.topActions{
+
+display:flex;
+
+align-items:center;
+
+gap:18px;
+
+}
+
+.iconButton{
+
+position:relative;
+
+font-size:25px;
+
+cursor:pointer;
+
+}
+
+.badge{
+
+position:absolute;
+
+top:-8px;
+
+right:-9px;
+
+background:#ef4444;
+
+color:white;
+
+font-size:10px;
+
+font-weight:bold;
+
+min-width:18px;
+
+height:18px;
+
+padding:0 5px;
+
+border-radius:20px;
+
+display:none;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+/* ==============================
+SIDE MENU
+============================== */
+
+.overlay{
+
+display:none;
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.65);
+
+z-index:200;
+
+}
+
+.overlay.show{
+
+display:block;
+
+}
+
+.sidebar{
+
+position:fixed;
+
+top:0;
+
+left:-310px;
+
+width:290px;
+
+height:100vh;
+
+background:#0f172a;
+
+z-index:300;
+
+transition:left .3s ease;
+
+box-shadow:5px 0 25px rgba(0,0,0,.4);
+
+overflow-y:auto;
+
+}
+
+.sidebar.open{
+
+left:0;
+
+}
+
+.sidebarHeader{
+
+padding:25px 20px;
+
+border-bottom:1px solid #1e293b;
+
+}
+
+.sidebarHeader h2{
+
+color:#22c55e;
+
+font-size:22px;
+
+}
+
+.sidebarHeader p{
 
 color:#94a3b8;
-margin-top:8px;
+
+font-size:13px;
+
+margin-top:6px;
 
 }
+
+.menuSection{
+
+padding:12px 10px;
+
+}
+
+.menuLabel{
+
+color:#64748b;
+
+font-size:12px;
+
+font-weight:bold;
+
+padding:10px 12px;
+
+text-transform:uppercase;
+
+}
+
+.menuItem{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+padding:13px 14px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+font-size:15px;
+
+margin-bottom:3px;
+
+}
+
+.menuItem:hover{
+
+background:#1e293b;
+
+}
+
+.menuItem.active{
+
+background:#14532d;
+
+color:#4ade80;
+
+}
+
+.menuIcon{
+
+font-size:20px;
+
+width:25px;
+
+text-align:center;
+
+}
+
+.menuBadge{
+
+margin-left:auto;
+
+background:#ef4444;
+
+color:white;
+
+font-size:11px;
+
+font-weight:bold;
+
+padding:3px 7px;
+
+border-radius:20px;
+
+display:none;
+
+}
+
+.menuDivider{
+
+height:1px;
+
+background:#1e293b;
+
+margin:8px 15px;
+
+}
+
+.logoutItem{
+
+color:#f87171;
+
+}
+
+/* ==============================
+MAIN
+============================== */
+
+.main{
+
+padding:18px;
+
+max-width:900px;
+
+margin:auto;
+
+}
+
+.welcome{
+
+margin-bottom:18px;
+
+}
+
+.welcome h1{
+
+font-size:25px;
+
+}
+
+.welcome p{
+
+color:#94a3b8;
+
+margin-top:6px;
+
+font-size:14px;
+
+}
+
+/* ==============================
+CARDS
+============================== */
 
 .card{
 
 background:#0f172a;
+
 border-radius:18px;
+
 padding:18px;
+
 margin-top:18px;
 
-box-shadow:0 0 12px rgba(0,0,0,.3);
+box-shadow:0 0 12px rgba(0,0,0,.25);
+
+}
+
+.profileCard{
+
+text-align:center;
 
 }
 
 .profile{
 
 width:90px;
+
 height:90px;
+
 border-radius:50%;
+
 object-fit:cover;
-display:block;
-margin:auto;
+
 border:3px solid #22c55e;
 
 }
 
 .name{
 
-text-align:center;
 font-size:24px;
-margin-top:12px;
+
 font-weight:bold;
+
+margin-top:12px;
 
 }
 
 .service{
 
-text-align:center;
 color:#22c55e;
+
 margin-top:5px;
 
 }
 
-.info{
-
-margin-top:15px;
-line-height:2;
-
-}
-
-.label{
+.location{
 
 color:#94a3b8;
 
-}
-
-.value{
-
-color:white;
-font-weight:bold;
+margin-top:7px;
 
 }
 
@@ -120,11 +443,11 @@ padding:6px 12px;
 
 border-radius:20px;
 
-font-size:13px;
+font-size:12px;
 
 font-weight:bold;
 
-margin-top:10px;
+margin-top:12px;
 
 }
 
@@ -140,71 +463,7 @@ background:#dc2626;
 
 }
 
-button{
-
-width:100%;
-
-padding:14px;
-
-border:none;
-
-border-radius:12px;
-
-margin-top:14px;
-
-background:#22c55e;
-
-color:white;
-
-font-size:16px;
-
-cursor:pointer;
-
-}
-
-.logout{
-
-background:#ef4444;
-
-}
-
-textarea{
-
-width:100%;
-
-height:120px;
-
-margin-top:12px;
-
-padding:12px;
-
-border:none;
-
-border-radius:12px;
-
-resize:none;
-
-outline:none;
-
-}
-
-input{
-
-width:100%;
-
-padding:14px;
-
-margin-top:12px;
-
-border:none;
-
-border-radius:12px;
-
-outline:none;
-
-}
-
-.progressBox{
+.subscription{
 
 margin-top:18px;
 
@@ -222,7 +481,7 @@ border-radius:30px;
 
 overflow:hidden;
 
-margin-top:8px;
+margin-top:10px;
 
 }
 
@@ -230,7 +489,7 @@ margin-top:8px;
 
 height:100%;
 
-width:100%;
+width:0%;
 
 background:#22c55e;
 
@@ -240,13 +499,283 @@ transition:width .5s ease;
 
 .progressText{
 
-margin-top:8px;
-
-font-size:14px;
+text-align:center;
 
 color:#cbd5e1;
 
+font-size:13px;
+
+margin-top:8px;
+
+}
+
+/* ==============================
+SUMMARY
+============================== */
+
+.summaryGrid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:12px;
+
+margin-top:15px;
+
+}
+
+.summaryBox{
+
+background:#1e293b;
+
+border-radius:14px;
+
+padding:15px;
+
+}
+
+.summaryIcon{
+
+font-size:22px;
+
+}
+
+.summaryTitle{
+
+color:#94a3b8;
+
+font-size:12px;
+
+margin-top:7px;
+
+}
+
+.summaryValue{
+
+font-size:22px;
+
+font-weight:bold;
+
+margin-top:4px;
+
+}
+
+/* ==============================
+NOTIFICATION
+============================== */
+
+.notificationBox{
+
+background:#1e293b;
+
+padding:14px;
+
+border-radius:12px;
+
+margin-top:15px;
+
+display:none;
+
+}
+
+.notificationBox h3{
+
+color:#22c55e;
+
+font-size:17px;
+
+}
+
+.notificationBox p{
+
+margin-top:10px;
+
+line-height:1.6;
+
+font-size:14px;
+
+}
+
+/* ==============================
+BUTTONS
+============================== */
+
+button{
+
+width:100%;
+
+padding:13px;
+
+border:none;
+
+border-radius:12px;
+
+margin-top:12px;
+
+background:#22c55e;
+
+color:white;
+
+font-size:15px;
+
+cursor:pointer;
+
+}
+
+button:disabled{
+
+opacity:.7;
+
+cursor:not-allowed;
+
+}
+
+.renew{
+
+background:#f59e0b;
+
+}
+
+.logout{
+
+background:#ef4444;
+
+}
+
+/* ==============================
+MODAL
+============================== */
+
+.modal{
+
+display:none;
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.7);
+
+z-index:500;
+
+padding:20px;
+
+}
+
+.modalContent{
+
+background:#0f172a;
+
+width:100%;
+
+max-width:500px;
+
+margin:50px auto;
+
+padding:20px;
+
+border-radius:18px;
+
+max-height:80vh;
+
+overflow:auto;
+
+}
+
+.modalContent h2{
+
+margin-bottom:18px;
+
+}
+
+.notificationItem{
+
+background:#1e293b;
+
+padding:13px;
+
+border-radius:12px;
+
+margin-bottom:12px;
+
+}
+
+.notificationItem small{
+
+display:block;
+
+color:#94a3b8;
+
+margin-top:10px;
+
+}
+
+/* ==============================
+JOB POPUP
+============================== */
+
+#jobPopup{
+
+display:none;
+
+position:fixed;
+
+bottom:-200px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+opacity:0;
+
+transition:all .4s ease;
+
+background:#16a34a;
+
+color:white;
+
+padding:18px;
+
+border-radius:15px;
+
+width:90%;
+
+max-width:360px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.4);
+
+z-index:1000;
+
 text-align:center;
+
+}
+
+#jobPopup p{
+
+margin-top:10px;
+
+line-height:1.5;
+
+}
+
+/* ==============================
+RESPONSIVE
+============================== */
+
+@media(max-width:500px){
+
+.logoTitle{
+
+font-size:17px;
+
+}
+
+.summaryGrid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
 
 }
 
@@ -257,72 +786,173 @@ text-align:center;
 <body>
 
 <audio id="jobAlertSound" preload="auto">
-<source src="https://actions.google.com/sounds/v1/alarms/notification.ogg" type="audio/ogg">
+
+<source
+src="https://actions.google.com/sounds/v1/alarms/notification.ogg"
+type="audio/ogg">
+
 </audio>
 
-<div class="header">
 
-<div style="display:flex;justify-content:space-between;align-items:center;">
+<!-- ==========================
+TOP BAR
+========================== -->
 
-<h1>💼 Business Dashboard</h1>
+<header class="topbar">
 
-<div style="display:flex;align-items:center;gap:15px;">
-
-<!-- Messages -->
+<div class="leftTop">
 
 <div
-onclick="openMessages()"
-style="
-position:relative;
-font-size:28px;
-cursor:pointer;
-">
+class="menuButton"
+onclick="openMenu()">
+
+☰
+
+</div>
+
+<div class="logoTitle">
+
+<span>Service Connect</span>
+
+</div>
+
+</div>
+
+
+<div class="topActions">
+
+<div
+class="iconButton"
+onclick="openMessages()">
 
 💬
 
 <span
 id="messageCount"
-style="
-position:absolute;
-top:-8px;
-right:-8px;
-background:#22c55e;
-color:white;
-font-size:11px;
-padding:2px 6px;
-border-radius:50%;
-display:none;
-">
+class="badge">
+
 0
+
 </span>
 
 </div>
 
-<!-- Notifications -->
 
 <div
-onclick="openNotifications()"
-style="
-position:relative;
-font-size:28px;
-cursor:pointer;
-">
+class="iconButton"
+onclick="openNotifications()">
 
 🔔
 
 <span
 id="notificationCount"
-style="
-position:absolute;
-top:-8px;
-right:-8px;
-background:red;
-color:white;
-font-size:11px;
-padding:2px 6px;
-border-radius:50%;
-display:none;
-">
+class="badge">
+
+0
+
+</span>
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- ==========================
+OVERLAY
+========================== -->
+
+<div
+id="overlay"
+class="overlay"
+onclick="closeMenu()">
+</div>
+
+
+<!-- ==========================
+SIDEBAR
+========================== -->
+
+<aside
+id="sidebar"
+class="sidebar">
+
+
+<div class="sidebarHeader">
+
+<h2>💼 Business Dashboard</h2>
+
+<p id="sideBusinessName">
+Business Owner
+</p>
+
+</div>
+
+
+<div class="menuSection">
+
+<div class="menuLabel">
+Main
+</div>
+
+
+<div
+class="menuItem active"
+onclick="goHome()">
+
+<span class="menuIcon">🏠</span>
+
+<span>Home</span>
+
+</div>
+
+
+<div
+class="menuItem"
+onclick="location.href='my-job-requests.html'">
+
+<span class="menuIcon">📥</span>
+
+<span>My Job Requests</span>
+
+<span
+id="sideRequestCount"
+class="menuBadge">
+0
+</span>
+
+</div>
+
+
+<div
+class="menuItem"
+onclick="openMessages()">
+
+<span class="menuIcon">💬</span>
+
+<span>Messages</span>
+
+<span
+id="sideMessageCount"
+class="menuBadge">
+0
+</span>
+
+</div>
+
+
+<div
+class="menuItem"
+onclick="openNotifications()">
+
+<span class="menuIcon">🔔</span>
+
+<span>Notifications</span>
+
+<span
+id="sideNotificationCount"
+class="menuBadge">
 0
 </span>
 
@@ -330,11 +960,130 @@ display:none;
 
 </div>
 
+
+<div class="menuDivider"></div>
+
+
+<div class="menuSection">
+
+<div class="menuLabel">
+Business
 </div>
 
-<p>Welcome back to Service Connect</p>
+
+<div
+class="menuItem"
+onclick="location.href='my-reviews.html'">
+
+<span class="menuIcon">⭐</span>
+
+<span>Recent Reviews</span>
+
+<span
+id="sideReviewCount"
+class="menuBadge">
+0
+</span>
 
 </div>
+
+
+<div
+class="menuItem"
+onclick="location.href='customer-history.html'">
+
+<span class="menuIcon">📋</span>
+
+<span>Customer History</span>
+
+<span
+id="sideHistoryCount"
+class="menuBadge">
+0
+</span>
+
+</div>
+
+
+<div
+class="menuItem"
+onclick="showAnalytics()">
+
+<span class="menuIcon">📊</span>
+
+<span>Business Analytics</span>
+
+</div>
+
+
+<div
+class="menuItem"
+onclick="showProfile()">
+
+<span class="menuIcon">👤</span>
+
+<span>Business Profile</span>
+
+</div>
+
+
+<div
+class="menuItem"
+onclick="showSubscription()">
+
+<span class="menuIcon">🔄</span>
+
+<span>Subscription</span>
+
+</div>
+
+</div>
+
+
+<div class="menuDivider"></div>
+
+
+<div class="menuSection">
+
+
+<div
+class="menuItem logoutItem"
+onclick="logout()">
+
+<span class="menuIcon">🚪</span>
+
+<span>Logout</span>
+
+</div>
+
+
+</div>
+
+
+</aside>
+
+
+<!-- ==========================
+MAIN CONTENT
+========================== -->
+
+<main class="main">
+
+
+<div class="welcome">
+
+<h1 id="welcomeTitle">
+
+Welcome back 👋
+
+</h1>
+
+<p>
+Manage your Service Connect business from one place.
+</p>
+
+</div>
+
 
 <div id="dashboard">
 
@@ -342,180 +1091,348 @@ Loading...
 
 </div>
 
+
+</main>
+
+
+<!-- ==========================
+NOTIFICATION MODAL
+========================== -->
+
+<div
+id="notificationModal"
+class="modal">
+
+<div class="modalContent">
+
+<h2>🔔 Notifications</h2>
+
+<div
+id="notificationList">
+
+Loading...
+
+</div>
+
+<button
+onclick="closeNotifications()"
+style="background:#ef4444;">
+
+Close
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ==========================
+JOB POPUP
+========================== -->
+
+<div id="jobPopup">
+
+<h3>🔔 New Job Request</h3>
+
+<p id="jobPopupText">
+
+You have a new customer.
+
+</p>
+
+<button
+style="background:#0f172a;"
+onclick="location.href='my-job-requests.html';">
+
+View Request
+
+</button>
+
+</div>
+
+
 <script>
 
 let lastPopupRequestId = "";
 
-const API="https://service-backend-jezm.onrender.com";
+const API =
+"https://service-backend-jezm.onrender.com";
 
-const businessId=
+const businessId =
 localStorage.getItem("businessId");
+
+
+/* ==========================
+LOGIN CHECK
+========================== */
 
 if(!businessId){
 
-window.location.href=
+window.location.href =
 "business-login_v2.html";
 
 }
 
-loadBusiness();
 
-setInterval(()=>{
+/* ==========================
+MENU
+========================== */
 
-loadNotificationBadge();
+function openMenu(){
 
-loadMessageBadge();
+document
+.getElementById("sidebar")
+.classList.add("open");
 
-loadQuickMenuCounts();
+document
+.getElementById("overlay")
+.classList.add("show");
 
-loadJobRequests();
+}
 
-loadBusinessAnalytics();
 
-},5000);
+function closeMenu(){
+
+document
+.getElementById("sidebar")
+.classList.remove("open");
+
+document
+.getElementById("overlay")
+.classList.remove("show");
+
+}
+
+
+function goHome(){
+
+closeMenu();
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+
+function showAnalytics(){
+
+closeMenu();
+
+alert(
+"Business Analytics is available from your dashboard. The detailed analytics page can be added next."
+);
+
+}
+
+
+function showProfile(){
+
+closeMenu();
+
+document
+.getElementById("profileSection")
+?.scrollIntoView({
+behavior:"smooth"
+});
+
+}
+
+
+function showSubscription(){
+
+closeMenu();
+
+document
+.getElementById("subscriptionSection")
+?.scrollIntoView({
+behavior:"smooth"
+});
+
+}
+
+
+/* ==========================
+LOAD BUSINESS
+========================== */
+
 async function loadBusiness(){
 
 try{
 
-const res=await fetch(
-
+const res =
+await fetch(
 API+"/business/"+businessId
-
 );
 
-const business=await res.json();
+const business =
+await res.json();
+
 
 if(business.error){
 
 alert(business.error);
 
-window.location.href="business-login_v2.html";
+window.location.href =
+"business-login_v2.html";
 
 return;
 
 }
 
-const photo=
 
-business.profilePicture && business.profilePicture!==""
+const photo =
+business.profilePicture &&
+business.profilePicture !== ""
 
-?business.profilePicture
+?
 
-:"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+business.profilePicture
 
-const verified=
+:
 
+"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+
+const verified =
 business.verified
 
-?'<span class="status verified">✅ VERIFIED</span>'
+?
 
-:'<span class="status pending">⏳ PENDING APPROVAL</span>';
+'<span class="status verified">✅ VERIFIED</span>'
 
-document.getElementById("dashboard").innerHTML = `
+:
 
-<div class="card">
+'<span class="status pending">⏳ PENDING APPROVAL</span>';
 
-<img class="profile"
 
-src="${photo}">
+document.getElementById(
+"sideBusinessName"
+).innerHTML =
+business.name || "Business Owner";
+
+
+document.getElementById(
+"welcomeTitle"
+).innerHTML =
+"Welcome back, " +
+(business.name || "Business Owner") +
+" 👋";
+
+
+document.getElementById(
+"dashboard"
+).innerHTML = `
+
+
+<!-- PROFILE -->
+
+<div
+id="profileSection"
+class="card profileCard">
+
+<img
+class="profile"
+src="${photo}"
+onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png';">
+
 
 <div class="name">
 
-${business.name}
+${business.name || "Business Owner"}
 
 </div>
+
 
 <div class="service">
 
-${business.service}
+${business.service || "Service Professional"}
 
 </div>
 
-<div class="info">
+
+<div class="location">
+
+📍 ${business.location || "Location not set"}
+
+</div>
+
 
 <div>
 
-<span class="label">
+${verified}
 
+</div>
+
+
+<div class="info"
+style="margin-top:15px;line-height:2;">
+
+<div>
+
+<span style="color:#94a3b8;">
 Business Code:
-
 </span>
 
-<span class="value">
-
-${business.businessCode}
-
-</span>
+<b>
+${business.businessCode || "N/A"}
+</b>
 
 </div>
 
+
 <div>
 
-<span class="label">
-
+<span style="color:#94a3b8;">
 Phone:
-
 </span>
 
-<span class="value">
-
-${business.phone}
-
-</span>
+<b>
+${business.phone || "N/A"}
+</b>
 
 </div>
 
-<div>
-
-<span class="label">
-
-Location:
-
-</span>
-
-<span class="value">
-
-${business.location}
-
-</span>
-
-</div>
 
 <div>
 
-<span class="label">
-
+<span style="color:#94a3b8;">
 Rating:
-
 </span>
 
-<span class="value">
-
-⭐ ${Number(business.rating).toFixed(1)}
-
-(${business.reviews} Reviews)
-
-</span>
+<b>
+⭐ ${Number(business.rating || 0).toFixed(1)}
+(${business.reviews || 0} Reviews)
+</b>
 
 </div>
 
-<div>
-
-<span class="label">
-
-Subscription:
-
-</span>
-
-<span class="value" id="remainingDays">
-
-Loading...
-
-</span>
+</div>
 
 </div>
 
-<div class="progressBox">
+
+<!-- SUBSCRIPTION -->
+
+<div
+id="subscriptionSection"
+class="card">
+
+<h3>🔄 Subscription</h3>
+
+
+<div
+style="margin-top:12px;">
+
+<div
+id="remainingDays">
+
+Checking subscription...
+
+</div>
+
 
 <div class="progressBar">
 
@@ -526,157 +1443,207 @@ class="progressFill">
 
 </div>
 
+
 <div
 id="progressText"
 class="progressText">
 
-Checking subscription...
+Checking...
 
 </div>
 
 </div>
 
-<div style="margin-top:10px;">
-
-${verified}
-
-</div>
-
-<div
-id="notificationBox"
-style="margin-top:15px;
-background:#1e293b;
-padding:14px;
-border-radius:12px;
-display:none;">
-
-<h3 style="color:#22c55e;">
-🔔 Notifications
-</h3>
-
-<p id="notificationText"
-style="margin-top:10px;
-line-height:1.6;">
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<h3>
-
-Edit Business Profile
-
-</h3>
-
-<input
-
-id="profilePicture"
-
-placeholder="Profile Image URL"
-
-value="${business.profilePicture||""}">
-
-<textarea
-
-id="shortBio"
-
-placeholder="Short Bio">${business.shortBio||""}</textarea>
-
-<button
-
-onclick="updateProfile()">
-
-Save Changes
-
-</button>
 
 <button
 id="renewBtn"
-style="display:none;background:#f59e0b;"
+class="renew"
+style="display:none;"
 onclick="renewSubscription()">
 
 🔄 Renew Subscription
 
 </button>
 
-<button
-class="logout"
-onclick="logout()">
-
-Logout
-
-</button>
-
 </div>
 
-<div class="card">
 
-<h3>📊 Business Analytics</h3>
+<!-- NOTIFICATION -->
 
-<div style="line-height:2.2;margin-top:15px;">
+<div
+class="notificationBox"
+id="notificationBox">
 
-<div>👀 Profile Views:
-<b id="analyticsViews">${business.profileViews}</b></div>
-
-<div>🔍 Search Appearances:
-<b id="analyticsSearch">${business.searchAppearances}</b></div>
-
-<div>📞 Call Clicks:
-<b id="analyticsCalls">${business.callClicks}</b></div>
-
-<div>💬 WhatsApp Clicks:
-<b id="analyticsWhatsapp">${business.whatsappClicks}</b></div>
-
-<div>🎯 Total Leads:
-<b id="analyticsLeads">${business.totalLeads}</b></div>
-
-<div>✅ Jobs Completed:
-<b id="analyticsJobs">${business.jobsCompleted}</b></div>
-
-<div>🏆 Trust Score:
-<b id="analyticsTrust">${business.trustScore}%</b></div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<h3 style="margin-bottom:15px;">
-📂 Quick Menu
+<h3>
+🔔 Account Notification
 </h3>
 
-<button onclick="location.href='my-job-requests.html'">
-📥 My Job Requests
-<span id="requestCount"></span>
-</button>
+<p
+id="notificationText">
+</p>
 
-<button onclick="location.href='my-reviews.html'">
-⭐ Recent Reviews
-<span id="reviewCount"></span>
-</button>
+</div>
 
-<button onclick="location.href='customer-history.html'">
-📋 Customer History
-<span id="historyCount"></span>
+
+<!-- SUMMARY -->
+
+<div class="card">
+
+<h3>📊 Business Overview</h3>
+
+
+<div class="summaryGrid">
+
+
+<div class="summaryBox">
+
+<div class="summaryIcon">
+👀
+</div>
+
+<div class="summaryTitle">
+Profile Views
+</div>
+
+<div
+class="summaryValue"
+id="analyticsViews">
+
+${business.profileViews || 0}
+
+</div>
+
+</div>
+
+
+<div class="summaryBox">
+
+<div class="summaryIcon">
+🎯
+</div>
+
+<div class="summaryTitle">
+Total Leads
+</div>
+
+<div
+class="summaryValue"
+id="analyticsLeads">
+
+${business.totalLeads || 0}
+
+</div>
+
+</div>
+
+
+<div class="summaryBox">
+
+<div class="summaryIcon">
+🏆
+</div>
+
+<div class="summaryTitle">
+Jobs Completed
+</div>
+
+<div
+class="summaryValue"
+id="analyticsJobs">
+
+${business.jobsCompleted || 0}
+
+</div>
+
+</div>
+
+
+<div class="summaryBox">
+
+<div class="summaryIcon">
+⭐
+</div>
+
+<div class="summaryTitle">
+Trust Score
+</div>
+
+<div
+class="summaryValue"
+id="analyticsTrust">
+
+${business.trustScore || 0}%
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- PROFILE EDIT -->
+
+<div class="card">
+
+<h3>👤 Business Profile</h3>
+
+
+<div
+style="color:#94a3b8;
+font-size:13px;
+margin-top:8px;">
+
+Keep your profile attractive and up to date.
+
+</div>
+
+
+<input
+id="profilePicture"
+placeholder="Profile Image URL"
+value="${business.profilePicture || ""}"
+style="
+width:100%;
+padding:13px;
+margin-top:12px;
+border:none;
+border-radius:10px;
+outline:none;
+">
+
+
+<textarea
+id="shortBio"
+placeholder="Short Bio"
+style="
+width:100%;
+height:110px;
+margin-top:12px;
+padding:12px;
+border:none;
+border-radius:10px;
+resize:none;
+outline:none;
+">${business.shortBio || ""}</textarea>
+
+
+<button
+onclick="updateProfile()">
+
+Save Profile Changes
+
 </button>
 
 </div>
+
 
 `;
 
+
 loadRemainingDays();
-
-loadReviews();
-
-loadCustomerHistory();
-
-loadJobRequests();
 
 loadQuickMenuCounts();
 
@@ -684,32 +1651,47 @@ loadNotificationBadge();
 
 loadMessageBadge();
 
+loadJobRequests();
+
+loadBusinessAnalytics();
+
+
 }catch(err){
 
 console.log(err);
 
-document.getElementById("dashboard").innerHTML=
-
+document.getElementById(
+"dashboard"
+).innerHTML =
 "Failed to load dashboard.";
 
 }
+
 }
+
+
+/* ==========================
+SUBSCRIPTION
+========================== */
+
 async function loadRemainingDays(){
 
 try{
 
-const res = await fetch(
-
-API + "/business/" + businessId + "/remaining-days"
-
+const res =
+await fetch(
+API+"/business/"+businessId+"/remaining-days"
 );
 
-const data = await res.json();
+const data =
+await res.json();
+
 
 const element =
 document.getElementById("remainingDays");
 
 if(!element) return;
+
 
 const fill =
 document.getElementById("progressFill");
@@ -717,14 +1699,21 @@ document.getElementById("progressFill");
 const text =
 document.getElementById("progressText");
 
+
 let percent =
 (data.remainingDays / 30) * 100;
 
-if(percent < 0){
-    percent = 0;
-}
 
-fill.style.width = percent + "%";
+percent =
+Math.max(
+0,
+Math.min(100,percent)
+);
+
+
+fill.style.width =
+percent+"%";
+
 
 const notifyBox =
 document.getElementById("notificationBox");
@@ -732,72 +1721,79 @@ document.getElementById("notificationBox");
 const notifyText =
 document.getElementById("notificationText");
 
-const today = new Date();
+
+const businessName =
+localStorage.getItem("businessName")
+||
+"Business Owner";
+
+
+const today =
+new Date();
+
 
 const dateString =
 today.toLocaleDateString();
 
+
 const timeString =
 today.toLocaleTimeString();
 
-const businessName =
-localStorage.getItem("businessName") || "Business Owner";
 
-notifyBox.style.display = "block";
+notifyBox.style.display =
+"block";
+
 
 if(data.remainingDays > 0){
 
 element.innerHTML =
-"🟢 " + data.remainingDays + " day(s) remaining";
+"🟢 " +
+data.remainingDays +
+" day(s) remaining";
+
 
 text.innerHTML =
 "Subscription Active";
 
-document.getElementById("renewBtn").style.display =
+
+document.getElementById(
+"renewBtn"
+).style.display =
 "none";
+
 
 if(data.remainingDays <= 3){
 
 notifyText.innerHTML =
 
 "👋 Welcome back, <b>" +
-
 businessName +
-
 "</b><br><br>" +
 
 "⚠️ Your subscription expires in <b>" +
-
 data.remainingDays +
-
 "</b> day(s). Please renew now to avoid service interruption.<br><br>" +
 
 "📅 Last checked: " +
-
 dateString +
-
 " " +
-
 timeString;
+
 }else{
 
 notifyText.innerHTML =
 
 "👋 Welcome back, <b>" +
-
 businessName +
-
 "</b><br><br>" +
 
 "✅ Your business account is active and visible to customers.<br><br>" +
 
 "📅 Last checked: " +
-
 dateString +
-
 " " +
-
 timeString;
+
 }
 
 }else{
@@ -805,31 +1801,34 @@ timeString;
 element.innerHTML =
 "🔴 Subscription Expired";
 
-fill.style.width = "0%";
+
+fill.style.width =
+"0%";
+
 
 text.innerHTML =
 "Please renew your subscription.";
 
-document.getElementById("renewBtn").style.display =
+
+document.getElementById(
+"renewBtn"
+).style.display =
 "block";
+
 
 notifyText.innerHTML =
 
 "👋 Welcome back, <b>" +
-
 businessName +
-
 "</b><br><br>" +
 
 "❌ Your subscription has expired. Customers can no longer discover your business until your subscription is renewed.<br><br>" +
 
 "📅 Last checked: " +
-
 dateString +
-
 " " +
-
 timeString;
+
 }
 
 }catch(err){
@@ -839,37 +1838,60 @@ console.log(err);
 }
 
 }
+
+
+/* ==========================
+QUICK COUNTS
+========================== */
 
 async function loadQuickMenuCounts(){
 
 try{
 
 const requests =
-await fetch(API+"/business/"+businessId+"/requests/count");
-const requestData = await requests.json();
+await fetch(
+API+"/business/"+businessId+"/requests/count"
+);
+
+const requestData =
+await requests.json();
+
 
 const reviews =
-await fetch(API+"/business/"+businessId+"/reviews/count");
-const reviewData = await reviews.json();
+await fetch(
+API+"/business/"+businessId+"/reviews/count"
+);
+
+const reviewData =
+await reviews.json();
+
 
 const history =
-await fetch(API+"/business/"+businessId+"/history/count");
-const historyData = await history.json();
+await fetch(
+API+"/business/"+businessId+"/history/count"
+);
 
-document.getElementById("requestCount").innerHTML =
-requestData.count > 0
-? ` 🔴 ${requestData.count}`
-: "";
+const historyData =
+await history.json();
 
-document.getElementById("reviewCount").innerHTML =
-reviewData.count > 0
-? ` 🔴 ${reviewData.count}`
-: "";
 
-document.getElementById("historyCount").innerHTML =
-historyData.count > 0
-? ` 🔴 ${historyData.count}`
-: "";
+setBadge(
+"sideRequestCount",
+requestData.count
+);
+
+
+setBadge(
+"sideReviewCount",
+reviewData.count
+);
+
+
+setBadge(
+"sideHistoryCount",
+historyData.count
+);
+
 
 }catch(err){
 
@@ -878,271 +1900,341 @@ console.log(err);
 }
 
 }
+
+
+/* ==========================
+BADGE HELPER
+========================== */
+
+function setBadge(id,count){
+
+const element =
+document.getElementById(id);
+
+if(!element) return;
+
+
+if(count > 0){
+
+element.style.display =
+"inline-block";
+
+element.innerHTML =
+count;
+
+}else{
+
+element.style.display =
+"none";
+
+element.innerHTML =
+"0";
+
+}
+
+}
+
+
+/* ==========================
+ANALYTICS
+========================== */
 
 async function loadBusinessAnalytics(){
 
 try{
 
-const res = await fetch(API + "/business/" + businessId);
-
-const business = await res.json();
-
-document.getElementById("analyticsViews").innerHTML =
-business.profileViews;
-
-document.getElementById("analyticsSearch").innerHTML =
-business.searchAppearances;
-
-document.getElementById("analyticsCalls").innerHTML =
-business.callClicks;
-
-document.getElementById("analyticsWhatsapp").innerHTML =
-business.whatsappClicks;
-
-document.getElementById("analyticsLeads").innerHTML =
-business.totalLeads;
-
-document.getElementById("analyticsJobs").innerHTML =
-business.jobsCompleted;
-
-document.getElementById("analyticsTrust").innerHTML =
-business.trustScore + "%";
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-async function loadReviews(){
-
-const container =
-document.getElementById("reviewsContainer");
-
-if(!container) return;
-
-container.innerHTML =
-"Loading reviews...";
-
-try{
-
-const res = await fetch(
-
-API + "/business/" +
-businessId +
-"/reviews"
-
+const res =
+await fetch(
+API+"/business/"+businessId
 );
 
-const data = await res.json();
+const business =
+await res.json();
 
-if(!data.reviews || data.reviews.length===0){
 
-container.innerHTML =
-"No reviews yet.";
+const fields = {
 
-return;
+analyticsViews:
+business.profileViews,
+
+analyticsLeads:
+business.totalLeads,
+
+analyticsJobs:
+business.jobsCompleted,
+
+analyticsTrust:
+(business.trustScore || 0)+"%"
+
+};
+
+
+for(const id in fields){
+
+const element =
+document.getElementById(id);
+
+if(element){
+
+element.innerHTML =
+fields[id];
 
 }
 
-let html="";
-
-data.reviews.forEach(r=>{
-
-html += `
-
-<div style="background:#1e293b;
-padding:12px;
-border-radius:10px;
-margin-top:10px;">
-
-<b>${r.studentName||"Anonymous"}</b>
-
-<br>
-
-⭐ ${r.rating}/5
-
-<br><br>
-
-${r.comment}
-
-</div>
-
-`;
-
-});
-
-container.innerHTML = html;
+}
 
 }catch(err){
 
 console.log(err);
 
-container.innerHTML =
-"Unable to load reviews.";
-
 }
 
 }
-async function loadCustomerHistory(){
 
-const container =
-document.getElementById("historyContainer");
 
-if(!container) return;
-
-container.innerHTML =
-"Loading customer history...";
-
-try{
-
-const res = await fetch(
-
-API + "/customer-history/" + businessId
-
-);
-
-const data = await res.json();
-
-if(!data || data.length===0){
-
-container.innerHTML =
-"No customer history yet.";
-
-return;
-
-}
-
-let html="";
-
-data.forEach(c=>{
-
-html += `
-
-<div style="
-background:#1e293b;
-padding:12px;
-border-radius:12px;
-margin-top:10px;
-">
-
-<b>👤 ${c.studentName || "Anonymous"}</b>
-
-<br>
-
-📞 ${c.studentPhone || "No phone"}
-
-<br>
-
-🛠 ${c.service || "Unknown Service"}
-
-<br>
-
-📌 Status:
-<b>${c.status}</b>
-
-<br>
-
-🗓 ${new Date(c.createdAt).toLocaleDateString()}
-
-</div>
-
-`;
-
-});
-
-container.innerHTML = html;
-
-}catch(err){
-
-console.log(err);
-
-container.innerHTML =
-"Unable to load customer history.";
-
-}
-
-}
+/* ==========================
+JOB REQUEST CHECK
+========================== */
 
 async function loadJobRequests(){
 
-const container = document.getElementById("requestContainer");
-
-if(!container) return;
-
-container.innerHTML = "Loading job requests...";
-
 try{
 
-const res = await fetch(API + "/business/" + businessId + "/requests");
+const res =
+await fetch(
+API+"/business/"+businessId+"/requests"
+);
 
-const data = await res.json();
+const data =
+await res.json();
 
-// Show popup if there is any new pending request
 
-const pendingRequests = data.filter(r => r.status === "Pending");
+const pending =
+data.filter(
+r => r.status === "Pending"
+);
 
-if (pendingRequests.length > 0) {
 
-    const newest = pendingRequests[0];
+if(pending.length > 0){
 
-    if (newest._id !== lastPopupRequestId) {
+const newest =
+pending[0];
 
-        lastPopupRequestId = newest._id;
 
-        const popup = document.getElementById("jobPopup");
-        const text = document.getElementById("jobPopupText");
+if(
+newest._id !==
+lastPopupRequestId
+){
 
-        if (popup && text) {
+lastPopupRequestId =
+newest._id;
 
-            text.innerHTML =
-            "👤 " + (newest.studentName || "Customer") +
-            "<br>🛠 " + (newest.service || "Service Request") +
-            "<br>📍 " + (newest.location || "Unknown Location");
 
-            popup.style.display = "block";
+const popup =
+document.getElementById(
+"jobPopup"
+);
+
+
+const text =
+document.getElementById(
+"jobPopupText"
+);
+
+
+text.innerHTML =
+
+"👤 " +
+(newest.studentName ||
+"Customer") +
+
+"<br>🛠 " +
+(newest.service ||
+"Service Request") +
+
+"<br>📍 " +
+(newest.location ||
+"Unknown Location");
+
+
+popup.style.display =
+"block";
+
 
 setTimeout(()=>{
 
-popup.style.bottom = "20px";
-popup.style.opacity = "1";
+popup.style.bottom =
+"20px";
+
+popup.style.opacity =
+"1";
 
 },20);
 
-            const sound = document.getElementById("jobAlertSound");
+
+const sound =
+document.getElementById(
+"jobAlertSound"
+);
+
 
 if(sound){
 
-sound.currentTime = 0;
+sound.currentTime =
+0;
 
 sound.play().catch(()=>{});
 
 }
 
-            setTimeout(()=>{
-
-popup.style.opacity = "0";
-popup.style.bottom = "-200px";
 
 setTimeout(()=>{
 
-popup.style.display = "none";
+popup.style.opacity =
+"0";
+
+popup.style.bottom =
+"-200px";
+
+
+setTimeout(()=>{
+
+popup.style.display =
+"none";
 
 },400);
 
 },8000);
 
-        }
-
-    }
+}
 
 }
 
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+
+/* ==========================
+NOTIFICATION BADGE
+========================== */
+
+async function loadNotificationBadge(){
+
+try{
+
+const res =
+await fetch(
+API+"/notifications/business/"+businessId
+);
+
+const data =
+await res.json();
+
+
+const unread =
+data.filter(
+n => !n.read
+).length;
+
+
+setBadge(
+"notificationCount",
+unread
+);
+
+
+setBadge(
+"sideNotificationCount",
+unread
+);
+
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+
+/* ==========================
+MESSAGE BADGE
+========================== */
+
+async function loadMessageBadge(){
+
+try{
+
+const res =
+await fetch(
+API+"/chat/unread/"+businessId
+);
+
+const data =
+await res.json();
+
+
+setBadge(
+"messageCount",
+data.count
+);
+
+
+setBadge(
+"sideMessageCount",
+data.count
+);
+
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+
+/* ==========================
+OPEN NOTIFICATIONS
+========================== */
+
+async function openNotifications(){
+
+closeMenu();
+
+
+document.getElementById(
+"notificationModal"
+).style.display =
+"block";
+
+
+const list =
+document.getElementById(
+"notificationList"
+);
+
+
+list.innerHTML =
+"Loading...";
+
+
+try{
+
 await fetch(
 
-API + "/business/" + businessId + "/requests/viewed",
+API+
+"/notifications/business/"+
+businessId+
+"/read",
 
 {
 
@@ -1152,105 +2244,61 @@ method:"POST"
 
 );
 
-loadQuickMenuCounts();
 
-if(!data || data.length===0){
+const res =
+await fetch(
 
-container.innerHTML = "No job requests yet.";
+API+
+"/notifications/business/"+
+businessId
+
+);
+
+
+const data =
+await res.json();
+
+
+setBadge(
+"notificationCount",
+0
+);
+
+
+setBadge(
+"sideNotificationCount",
+0
+);
+
+
+if(data.length === 0){
+
+list.innerHTML =
+"No notifications.";
 
 return;
 
 }
 
+
 let html = "";
 
-data.forEach(r=>{
 
-let buttons = "";
-
-if(r.status==="Pending"){
-
-buttons = `
-<button style="background:#16a34a;"
-onclick="updateRequestStatus('${r._id}','Accepted')">
-✅ Accept
-</button>
-
-<button style="background:#ef4444;"
-onclick="updateRequestStatus('${r._id}','Declined')">
-❌ Decline
-</button>
-`;
-
-}
-
-else if(r.status==="Accepted"){
-
-buttons = `
-<button style="background:#22c55e;" disabled>
-🟢 Accepted
-</button>
-
-<button style="background:#2563eb;"
-onclick="contactCustomer(
-'${r.studentPhone}',
-'${r.studentName}',
-'${r.service || r.message}',
-'${r.location}'
-)">
-💬 Contact Customer
-</button>
-
-<button style="background:#f59e0b;"
-onclick="completeJob('${r._id}')">
-🏆 Mark Job Completed
-</button>
-`;
-
-}
-
-else if(r.status==="Completed"){
-
-buttons = `
-<button style="background:#16a34a;" disabled>
-✅ Job Completed
-</button>
-`;
-
-}
-
-else if(r.status==="Declined"){
-
-buttons = `
-<button style="background:#ef4444;" disabled>
-❌ Request Declined
-</button>
-`;
-
-}
+data.forEach(n=>{
 
 html += `
 
-<div style="background:#1e293b;padding:14px;border-radius:12px;margin-top:12px;">
+<div class="notificationItem">
 
-<b>👤 ${r.studentName || "Service Connect Visitor"}</b><br>
+<b>${n.title}</b>
 
-📞 ${r.studentPhone || "No phone provided"}<br>
+<br><br>
 
-🛠 ${r.service || r.message || "Service Request"}<br>
+${n.message}
 
-📍 ${r.location || "Unknown location"}<br>
-
-📌 Status:
-<b>${r.status}</b><br>
-
-🗓 ${new Date(r.createdAt).toLocaleString()}
-
-<div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
-
-${buttons}
-
-</div>
+<small>
+${new Date(n.createdAt).toLocaleString()}
+</small>
 
 </div>
 
@@ -1258,67 +2306,62 @@ ${buttons}
 
 });
 
-container.innerHTML = html;
 
-}catch(err){
-
-console.log(err);
-
-container.innerHTML = "Unable to load job requests.";
-
-}
-
-}
-
-async function updateRequestStatus(requestId,status){
-
-try{
-
-const res = await fetch(API + "/request/status",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-requestId:requestId,
-
-status:status
-
-})
-
-});
-
-
-const data = await res.json();
-
-
-alert(data.message || data.error);
-
-
-loadJobRequests();
+list.innerHTML =
+html;
 
 
 }catch(err){
 
 console.log(err);
 
-alert("Failed to update request.");
+list.innerHTML =
+"Unable to load notifications.";
 
 }
 
 }
 
-async function renewSubscription(){
+
+function closeNotifications(){
+
+document.getElementById(
+"notificationModal"
+).style.display =
+"none";
+
+}
+
+
+/* ==========================
+MESSAGES
+========================== */
+
+function openMessages(){
+
+window.location.href =
+"business-messages.html";
+
+}
+
+
+/* ==========================
+RENEW
+========================== */
+
+function renewSubscription(){
 
 const businessCode =
-localStorage.getItem("businessCode") || "";
+localStorage.getItem(
+"businessCode"
+) || "";
+
 
 const businessName =
-localStorage.getItem("businessName") || "";
+localStorage.getItem(
+"businessName"
+) || "";
+
 
 const message =
 
@@ -1336,6 +2379,7 @@ Please verify my payment after I send the payment proof.
 
 Thank you.`;
 
+
 window.open(
 
 "https://wa.me/2348107661212?text="+
@@ -1346,26 +2390,41 @@ encodeURIComponent(message),
 );
 
 }
+
+
+/* ==========================
+UPDATE PROFILE
+========================== */
+
 async function updateProfile(){
 
-const profilePicture=
-document.getElementById("profilePicture").value.trim();
+const profilePicture =
+document.getElementById(
+"profilePicture"
+).value.trim();
 
-const shortBio=
-document.getElementById("shortBio").value.trim();
+
+const shortBio =
+document.getElementById(
+"shortBio"
+).value.trim();
+
 
 try{
 
-const res=await fetch(
+const res =
+await fetch(
 
-API+"/business/updateProfile",
+API+
+"/business/updateProfile",
 
 {
 
 method:"POST",
 
 headers:{
-"Content-Type":"application/json"
+"Content-Type":
+"application/json"
 },
 
 body:JSON.stringify({
@@ -1382,356 +2441,79 @@ shortBio
 
 );
 
-const data=await res.json();
 
-alert(data.message||data.error);
+const data =
+await res.json();
+
+
+alert(
+data.message ||
+data.error
+);
+
 
 loadBusiness();
 
-}catch(err){
-
-console.log(err);
-
-alert("Profile update failed.");
-
-}
-
-}
-
-function contactCustomer(phone,name,service,location){
-
-if(!phone || phone===""){
-
-alert("Customer phone number is not available yet.");
-
-return;
-
-}
-
-let number = phone;
-
-if(number.startsWith("0")){
-
-number = "234" + number.substring(1);
-
-}
-
-const businessName =
-localStorage.getItem("businessName") || "Service Connect Professional";
-
-const message =
-
-`Hello ${name || "Customer"},
-
-I received your request for ${service} in ${location}.
-
-I am ${businessName} and I’m available to assist you.
-
-Please let me know the exact issue and your preferred time.`;
-
-window.open(
-
-"https://wa.me/" + number + "?text=" +
-encodeURIComponent(message),
-
-"_blank"
-
-);
-
-}
-
-async function completeJob(requestId){
-
-try{
-
-
-const res = await fetch(API+"/request/complete",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-requestId
-
-})
-
-});
-
-
-const data = await res.json();
-
-alert(data.message || data.error);
-
-loadJobRequests();
-
-loadQuickMenuCounts();
-
-loadNotificationBadge();
-
-loadRemainingDays();
 
 }catch(err){
 
 console.log(err);
 
-alert("Failed to complete job");
-
-}
-
-}
-
-async function loadNotificationBadge(){
-
-try{
-
-const res=await fetch(
-API+"/notifications/business/"+businessId
+alert(
+"Profile update failed."
 );
 
-const data=await res.json();
-
-const badge=document.getElementById("notificationCount");
-
-const unread = data.filter(n => !n.read);
-
-if(unread.length > 0){
-
-    badge.style.display = "block";
-    badge.innerHTML = unread.length;
-
-}else{
-
-    badge.style.display = "none";
-    badge.innerHTML = "0";
-
-}
-
-}catch(err){
-
-console.log(err);
-
 }
 
 }
 
-async function loadMessageBadge(){
 
-try{
-
-const res = await fetch(
-API + "/chat/unread/" + businessId
-);
-
-const data = await res.json();
-
-const badge =
-document.getElementById("messageCount");
-
-if(data.count > 0){
-
-badge.style.display = "block";
-
-badge.innerHTML = data.count;
-
-}else{
-
-badge.style.display = "none";
-
-badge.innerHTML = "0";
-
-}
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-async function openNotifications(){
-
-document.getElementById("notificationModal").style.display="block";
-
-const list=document.getElementById("notificationList");
-
-list.innerHTML="Loading...";
-
-try{
-
-await fetch(
-API+"/notifications/business/"+businessId+"/read",
-{
-method:"POST"
-}
-);
-
-const res=await fetch(
-API+"/notifications/business/"+businessId
-);
-
-const data=await res.json();
-
-document.getElementById("notificationCount").style.display="none";
-
-if(data.length===0){
-
-list.innerHTML="No notifications.";
-
-return;
-
-}
-
-let html="";
-
-data.forEach(n=>{
-
-html+=`
-
-<div style="
-background:#1e293b;
-padding:12px;
-border-radius:12px;
-margin-bottom:12px;
-">
-
-<b>${n.title}</b>
-
-<br><br>
-
-${n.message}
-
-<br><br>
-
-<small style="color:#94a3b8;">
-${new Date(n.createdAt).toLocaleString()}
-</small>
-
-</div>
-
-`;
-
-});
-
-list.innerHTML=html;
-
-}catch(err){
-
-console.log(err);
-
-list.innerHTML="Unable to load notifications.";
-
-}
-
-}
-
-function closeNotifications(){
-
-document.getElementById("notificationModal").style.display="none";
-
-}
-
-function openMessages(){
-
-window.location.href="business-messages.html";
-
-}
+/* ==========================
+LOGOUT
+========================== */
 
 function logout(){
 
-localStorage.removeItem("businessId");
+localStorage.removeItem(
+"businessId"
+);
 
-localStorage.removeItem("businessCode");
+localStorage.removeItem(
+"businessCode"
+);
 
-localStorage.removeItem("businessName");
+localStorage.removeItem(
+"businessName"
+);
 
-window.location.href="business-login_v2.html";
+window.location.href =
+"business-login_v2.html";
 
 }
 
+
+/* ==========================
+START
+========================== */
+
+loadBusiness();
+
+
+setInterval(()=>{
+
+loadNotificationBadge();
+
+loadMessageBadge();
+
+loadQuickMenuCounts();
+
+loadJobRequests();
+
+loadBusinessAnalytics();
+
+},5000);
+
 </script>
-
-<div
-id="notificationModal"
-style="
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.7);
-z-index:999;
-">
-
-<div
-style="
-background:#0f172a;
-width:90%;
-max-width:500px;
-margin:60px auto;
-padding:20px;
-border-radius:15px;
-max-height:80%;
-overflow:auto;
-">
-
-<h2>🔔 Notifications</h2>
-
-<div
-id="notificationList"
-style="margin-top:20px;">
-Loading...
-</div>
-
-<div id="jobPopup" style="
-display:none;
-position:fixed;
-bottom:-200px;
-left:50%;
-transform:translateX(-50%);
-opacity:0;
-transition:all .4s ease;
-background:#16a34a;
-color:white;
-padding:18px;
-border-radius:15px;
-width:90%;
-max-width:360px;
-box-shadow:0 10px 30px rgba(0,0,0,.4);
-z-index:1000;
-text-align:center;
-">
-
-<h3>🔔 New Job Request</h3>
-
-<p id="jobPopupText">
-You have a new customer.
-</p>
-
-<button
-style="background:#0f172a;margin-top:10px;"
-onclick="
-location.href='my-job-requests.html';
-">
-View Request
-</button>
-
-</div>
-
-<button
-onclick="closeNotifications()"
-style="background:#ef4444;">
-Close
-</button>
-
-</div>
-
-</div>
 
 </body>
 
