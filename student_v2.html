@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
 
-<title>Find a Worker - Service Connect</title>
+<title>Student Dashboard - Service Connect</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link
+href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
 
 <style>
+
+/* =========================================
+   RESET
+========================================= */
 
 *{
 margin:0;
@@ -22,132 +30,48 @@ font-family:'Poppins',sans-serif;
 body{
 background:#020617;
 color:white;
-}
-
-header{
-
-background:linear-gradient(135deg,#16a34a,#22c55e);
-
-padding:25px;
-
-border-bottom-left-radius:25px;
-border-bottom-right-radius:25px;
-
-text-align:center;
-
-box-shadow:0 10px 25px rgba(0,0,0,.35);
-
-}
-
-header h1{
-
-font-size:30px;
-
-}
-
-header p{
-
-margin-top:8px;
-
-opacity:.95;
-
-}
-
-.container{
-
-padding:20px;
-
-}
-
-.searchBox{
-
-background:#0f172a;
-
-padding:20px;
-
-border-radius:20px;
-
-box-shadow:0 10px 25px rgba(0,0,0,.3);
-
-}
-
-input{
-
-width:100%;
-
-padding:15px;
-
-border:none;
-
-outline:none;
-
-border-radius:12px;
-
-margin-top:12px;
-
-font-size:15px;
-
+min-height:100vh;
+overflow-x:hidden;
 }
 
 button{
-
-width:100%;
-
-padding:16px;
-
-margin-top:15px;
-
-border:none;
-
-border-radius:12px;
-
-background:#22c55e;
-
-color:white;
-
-font-size:16px;
-
-font-weight:bold;
-
+font-family:'Poppins',sans-serif;
 cursor:pointer;
-
 }
 
-button:hover{
-
-transform:scale(1.02);
-
+button:active{
+transform:scale(.98);
 }
 
-#loading{
+/* =========================================
+   HEADER
+========================================= */
 
-display:none;
+.header{
 
-text-align:center;
-
-margin-top:20px;
-
-color:#22c55e;
-
-font-weight:bold;
-
-}
-
-.workerCard{
+height:75px;
 
 background:#0f172a;
 
-margin-top:20px;
+display:flex;
 
-padding:18px;
+align-items:center;
 
-border-radius:18px;
+justify-content:space-between;
 
-box-shadow:0 8px 20px rgba(0,0,0,.3);
+padding:0 20px;
+
+position:sticky;
+
+top:0;
+
+z-index:100;
+
+border-bottom:1px solid rgba(255,255,255,.06);
 
 }
 
-.topRow{
+.headerLeft{
 
 display:flex;
 
@@ -157,21 +81,257 @@ gap:15px;
 
 }
 
-.profile{
+.menuButton{
 
-width:75px;
+width:45px;
 
-height:75px;
+height:45px;
+
+border:none;
 
 border-radius:50%;
 
-object-fit:cover;
+background:transparent;
 
-border:3px solid #22c55e;
+color:white;
+
+font-size:25px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
 
 }
 
-.name{
+.menuButton:hover{
+
+background:#1e293b;
+
+}
+
+.logo{
+
+font-size:20px;
+
+font-weight:700;
+
+}
+
+.logo span{
+
+color:#22c55e;
+
+}
+
+.notificationButton{
+
+width:45px;
+
+height:45px;
+
+border:none;
+
+border-radius:50%;
+
+background:transparent;
+
+font-size:23px;
+
+position:relative;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+.notificationButton:hover{
+
+background:#1e293b;
+
+}
+
+.notificationBadge{
+
+position:absolute;
+
+top:2px;
+
+right:1px;
+
+background:#ef4444;
+
+color:white;
+
+font-size:10px;
+
+font-weight:bold;
+
+min-width:18px;
+
+height:18px;
+
+padding:2px 5px;
+
+border-radius:20px;
+
+display:none;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+/* =========================================
+   DRAWER OVERLAY
+========================================= */
+
+.overlay{
+
+position:fixed;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:100%;
+
+background:rgba(0,0,0,.65);
+
+z-index:200;
+
+display:none;
+
+}
+
+.overlay.active{
+
+display:block;
+
+}
+
+/* =========================================
+   SIDE DRAWER
+========================================= */
+
+.drawer{
+
+position:fixed;
+
+top:0;
+
+left:-310px;
+
+width:290px;
+
+height:100vh;
+
+background:#0f172a;
+
+z-index:300;
+
+transition:.3s ease;
+
+box-shadow:10px 0 30px rgba(0,0,0,.4);
+
+display:flex;
+
+flex-direction:column;
+
+}
+
+.drawer.open{
+
+left:0;
+
+}
+
+/* drawer header */
+
+.drawerHeader{
+
+padding:25px 20px;
+
+background:linear-gradient(
+135deg,
+#15803d,
+#22c55e
+);
+
+}
+
+.drawerTop{
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+}
+
+.drawerLogo{
+
+font-size:22px;
+
+font-weight:700;
+
+}
+
+.closeDrawer{
+
+border:none;
+
+background:rgba(255,255,255,.15);
+
+color:white;
+
+width:38px;
+
+height:38px;
+
+border-radius:50%;
+
+font-size:20px;
+
+}
+
+.drawerStudent{
+
+margin-top:18px;
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+}
+
+.drawerAvatar{
+
+width:48px;
+
+height:48px;
+
+border-radius:50%;
+
+background:white;
+
+color:#16a34a;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
 
 font-size:22px;
 
@@ -179,73 +339,821 @@ font-weight:bold;
 
 }
 
-.service{
+.drawerStudentInfo{
 
-color:#22c55e;
-
-margin-top:5px;
+overflow:hidden;
 
 }
 
-.location{
+.drawerStudentName{
 
-margin-top:5px;
+font-weight:600;
+
+white-space:nowrap;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
+
+}
+
+.drawerStudentPhone{
+
+font-size:12px;
+
+opacity:.85;
+
+margin-top:2px;
+
+}
+
+/* =========================================
+   DRAWER MENU
+========================================= */
+
+.drawerMenu{
+
+padding:12px 10px;
+
+overflow-y:auto;
+
+flex:1;
+
+}
+
+.menuItem{
+
+width:100%;
+
+border:none;
+
+background:transparent;
 
 color:#cbd5e1;
 
-}
+padding:13px 15px;
 
-.bio{
-
-margin-top:15px;
-
-line-height:1.7;
-
-color:#cbd5e1;
-
-}
-
-.rating{
-
-margin-top:12px;
-
-font-weight:bold;
-
-color:#facc15;
-
-}
-
-.badge{
-
-display:inline-block;
-
-margin-top:12px;
-
-padding:8px 14px;
-
-border-radius:20px;
-
-background:#16a34a;
-
-font-size:13px;
-
-font-weight:bold;
-
-}
-
-.action{
+border-radius:12px;
 
 display:flex;
 
-gap:10px;
+align-items:center;
+
+gap:14px;
+
+font-size:14px;
+
+text-align:left;
+
+margin-bottom:3px;
+
+}
+
+.menuItem:hover{
+
+background:#1e293b;
+
+color:white;
+
+}
+
+.menuItem.active{
+
+background:#14532d;
+
+color:#4ade80;
+
+}
+
+.menuIcon{
+
+width:25px;
+
+font-size:19px;
+
+text-align:center;
+
+}
+
+.menuText{
+
+flex:1;
+
+}
+
+.menuBadge{
+
+background:#ef4444;
+
+color:white;
+
+font-size:10px;
+
+font-weight:bold;
+
+padding:3px 7px;
+
+border-radius:20px;
+
+display:none;
+
+}
+
+.drawerDivider{
+
+height:1px;
+
+background:#1e293b;
+
+margin:12px 5px;
+
+}
+
+/* =========================================
+   MAIN
+========================================= */
+
+.main{
+
+padding:22px;
+
+max-width:1100px;
+
+margin:auto;
+
+}
+
+/* =========================================
+   PAGE SYSTEM
+========================================= */
+
+.page{
+
+display:none;
+
+animation:fadeIn .2s ease;
+
+}
+
+.page.active{
+
+display:block;
+
+}
+
+@keyframes fadeIn{
+
+from{
+
+opacity:0;
+
+transform:translateY(5px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+/* =========================================
+   HOME WELCOME
+========================================= */
+
+.welcome{
+
+background:
+linear-gradient(
+135deg,
+#14532d,
+#166534,
+#15803d
+);
+
+border-radius:22px;
+
+padding:25px;
+
+box-shadow:0 12px 30px rgba(0,0,0,.3);
+
+}
+
+.welcome h1{
+
+font-size:26px;
+
+}
+
+.welcome p{
+
+margin-top:7px;
+
+color:#dcfce7;
+
+font-size:14px;
+
+}
+
+/* =========================================
+   SECTION HEADER
+========================================= */
+
+.pageHeader{
+
+margin-bottom:20px;
+
+}
+
+.pageHeader h2{
+
+font-size:23px;
+
+}
+
+.pageHeader p{
+
+color:#94a3b8;
+
+font-size:13px;
+
+margin-top:5px;
+
+}
+
+/* =========================================
+   STATS
+========================================= */
+
+.stats{
+
+display:grid;
+
+grid-template-columns:
+repeat(3,1fr);
+
+gap:12px;
 
 margin-top:18px;
 
 }
 
-.action button{
+.statCard{
 
-margin:0;
+background:#0f172a;
+
+border:1px solid #1e293b;
+
+padding:18px 10px;
+
+border-radius:16px;
+
+text-align:center;
+
+}
+
+.statCard h2{
+
+color:#22c55e;
+
+font-size:26px;
+
+}
+
+.statCard p{
+
+color:#94a3b8;
+
+font-size:12px;
+
+margin-top:4px;
+
+}
+
+/* =========================================
+   CARD
+========================================= */
+
+.card{
+
+background:#0f172a;
+
+border:1px solid #1e293b;
+
+border-radius:18px;
+
+padding:20px;
+
+margin-top:18px;
+
+}
+
+.cardTitle{
+
+font-size:17px;
+
+font-weight:600;
+
+margin-bottom:15px;
+
+}
+
+.green{
+
+color:#22c55e;
+
+}
+
+.yellow{
+
+color:#facc15;
+
+}
+
+/* =========================================
+   PROFILE
+========================================= */
+
+.profileBox{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+}
+
+.profileAvatar{
+
+width:65px;
+
+height:65px;
+
+border-radius:50%;
+
+background:#14532d;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:27px;
+
+border:2px solid #22c55e;
+
+}
+
+.profileInfo{
+
+flex:1;
+
+}
+
+.profileInfo h3{
+
+font-size:18px;
+
+}
+
+.profileInfo p{
+
+font-size:12px;
+
+color:#94a3b8;
+
+margin-top:3px;
+
+}
+
+/* =========================================
+   SEARCH
+========================================= */
+
+.searchCard{
+
+background:#0f172a;
+
+border:1px solid #1e293b;
+
+border-radius:20px;
+
+padding:20px;
+
+}
+
+.inputGroup{
+
+margin-bottom:13px;
+
+}
+
+.inputGroup label{
+
+font-size:12px;
+
+color:#94a3b8;
+
+display:block;
+
+margin-bottom:6px;
+
+}
+
+input{
+
+width:100%;
+
+padding:14px;
+
+background:#020617;
+
+border:1px solid #334155;
+
+color:white;
+
+outline:none;
+
+border-radius:12px;
+
+font-size:14px;
+
+}
+
+input:focus{
+
+border-color:#22c55e;
+
+}
+
+.searchButton{
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+border-radius:12px;
+
+background:#22c55e;
+
+color:white;
+
+font-weight:600;
+
+font-size:15px;
+
+margin-top:5px;
+
+}
+
+.searchButton:hover{
+
+background:#16a34a;
+
+}
+
+#loading{
+
+display:none;
+
+text-align:center;
+
+color:#4ade80;
+
+margin-top:18px;
+
+font-size:13px;
+
+}
+
+/* =========================================
+   FEATURED WORKER
+========================================= */
+
+.featuredWorker{
+
+background:#1e293b;
+
+padding:18px;
+
+border-radius:15px;
+
+}
+
+.workerTop{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+}
+
+.workerImage{
+
+width:70px;
+
+height:70px;
+
+border-radius:50%;
+
+object-fit:cover;
+
+border:2px solid #22c55e;
+
+}
+
+.workerInfo{
+
+flex:1;
+
+}
+
+.workerInfo h3{
+
+font-size:17px;
+
+}
+
+.workerInfo p{
+
+font-size:12px;
+
+color:#cbd5e1;
+
+margin-top:3px;
+
+}
+
+.workerStats{
+
+margin-top:13px;
+
+font-size:13px;
+
+color:#cbd5e1;
+
+line-height:1.8;
+
+}
+
+.hireButton{
+
+width:100%;
+
+border:none;
+
+background:#f59e0b;
+
+color:white;
+
+padding:12px;
+
+border-radius:10px;
+
+font-weight:600;
+
+margin-top:14px;
+
+}
+
+/* =========================================
+   TOP WORKERS
+========================================= */
+
+.topWorker{
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+background:#1e293b;
+
+padding:12px;
+
+border-radius:12px;
+
+margin-top:10px;
+
+}
+
+.topWorkerImage{
+
+width:50px;
+
+height:50px;
+
+border-radius:50%;
+
+object-fit:cover;
+
+border:2px solid #22c55e;
+
+}
+
+.topWorkerInfo{
+
+flex:1;
+
+}
+
+.topWorkerInfo b{
+
+font-size:14px;
+
+}
+
+.topWorkerInfo p{
+
+font-size:11px;
+
+color:#94a3b8;
+
+margin-top:2px;
+
+}
+
+.topWorkerRating{
+
+font-size:12px;
+
+color:#facc15;
+
+}
+
+/* =========================================
+   WORKER RESULTS
+========================================= */
+
+.workerCard{
+
+background:#0f172a;
+
+border:1px solid #1e293b;
+
+margin-top:15px;
+
+padding:18px;
+
+border-radius:18px;
+
+}
+
+.workerCardTop{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+}
+
+.workerCardImage{
+
+width:68px;
+
+height:68px;
+
+border-radius:50%;
+
+object-fit:cover;
+
+border:2px solid #22c55e;
+
+}
+
+.workerCardInfo{
+
+flex:1;
+
+}
+
+.workerCardInfo h3{
+
+font-size:18px;
+
+}
+
+.service{
+
+color:#4ade80;
+
+font-size:13px;
+
+margin-top:2px;
+
+}
+
+.location{
+
+color:#94a3b8;
+
+font-size:12px;
+
+margin-top:3px;
+
+}
+
+.bio{
+
+color:#cbd5e1;
+
+font-size:13px;
+
+line-height:1.6;
+
+margin-top:14px;
+
+}
+
+.rating{
+
+color:#facc15;
+
+font-size:13px;
+
+font-weight:600;
+
+margin-top:10px;
+
+}
+
+.badges{
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:7px;
+
+margin-top:12px;
+
+}
+
+.badge{
+
+padding:5px 9px;
+
+border-radius:20px;
+
+font-size:10px;
+
+font-weight:600;
+
+background:#166534;
+
+}
+
+.trustBadge{
+
+background:#16a34a;
+
+}
+
+.actions{
+
+display:grid;
+
+grid-template-columns:
+1fr 1fr 1fr;
+
+gap:8px;
+
+margin-top:15px;
+
+}
+
+.actionButton{
+
+border:none;
+
+padding:11px 5px;
+
+border-radius:10px;
+
+color:white;
+
+font-size:11px;
+
+font-weight:600;
+
+}
+
+.whatsapp{
+
+background:#16a34a;
 
 }
 
@@ -261,61 +1169,204 @@ background:#f59e0b;
 
 }
 
-.stats{
+/* =========================================
+   EMPTY
+========================================= */
 
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:12px;
-
-margin-bottom:20px;
-
-}
-
-.statCard{
+.empty{
 
 background:#0f172a;
 
-padding:18px;
+border:1px solid #1e293b;
+
+padding:25px;
 
 border-radius:16px;
 
 text-align:center;
 
-box-shadow:0 0 12px rgba(0,0,0,.3);
-
-}
-
-.statCard h2{
-
-color:#22c55e;
-
-font-size:28px;
-
-margin:0;
-
-}
-
-.statCard p{
-
-margin-top:8px;
-
 color:#94a3b8;
+
+margin-top:18px;
+
+font-size:13px;
+
+}
+
+/* =========================================
+   NOTIFICATIONS
+========================================= */
+
+.notificationItem{
+
+background:#1e293b;
+
+padding:15px;
+
+border-radius:13px;
+
+margin-bottom:10px;
+
+}
+
+.notificationItem b{
 
 font-size:14px;
 
 }
 
-.empty{
+.notificationMessage{
 
-text-align:center;
+font-size:13px;
 
-margin-top:30px;
+color:#cbd5e1;
+
+margin-top:6px;
+
+line-height:1.5;
+
+}
+
+.notificationTime{
+
+font-size:10px;
+
+color:#64748b;
+
+margin-top:8px;
+
+}
+
+/* =========================================
+   PROFILE DETAILS
+========================================= */
+
+.detailRow{
+
+display:flex;
+
+justify-content:space-between;
+
+gap:15px;
+
+padding:13px 0;
+
+border-bottom:1px solid #1e293b;
+
+font-size:13px;
+
+}
+
+.detailRow:last-child{
+
+border-bottom:none;
+
+}
+
+.detailLabel{
 
 color:#94a3b8;
 
-font-size:16px;
+}
+
+.detailValue{
+
+font-weight:500;
+
+text-align:right;
+
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:600px){
+
+.main{
+
+padding:15px;
+
+}
+
+.welcome{
+
+padding:20px;
+
+}
+
+.welcome h1{
+
+font-size:22px;
+
+}
+
+.stats{
+
+gap:8px;
+
+}
+
+.statCard{
+
+padding:15px 5px;
+
+}
+
+.statCard h2{
+
+font-size:22px;
+
+}
+
+.actions{
+
+grid-template-columns:
+1fr 1fr;
+
+}
+
+.actions .rate{
+
+grid-column:span 2;
+
+}
+
+}
+
+/* =========================================
+   DESKTOP DRAWER
+========================================= */
+
+@media(min-width:900px){
+
+.drawer{
+
+left:-310px;
+
+}
+
+.drawer.open{
+
+left:0;
+
+}
+
+}
+
+/* =========================================
+   NOTIFICATION LOADER
+========================================= */
+
+.loader{
+
+text-align:center;
+
+color:#94a3b8;
+
+padding:20px;
+
+font-size:13px;
 
 }
 
@@ -325,152 +1376,498 @@ font-size:16px;
 
 <body>
 
-<header>
 
-<div style="display:flex;justify-content:space-between;align-items:center;">
+<!-- =========================================
+     SIDE MENU OVERLAY
+========================================= -->
 
-<div>
+<div
+id="overlay"
+class="overlay"
+onclick="closeDrawer()">
+</div>
 
-<h1>🎓 Student Dashboard</h1>
 
-<p>Welcome to Service Connect</p>
+<!-- =========================================
+     SIDE DRAWER
+========================================= -->
+
+<aside
+id="drawer"
+class="drawer">
+
+<div class="drawerHeader">
+
+<div class="drawerTop">
+
+<div class="drawerLogo">
+⚡ Service Connect
+</div>
+
+<button
+class="closeDrawer"
+onclick="closeDrawer()">
+
+✕
+
+</button>
+
+</div>
+
+<div class="drawerStudent">
+
+<div
+id="drawerAvatar"
+class="drawerAvatar">
+
+🎓
+
+</div>
+
+<div class="drawerStudentInfo">
+
+<div
+id="drawerStudentName"
+class="drawerStudentName">
+
+Student
 
 </div>
 
 <div
-onclick="loadStudentNotifications()"
-style="
-position:relative;
-font-size:30px;
-cursor:pointer;
-">
+id="drawerStudentPhone"
+class="drawerStudentPhone">
+
+Not logged in
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="drawerMenu">
+
+
+<button
+class="menuItem active"
+onclick="openPage('home',this)">
+
+<span class="menuIcon">🏠</span>
+
+<span class="menuText">Home</span>
+
+</button>
+
+
+<button
+class="menuItem"
+onclick="openPage('findService',this)">
+
+<span class="menuIcon">🔎</span>
+
+<span class="menuText">Find a Service</span>
+
+</button>
+
+
+<button
+class="menuItem"
+onclick="openPage('requests',this)">
+
+<span class="menuIcon">📋</span>
+
+<span class="menuText">My Requests</span>
+
+</button>
+
+
+<button
+class="menuItem"
+onclick="openPage('messages',this)">
+
+<span class="menuIcon">💬</span>
+
+<span class="menuText">Messages</span>
+
+<span
+id="messageBadge"
+class="menuBadge">
+0
+</span>
+
+</button>
+
+
+<button
+class="menuItem"
+onclick="openPage('notifications',this)">
+
+<span class="menuIcon">🔔</span>
+
+<span class="menuText">Notifications</span>
+
+<span
+id="notificationMenuBadge"
+class="menuBadge">
+0
+</span>
+
+</button>
+
+
+<button
+class="menuItem"
+onclick="openPage('reviews',this)">
+
+<span class="menuIcon">⭐</span>
+
+<span class="menuText">My Reviews</span>
+
+</button>
+
+
+<button
+class="menuItem"
+onclick="openPage('history',this)">
+
+<span class="menuIcon">🕘</span>
+
+<span class="menuText">Service History</span>
+
+</button>
+
+
+<div class="drawerDivider"></div>
+
+
+<button
+class="menuItem"
+onclick="openPage('profile',this)">
+
+<span class="menuIcon">👤</span>
+
+<span class="menuText">My Profile</span>
+
+</button>
+
+
+<button
+class="menuItem"
+onclick="openPage('settings',this)">
+
+<span class="menuIcon">⚙️</span>
+
+<span class="menuText">Settings</span>
+
+</button>
+
+
+<div class="drawerDivider"></div>
+
+
+<button
+class="menuItem"
+onclick="logoutStudent()">
+
+<span class="menuIcon">🚪</span>
+
+<span class="menuText">Logout</span>
+
+</button>
+
+
+</div>
+
+</aside>
+
+
+<!-- =========================================
+     HEADER
+========================================= -->
+
+<header class="header">
+
+<div class="headerLeft">
+
+<button
+class="menuButton"
+onclick="openDrawer()">
+
+☰
+
+</button>
+
+<div class="logo">
+
+<span>⚡</span>
+Service Connect
+
+</div>
+
+</div>
+
+
+<button
+class="notificationButton"
+onclick="openPageByName('notifications')">
 
 🔔
 
 <span
 id="studentNotificationCount"
-style="
-position:absolute;
-top:-8px;
-right:-8px;
-background:red;
-color:white;
-font-size:11px;
-padding:2px 6px;
-border-radius:50%;
-display:none;
-">
+class="notificationBadge">
+
 0
+
 </span>
 
-</div>
-
-</div>
+</button>
 
 </header>
 
-<div class="container">
 
-<div class="searchBox" style="margin-bottom:20px;">
+<!-- =========================================
+     MAIN CONTENT
+========================================= -->
 
-<h2 style="color:#22c55e;">👤 Student Profile</h2>
+<main class="main">
 
-<div style="margin-top:15px;line-height:2;">
 
-<div>
-<b>Name:</b>
-<span id="studentNameDisplay">Not set</span>
-</div>
+<!-- =========================================
+     HOME
+========================================= -->
 
-<div>
-<b>Phone:</b>
-<span id="studentPhoneDisplay">Not set</span>
-</div>
+<section
+id="home"
+class="page active">
 
-<div>
-<b>Location:</b>
-<span id="studentLocationDisplay">Not set</span>
-</div>
+<div class="welcome">
 
-</div>
+<h1>
+Welcome back, <span id="welcomeName">Student</span> 👋
+</h1>
 
-</div>
-
-<div class="searchBox" style="margin-bottom:20px;">
-
-<h2 style="color:#facc15;margin-bottom:15px;">⭐ Featured Worker of the Day</h2>
-
-<div id="featuredWorker">
-
-Loading featured worker...
+<p>
+Find trusted professionals around you quickly and easily.
+</p>
 
 </div>
 
-</div>
-
-<div class="searchBox" style="margin-bottom:20px;">
-
-<h2 style="color:#22c55e;margin-bottom:15px;">🏆 Top Verified Workers</h2>
-
-<div id="topWorkers">
-
-Loading top workers...
-
-</div>
-
-</div>
 
 <div class="stats">
 
 <div class="statCard">
 
-<h2 id="totalWorkers">0</h2>
+<h2 id="totalWorkers">
+0
+</h2>
 
-<p>Workers</p>
+<p>
+Workers
+</p>
 
 </div>
+
 
 <div class="statCard">
 
-<h2 id="verifiedWorkers">0</h2>
+<h2 id="verifiedWorkers">
+0
+</h2>
 
-<p>Verified</p>
+<p>
+Verified
+</p>
 
 </div>
+
 
 <div class="statCard">
 
-<h2 id="locations">0</h2>
+<h2 id="locations">
+0
+</h2>
 
-<p>Locations</p>
+<p>
+Locations
+</p>
 
 </div>
 
 </div>
 
-<div class="searchBox">
+
+<!-- PROFILE SUMMARY -->
+
+<div class="card">
+
+<div class="cardTitle green">
+👤 My Profile
+</div>
+
+<div class="profileBox">
+
+<div
+id="homeAvatar"
+class="profileAvatar">
+
+🎓
+
+</div>
+
+<div class="profileInfo">
+
+<h3 id="homeStudentName">
+Not set
+</h3>
+
+<p id="homeStudentPhone">
+Phone not set
+</p>
+
+<p id="homeStudentLocation">
+Location not set
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- FEATURED -->
+
+<div class="card">
+
+<div class="cardTitle yellow">
+
+⭐ Featured Worker of the Day
+
+</div>
+
+<div id="featuredWorker">
+
+<div class="loader">
+Loading featured worker...
+</div>
+
+</div>
+
+</div>
+
+
+<!-- TOP WORKERS -->
+
+<div class="card">
+
+<div class="cardTitle green">
+
+🏆 Top Verified Workers
+
+</div>
+
+<div id="topWorkers">
+
+<div class="loader">
+Loading top workers...
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     FIND SERVICE
+========================================= -->
+
+<section
+id="findService"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+🔎 Find a Service
+</h2>
+
+<p>
+Tell us what you need and we'll find available professionals near you.
+</p>
+
+</div>
+
+
+<div class="searchCard">
+
+
+<div class="inputGroup">
+
+<label>
+Your Full Name
+</label>
 
 <input
 id="studentName"
-placeholder="Your full name">
+placeholder="Enter your full name">
+
+</div>
+
+
+<div class="inputGroup">
+
+<label>
+Phone Number
+</label>
 
 <input
 id="studentPhone"
-placeholder="Your phone number">
+placeholder="Enter your phone number">
+
+</div>
+
+
+<div class="inputGroup">
+
+<label>
+What service do you need?
+</label>
 
 <input
 id="service"
-placeholder="What service do you need?">
+placeholder="Example: electrician, plumber, mechanic">
+
+</div>
+
+
+<div class="inputGroup">
+
+<label>
+Your Location
+</label>
 
 <input
 id="location"
-placeholder="Enter your location (e.g. FUTO)">
+placeholder="Example: FUTO">
 
-<button onclick="findWorkers()">
+</div>
 
-Search Now
+
+<button
+class="searchButton"
+onclick="findWorkers()">
+
+🔎 Search for Workers
 
 </button>
+
 
 <div id="loading">
 
@@ -480,145 +1877,566 @@ Searching nearby professionals...
 
 </div>
 
+
 <div id="results"></div>
+
+</section>
+
+
+<!-- =========================================
+     REQUESTS
+========================================= -->
+
+<section
+id="requests"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+📋 My Requests
+</h2>
+
+<p>
+View the service requests you have made.
+</p>
 
 </div>
 
+<div
+id="requestsList">
+
+<div class="loader">
+Loading requests...
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     MESSAGES
+========================================= -->
+
+<section
+id="messages"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+💬 Messages
+</h2>
+
+<p>
+Continue conversations with professionals.
+</p>
+
+</div>
+
+<div class="empty">
+
+💬 Your conversations will appear here.
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     NOTIFICATIONS
+========================================= -->
+
+<section
+id="notifications"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+🔔 Notifications
+</h2>
+
+<p>
+Updates about your service requests and messages.
+</p>
+
+</div>
+
+<div id="studentNotificationList">
+
+<div class="loader">
+Loading notifications...
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     REVIEWS
+========================================= -->
+
+<section
+id="reviews"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+⭐ My Reviews
+</h2>
+
+<p>
+Your reviews and ratings.
+</p>
+
+</div>
+
+<div class="empty">
+
+⭐ Your submitted reviews will appear here.
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     HISTORY
+========================================= -->
+
+<section
+id="history"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+🕘 Service History
+</h2>
+
+<p>
+Your previous service requests.
+</p>
+
+</div>
+
+<div class="empty">
+
+🕘 Your completed service history will appear here.
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     PROFILE
+========================================= -->
+
+<section
+id="profile"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+👤 My Profile
+</h2>
+
+<p>
+Your Service Connect student information.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="detailRow">
+
+<span class="detailLabel">
+Name
+</span>
+
+<span
+id="profileName"
+class="detailValue">
+Not set
+</span>
+
+</div>
+
+
+<div class="detailRow">
+
+<span class="detailLabel">
+Phone
+</span>
+
+<span
+id="profilePhone"
+class="detailValue">
+Not set
+</span>
+
+</div>
+
+
+<div class="detailRow">
+
+<span class="detailLabel">
+Location
+</span>
+
+<span
+id="profileLocation"
+class="detailValue">
+Not set
+</span>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     SETTINGS
+========================================= -->
+
+<section
+id="settings"
+class="page">
+
+<div class="pageHeader">
+
+<h2>
+⚙️ Settings
+</h2>
+
+<p>
+Manage your dashboard preferences.
+</p>
+
+</div>
+
+<div class="card">
+
+<div class="detailRow">
+
+<span>
+🔔 Notifications
+</span>
+
+<span>
+ON
+</span>
+
+</div>
+
+
+<div class="detailRow">
+
+<span>
+🌙 Appearance
+</span>
+
+<span>
+Dark
+</span>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+</main>
+
+
 <script>
+
+/* =========================================
+   API
+========================================= */
 
 const API =
 "https://service-backend-jezm.onrender.com";
 
-const savedName =
+
+/* =========================================
+   SAVED STUDENT DATA
+========================================= */
+
+let savedName =
 localStorage.getItem("studentName") || "";
 
-const savedPhone =
+let savedPhone =
 localStorage.getItem("studentPhone") || "";
 
-const savedLocation =
+let savedLocation =
 localStorage.getItem("studentLocation") || "";
+
+
+/* =========================================
+   DRAWER
+========================================= */
+
+function openDrawer(){
+
+document.getElementById("drawer")
+.classList.add("open");
+
+document.getElementById("overlay")
+.classList.add("active");
+
+}
+
+
+function closeDrawer(){
+
+document.getElementById("drawer")
+.classList.remove("open");
+
+document.getElementById("overlay")
+.classList.remove("active");
+
+}
+
+
+/* =========================================
+   OPEN PAGE
+========================================= */
+
+function openPage(pageId,button){
+
+document.querySelectorAll(".page")
+.forEach(page=>{
+
+page.classList.remove("active");
+
+});
+
+
+const page =
+document.getElementById(pageId);
+
+if(page){
+
+page.classList.add("active");
+
+}
+
+
+/* active menu */
+
+document.querySelectorAll(".menuItem")
+.forEach(item=>{
+
+item.classList.remove("active");
+
+});
+
+
+if(button){
+
+button.classList.add("active");
+
+}
+
+
+/* close drawer */
+
+closeDrawer();
+
+
+/* load page data */
+
+if(pageId==="requests"){
+
+loadStudentRequests();
+
+}
+
+if(pageId==="notifications"){
+
+loadStudentNotifications();
+
+}
+
+}
+
+
+/* =========================================
+   OPEN PAGE FROM HEADER
+========================================= */
+
+function openPageByName(pageId){
+
+document.querySelectorAll(".page")
+.forEach(page=>{
+
+page.classList.remove("active");
+
+});
+
+document.getElementById(pageId)
+.classList.add("active");
+
+document.querySelectorAll(".menuItem")
+.forEach(item=>{
+
+item.classList.remove("active");
+
+});
+
+closeDrawer();
+
+if(pageId==="notifications"){
+
+loadStudentNotifications();
+
+}
+
+}
+
+
+/* =========================================
+   LOAD STUDENT INFORMATION
+========================================= */
+
+function loadStudent(){
+
+const name =
+localStorage.getItem("studentName") || "";
+
+const phone =
+localStorage.getItem("studentPhone") || "";
+
+const location =
+localStorage.getItem("studentLocation") || "";
+
+
+/* search fields */
+
+document.getElementById("studentName").value =
+name;
+
+document.getElementById("studentPhone").value =
+phone;
+
+document.getElementById("location").value =
+location;
+
+
+/* home */
+
+document.getElementById("welcomeName")
+.innerHTML =
+name || "Student";
+
+document.getElementById("homeStudentName")
+.innerHTML =
+name || "Not set";
+
+document.getElementById("homeStudentPhone")
+.innerHTML =
+phone || "Phone not set";
+
+document.getElementById("homeStudentLocation")
+.innerHTML =
+location || "Location not set";
+
+
+/* drawer */
+
+document.getElementById("drawerStudentName")
+.innerHTML =
+name || "Student";
+
+document.getElementById("drawerStudentPhone")
+.innerHTML =
+phone || "Not logged in";
+
+
+/* profile */
+
+document.getElementById("profileName")
+.innerHTML =
+name || "Not set";
+
+document.getElementById("profilePhone")
+.innerHTML =
+phone || "Not set";
+
+document.getElementById("profileLocation")
+.innerHTML =
+location || "Not set";
+
+}
+
+
+/* =========================================
+   LOAD STATS
+========================================= */
 
 async function loadStats(){
 
 try{
 
-const res = await fetch(
+const res =
+await fetch(API + "/admin/businesses");
 
-API + "/admin/businesses"
+const data =
+await res.json();
 
-);
 
-const data = await res.json();
-
-document.getElementById("totalWorkers").innerHTML =
+document.getElementById("totalWorkers")
+.innerHTML =
 data.length;
 
-let verified = 0;
 
-const locations = new Set();
+let verified=0;
 
-data.forEach(b=>{
+const locations =
+new Set();
 
-if(b.verified){
+
+data.forEach(worker=>{
+
+if(worker.verified){
 
 verified++;
 
 }
 
-if(b.location){
+if(worker.location){
 
 locations.add(
-b.location.toLowerCase()
+worker.location.toLowerCase()
 );
 
 }
 
 });
 
-document.getElementById("verifiedWorkers").innerHTML =
+
+document.getElementById("verifiedWorkers")
+.innerHTML =
 verified;
 
-document.getElementById("locations").innerHTML =
+
+document.getElementById("locations")
+.innerHTML =
 locations.size;
 
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-loadSavedStudent();
-
-loadStudentNotificationBadge();
-
-loadStats();
-
-loadFeaturedWorker();
-
-setInterval(()=>{
-
-loadStudentNotificationBadge();
-
-},10000);
-
-function loadSavedStudent(){
-
-document.getElementById("studentName").value =
-savedName;
-
-document.getElementById("studentPhone").value =
-savedPhone;
-
-document.getElementById("location").value =
-savedLocation;
-
-document.getElementById("studentNameDisplay").innerHTML =
-savedName || "Not set";
-
-document.getElementById("studentPhoneDisplay").innerHTML =
-savedPhone || "Not set";
-
-document.getElementById("studentLocationDisplay").innerHTML =
-savedLocation || "Not set";
-
-}
-
-async function loadStudentNotificationBadge(){
-
-const phone =
-localStorage.getItem("studentPhone");
-
-if(!phone) return;
-
-try{
-
-const res = await fetch(
-API + "/student/notifications/" + phone
-);
-
-const notifications = await res.json();
-
-const unread =
-notifications.filter(n => !n.read);
-
-const badge =
-document.getElementById("studentNotificationCount");
-
-if(unread.length > 0){
-
-badge.style.display = "block";
-
-badge.innerHTML = unread.length;
-
-}else{
-
-badge.style.display = "none";
-
-badge.innerHTML = "0";
-
-}
 
 }catch(err){
 
@@ -627,159 +2445,344 @@ console.log(err);
 }
 
 }
+
+
+/* =========================================
+   FEATURED WORKER
+========================================= */
 
 async function loadFeaturedWorker(){
 
 try{
 
-const res = await fetch(API + "/featured-worker");
+const res =
+await fetch(
+API + "/featured-worker"
+);
 
-const w = await res.json();
+const worker =
+await res.json();
 
-const container = document.getElementById("featuredWorker");
 
-if(!w || !w._id){
+const container =
+document.getElementById(
+"featuredWorker"
+);
 
-container.innerHTML = "No featured worker available.";
+
+if(!worker || !worker._id){
+
+container.innerHTML =
+"No featured worker available.";
 
 return;
 
 }
 
+
 const photo =
+worker.profilePicture &&
+worker.profilePicture !== ""
+?
+worker.profilePicture
+:
+"https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-w.profilePicture && w.profilePicture !== ""
 
-? w.profilePicture
+const rating =
+Number(worker.rating || 0)
+.toFixed(1);
 
-: "https://cdn-icons-png.flaticon.com/512/149/149071.png" ;
 
-container.innerHTML =
+container.innerHTML = `
 
-'<div style="background:#1e293b;padding:18px;border-radius:16px;">' +
+<div class="featuredWorker">
 
-'<div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;">' +
+<div class="workerTop">
 
-'<img src="' + photo + '" style="width:90px;height:90px;border-radius:50%;border:3px solid #22c55e;object-fit:cover;">' +
+<img
+class="workerImage"
+src="${photo}">
 
-'<div>' +
+<div class="workerInfo">
 
-'<h3 style="margin:0;color:#22c55e;">' + w.name + '</h3>' +
+<h3>
+${worker.name}
+</h3>
 
-'<div>🛠 ' + w.service + '</div>' +
+<p>
+🛠 ${worker.service}
+</p>
 
-'<div>📍 ' + w.location + '</div>' +
+<p>
+📍 ${worker.location}
+</p>
 
-'<div>⭐ ' + Number(w.rating || 0).toFixed(1) + ' (' + (w.reviews || 0) + ' reviews)</div>' +
+</div>
 
-'<div>🛡️ Trust ' + (w.trustScore || 100) + '%</div>' +
+</div>
 
-'</div>' +
 
-'</div>' +
+<div class="workerStats">
 
-'<button style="margin-top:15px;background:#f59e0b;" onclick="chat(\'' + w.phone + '\',\'' + w._id + '\')">🚀 Hire Now</button>' +
+⭐ ${rating}
+(${worker.reviews || 0} reviews)
 
-'</div>';
+<br>
+
+🛡️ Trust ${worker.trustScore || 100}%
+
+<br>
+
+🟢 Available
+
+</div>
+
+
+<button
+class="hireButton"
+onclick="hireFeaturedWorker(
+'${worker.phone}',
+'${worker._id}'
+)">
+
+🚀 Hire Now
+
+</button>
+
+</div>
+
+`;
+
 
 }catch(err){
 
 console.log(err);
 
-document.getElementById("featuredWorker").innerHTML = "Unable to load featured worker.";
+document.getElementById(
+"featuredWorker"
+).innerHTML =
+"Unable to load featured worker.";
 
 }
 
 }
 
-loadTopWorkers();
+
+/* =========================================
+   FEATURED HIRE
+========================================= */
+
+function hireFeaturedWorker(phone,id){
+
+/*
+There may not yet be a request ID
+for the featured worker.
+
+Send the student to Find Service
+so the normal request process creates it.
+*/
+
+document.getElementById("service").value="";
+
+openPageByName("findService");
+
+alert(
+"Enter the service you need and search for this professional."
+);
+
+}
+
+
+/* =========================================
+   TOP WORKERS
+========================================= */
 
 async function loadTopWorkers(){
 
 try{
 
-const res = await fetch(API + "/top-workers");
+const res =
+await fetch(
+API + "/top-workers"
+);
 
-const workers = await res.json();
+const workers =
+await res.json();
 
-const container = document.getElementById("topWorkers");
+
+const container =
+document.getElementById("topWorkers");
+
 
 if(!workers || workers.length===0){
 
-container.innerHTML = "No verified workers yet.";
+container.innerHTML =
+"No verified workers yet.";
 
 return;
 
 }
 
-let html = "";
 
-workers.forEach(w => {
+let html="";
 
-html += '<div style="background:#1e293b;padding:12px;border-radius:12px;margin-top:10px;">' +
-'<b>' + w.name + '</b><br>' +
-'🛠 ' + w.service + '<br>' +
-'📍 ' + w.location + '<br>' +
-'⭐ ' + Number(w.rating || 0).toFixed(1) + ' (' + (w.reviews || 0) + ' reviews)<br>' +
-'🛡 ' + (w.trustScore || 100) + '% Trust' +
-'</div>';
+
+workers.forEach(worker=>{
+
+const photo =
+worker.profilePicture &&
+worker.profilePicture !== ""
+?
+worker.profilePicture
+:
+"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+
+html += `
+
+<div class="topWorker">
+
+<img
+class="topWorkerImage"
+src="${photo}">
+
+<div class="topWorkerInfo">
+
+<b>
+${worker.name}
+</b>
+
+<p>
+🛠 ${worker.service}
+</p>
+
+<p>
+📍 ${worker.location}
+</p>
+
+</div>
+
+<div class="topWorkerRating">
+
+⭐ ${Number(worker.rating || 0).toFixed(1)}
+
+</div>
+
+</div>
+
+`;
 
 });
 
-container.innerHTML = html;
+
+container.innerHTML =
+html;
+
 
 }catch(err){
 
 console.log(err);
 
-document.getElementById("topWorkers").innerHTML = "Unable to load top workers.";
+document.getElementById(
+"topWorkers"
+).innerHTML =
+"Unable to load top workers.";
 
 }
 
 }
+
+
+/* =========================================
+   SEARCH WORKERS
+========================================= */
 
 async function findWorkers(){
 
 const studentName =
-document.getElementById("studentName").value.trim();
+document.getElementById(
+"studentName"
+).value.trim();
+
 
 const studentPhone =
-document.getElementById("studentPhone").value.trim();
+document.getElementById(
+"studentPhone"
+).value.trim();
+
 
 const service =
-document.getElementById("service").value.trim();
+document.getElementById(
+"service"
+).value.trim();
+
 
 const location =
-document.getElementById("location").value.trim();
+document.getElementById(
+"location"
+).value.trim();
 
-localStorage.setItem("studentName", studentName);
-localStorage.setItem("studentPhone", studentPhone);
-localStorage.setItem("studentLocation", location);
 
-document.getElementById("studentNameDisplay").innerHTML = studentName;
-document.getElementById("studentPhoneDisplay").innerHTML = studentPhone;
-document.getElementById("studentLocationDisplay").innerHTML = location;
+if(
+!studentName ||
+!studentPhone ||
+!service ||
+!location
+){
 
-if(!studentName || !studentPhone || !service || !location){
-
-alert("Please fill in all fields.");
+alert(
+"Please fill in all fields."
+);
 
 return;
 
 }
 
-document.getElementById("loading").style.display="block";
 
-document.getElementById("results").innerHTML="";
+/* save */
+
+localStorage.setItem(
+"studentName",
+studentName
+);
+
+localStorage.setItem(
+"studentPhone",
+studentPhone
+);
+
+localStorage.setItem(
+"studentLocation",
+location
+);
+
+
+/* update display */
+
+loadStudent();
+
+
+document.getElementById("loading")
+.style.display="block";
+
+
+document.getElementById("results")
+.innerHTML="";
+
 
 try{
 
-const res=await fetch(API+"/request",{
+const res =
+await fetch(
+API + "/request",
+{
 
 method:"POST",
 
 headers:{
-"Content-Type":"application/json"
+"Content-Type":
+"application/json"
 },
 
 body:JSON.stringify({
@@ -790,51 +2793,74 @@ studentPhone,
 
 message:service,
 
-location:location
+location
 
 })
 
 });
 
-const data=await res.json();
 
-document.getElementById("loading").style.display="none";
+const data =
+await res.json();
 
-if(!data.matches || data.matches.length===0){
 
-document.getElementById("results").innerHTML=
+document.getElementById("loading")
+.style.display="none";
 
-'<div class="empty">No verified worker found in your area.</div>';
+
+if(
+!data.matches ||
+data.matches.length===0
+){
+
+document.getElementById(
+"results"
+).innerHTML = `
+
+<div class="empty">
+
+❌ No verified worker found
+in your area.
+
+</div>
+
+`;
 
 return;
 
 }
 
+
 let html="";
+
 
 data.matches.forEach(worker=>{
 
-const photo=
+const photo =
+worker.profilePicture &&
+worker.profilePicture !== ""
+?
+worker.profilePicture
+:
+"https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-worker.profilePicture && worker.profilePicture!=""
 
-?worker.profilePicture
+const bio =
+worker.shortBio &&
+worker.shortBio !== ""
+?
+worker.shortBio
+:
+"Trusted Service Connect Professional.";
 
-:"https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-const bio=
+const rating =
+Number(worker.rating || 0)
+.toFixed(1);
 
-worker.shortBio && worker.shortBio!=""
 
-?worker.shortBio
-
-:"Trusted Service Connect Professional.";
-
-const rating=
-
-Number(worker.rating||0).toFixed(1);
-
-const trustScore = Math.min(
+const trustScore =
+Math.min(
 100,
 Math.round(
 (Number(worker.rating || 0) * 20) +
@@ -842,32 +2868,37 @@ Math.round(
 )
 );
 
-const trustColor =
-trustScore >= 80
-? "#16a34a"
-: trustScore >= 50
-? "#f59e0b"
-: "#ef4444";
 
-html+=`
+html += `
 
 <div class="workerCard">
 
-<div class="topRow">
 
-<img class="profile" src="${photo}">
+<div class="workerCardTop">
 
-<div>
+<img
+class="workerCardImage"
+src="${photo}">
 
-<div class="name">${worker.name}</div>
 
-<div class="service">${worker.service}</div>
+<div class="workerCardInfo">
 
-<div class="location">📍 ${worker.location}</div>
+<h3>
+${worker.name}
+</h3>
 
+<div class="service">
+${worker.service}
+</div>
+
+<div class="location">
+📍 ${worker.location}
 </div>
 
 </div>
+
+</div>
+
 
 <div class="bio">
 
@@ -875,54 +2906,82 @@ ${bio}
 
 </div>
 
+
 <div class="rating">
 
-⭐ ${rating} (${worker.reviews} Reviews)
+⭐ ${rating}
+(${worker.reviews || 0} Reviews)
 
 </div>
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+
+<div class="badges">
 
 <div class="badge">
+
 ✅ VERIFIED
+
 </div>
+
 
 <div class="badge">
+
 🟢 AVAILABLE
+
 </div>
 
-<div class="badge"
-style="background:${trustColor};">
+
+<div
+class="badge trustBadge">
+
 🛡️ Trust ${trustScore}%
-</div>
 
 </div>
 
-<div class="action">
+</div>
 
-<button onclick="chat('${worker.phone}','${worker._id}','${worker.requestId}')"
+
+<div class="actions">
+
+
+<button
+class="actionButton whatsapp"
+onclick="chat(
+'${worker.phone}',
+'${worker._id}',
+'${worker.requestId || ""}'
+)">
 
 💬 WhatsApp
 
 </button>
 
-<button class="call"
 
-onclick="callWorker('${worker.phone}','${worker._id}')">
+<button
+class="actionButton call"
+onclick="callWorker(
+'${worker.phone}',
+'${worker._id}'
+)">
 
 📞 Call
 
 </button>
 
-<button class="rate"
 
-onclick="rateBusiness('${worker._id}')">
+<button
+class="actionButton rate"
+onclick="rateBusiness(
+'${worker._id}'
+)">
 
 ⭐ Rate
 
 </button>
 
+
 </div>
+
 
 </div>
 
@@ -930,54 +2989,103 @@ onclick="rateBusiness('${worker._id}')">
 
 });
 
-document.getElementById("results").innerHTML=html;
+
+document.getElementById(
+"results"
+).innerHTML =
+html;
+
 
 }catch(err){
 
 console.log(err);
 
-document.getElementById("loading").style.display="none";
 
-document.getElementById("results").innerHTML=
+document.getElementById("loading")
+.style.display="none";
 
-'<div class="empty">Unable to connect to the server.</div>';
+
+document.getElementById(
+"results"
+).innerHTML = `
+
+<div class="empty">
+
+❌ Unable to connect to
+the server.
+
+</div>
+
+`;
 
 }
 
 }
 
-async function chat(phone,id,requestId){
+
+/* =========================================
+   OPEN CHAT
+========================================= */
+
+function chat(
+phone,
+businessId,
+requestId
+){
+
+if(!requestId){
+
+alert(
+"Please search for this worker first so a service request can be created."
+);
+
+return;
+
+}
+
 
 localStorage.setItem(
 "chatRequestId",
 requestId
 );
 
+
 localStorage.setItem(
 "chatBusinessId",
-id
+businessId
 );
 
-window.location.href="student-chat.html";
+
+window.location.href =
+"student-chat.html";
 
 }
 
-async function callWorker(phone,id){
+
+/* =========================================
+   CALL WORKER
+========================================= */
+
+async function callWorker(
+phone,
+id
+){
 
 try{
 
-await fetch(API+"/business/call-click",{
+await fetch(
+API + "/business/call-click",
+{
 
 method:"POST",
 
 headers:{
-"Content-Type":"application/json"
+"Content-Type":
+"application/json"
 },
 
 body:JSON.stringify({
-
 id:id
-
 })
 
 });
@@ -988,36 +3096,62 @@ console.log(err);
 
 }
 
-window.location.href="tel:"+phone;
+
+window.location.href =
+"tel:" + phone;
 
 }
 
+
+/* =========================================
+   RATE BUSINESS
+========================================= */
+
 async function rateBusiness(id){
 
-const score=prompt("Rate this worker (1-5)");
+const score =
+prompt(
+"Rate this worker (1-5)"
+);
 
-if(!score)return;
 
-const rating=parseInt(score);
-
-if(rating<1 || rating>5){
-
-alert("Please enter a rating between 1 and 5.");
+if(!score){
 
 return;
 
 }
 
+
+const rating =
+parseInt(score);
+
+
+if(
+rating < 1 ||
+rating > 5
+){
+
+alert(
+"Please enter a rating between 1 and 5."
+);
+
+return;
+
+}
+
+
 try{
 
-const res=await fetch(API+"/rate",{
+const res =
+await fetch(
+API + "/rate",
+{
 
 method:"POST",
 
 headers:{
-
-"Content-Type":"application/json"
-
+"Content-Type":
+"application/json"
 },
 
 body:JSON.stringify({
@@ -1030,77 +3164,210 @@ rating:rating
 
 });
 
-const data=await res.json();
 
-alert(data.message || data.error);
+const data =
+await res.json();
+
+
+alert(
+data.message ||
+data.error
+);
+
 
 }catch(err){
 
 console.log(err);
 
-alert("Rating failed.");
+alert(
+"Rating failed."
+);
 
 }
 
 }
 
-async function loadStudentNotifications(){
 
-const phone = localStorage.getItem("studentPhone");
+/* =========================================
+   LOAD NOTIFICATION BADGE
+========================================= */
+
+async function loadStudentNotificationBadge(){
+
+const phone =
+localStorage.getItem(
+"studentPhone"
+);
+
 
 if(!phone){
-alert("Search for a worker first.");
+
 return;
+
 }
 
-await fetch(API + "/student/notifications/read",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-phone
-
-})
-
-});
-  
-document.getElementById("studentNotificationModal").style.display="block";
-
-const list=document.getElementById("studentNotificationList");
-
-list.innerHTML="Loading...";
 
 try{
 
-const res=await fetch(API+"/student/notifications/"+phone);
+const res =
+await fetch(
+API +
+"/student/notifications/" +
+phone
+);
 
-const notifications=await res.json();
 
-if(notifications.length===0){
+const notifications =
+await res.json();
 
-list.innerHTML="No notifications yet.";
+
+const unread =
+notifications.filter(
+n=>!n.read
+);
+
+
+const badges = [
+
+document.getElementById(
+"studentNotificationCount"
+),
+
+document.getElementById(
+"notificationMenuBadge"
+)
+
+];
+
+
+badges.forEach(badge=>{
+
+if(!badge)return;
+
+
+if(unread.length>0){
+
+badge.style.display="flex";
+
+badge.innerHTML =
+unread.length;
+
+}else{
+
+badge.style.display="none";
+
+badge.innerHTML="0";
+
+}
+
+});
+
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+
+/* =========================================
+   LOAD NOTIFICATIONS
+========================================= */
+
+async function loadStudentNotifications(){
+
+const phone =
+localStorage.getItem(
+"studentPhone"
+);
+
+
+const list =
+document.getElementById(
+"studentNotificationList"
+);
+
+
+if(!phone){
+
+list.innerHTML = `
+
+<div class="empty">
+
+Search for a worker first
+to receive notifications.
+
+</div>
+
+`;
+
 return;
 
 }
 
+
+list.innerHTML =
+'<div class="loader">Loading...</div>';
+
+
+try{
+
+const res =
+await fetch(
+API +
+"/student/notifications/" +
+phone
+);
+
+
+const notifications =
+await res.json();
+
+
+if(
+!notifications ||
+notifications.length===0
+){
+
+list.innerHTML = `
+
+<div class="empty">
+
+🔔 No notifications yet.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
 let html="";
 
-notifications.forEach(n=>{
+
+notifications.forEach(notification=>{
 
 let button="";
 
-if(n.type==="chat"){
 
-button=`
+if(
+notification.type === "chat" &&
+notification.requestId
+){
+
+button = `
 
 <button
-style="margin-top:10px;background:#22c55e;"
-onclick="openStudentChat('${n.requestId}','${n.businessId}')">
+class="searchButton"
+style="margin-top:10px;"
+onclick="openStudentChat(
+'${notification.requestId}',
+'${notification.businessId}'
+)">
 
 💬 Open Chat
 
@@ -1110,27 +3377,30 @@ onclick="openStudentChat('${n.requestId}','${n.businessId}')">
 
 }
 
-html+=`
 
-<div style="
-background:#1e293b;
-padding:12px;
-border-radius:12px;
-margin-bottom:12px;">
+html += `
 
-<b>${n.title}</b>
+<div class="notificationItem">
 
-<br><br>
+<b>
+${notification.title}
+</b>
 
-${n.message}
+<div class="notificationMessage">
 
-<br><br>
+${notification.message}
+
+</div>
 
 ${button}
 
-<small style="color:#94a3b8;">
-${new Date(n.createdAt).toLocaleString()}
-</small>
+<div class="notificationTime">
+
+${new Date(
+notification.createdAt
+).toLocaleString()}
+
+</div>
 
 </div>
 
@@ -1138,86 +3408,373 @@ ${new Date(n.createdAt).toLocaleString()}
 
 });
 
-list.innerHTML=html;
+
+list.innerHTML =
+html;
+
+
+/* mark as read */
+
+await fetch(
+API +
+"/student/notifications/read",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+phone
+
+})
+
+});
+
+
+loadStudentNotificationBadge();
+
 
 }catch(err){
 
 console.log(err);
 
-list.innerHTML="Unable to load notifications.";
+
+list.innerHTML = `
+
+<div class="empty">
+
+Unable to load notifications.
+
+</div>
+
+`;
 
 }
 
 }
-function openStudentChat(requestId,businessId){
+
+
+/* =========================================
+   OPEN STUDENT CHAT
+========================================= */
+
+function openStudentChat(
+requestId,
+businessId
+){
 
 localStorage.setItem(
 "chatRequestId",
 requestId
 );
 
+
 localStorage.setItem(
 "chatBusinessId",
 businessId
 );
 
-window.location.href="student-chat.html";
+
+window.location.href =
+"student-chat.html";
 
 }
 
 
-function closeStudentNotifications(){
+/* =========================================
+   LOAD STUDENT REQUESTS
+========================================= */
 
+async function loadStudentRequests(){
+
+const phone =
+localStorage.getItem(
+"studentPhone"
+);
+
+
+const container =
 document.getElementById(
-"studentNotificationModal"
-).style.display="none";
+"requestsList"
+);
+
+
+if(!phone){
+
+container.innerHTML = `
+
+<div class="empty">
+
+No student information found yet.
+
+</div>
+
+`;
+
+return;
 
 }
 
-</script>
 
-<div
-id="studentNotificationModal"
-style="
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.7);
-z-index:999;
-">
+container.innerHTML =
+'<div class="loader">Loading requests...</div>';
 
-<div
-style="
-background:#0f172a;
-width:90%;
-max-width:500px;
-margin:60px auto;
-padding:20px;
-border-radius:15px;
-max-height:80%;
-overflow:auto;
-">
 
-<h2>🔔 Notifications</h2>
+try{
 
-<div
-id="studentNotificationList"
-style="margin-top:20px;">
-Loading...
+const res =
+await fetch(
+API +
+"/student/requests/" +
+phone
+);
+
+
+const requests =
+await res.json();
+
+
+if(
+!requests ||
+requests.length===0
+){
+
+container.innerHTML = `
+
+<div class="empty">
+
+📋 You haven't made any service requests yet.
+
 </div>
+
+`;
+
+return;
+
+}
+
+
+let html="";
+
+
+requests.forEach(request=>{
+
+let statusClass =
+"";
+
+
+html += `
+
+<div class="card">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+gap:10px;
+align-items:center;
+">
+
+<div>
+
+<b>
+${request.service || "Service Request"}
+</b>
+
+<p
+style="
+font-size:12px;
+color:#94a3b8;
+margin-top:5px;
+">
+
+📍 ${request.location || ""}
+
+</p>
+
+</div>
+
+
+<div
+style="
+background:#14532d;
+padding:5px 9px;
+border-radius:20px;
+font-size:10px;
+">
+
+${request.status || "Pending"}
+
+</div>
+
+</div>
+
+
+<p
+style="
+font-size:13px;
+color:#cbd5e1;
+margin-top:12px;
+">
+
+${request.message || ""}
+
+</p>
+
+
+<p
+style="
+font-size:10px;
+color:#64748b;
+margin-top:10px;
+">
+
+${new Date(
+request.createdAt
+).toLocaleString()}
+
+</p>
+
+
+${
+request.status === "Accepted"
+?
+`
 
 <button
-onclick="closeStudentNotifications()"
-style="background:#ef4444;">
-Close
+class="searchButton"
+onclick="openStudentChat(
+'${request._id}',
+'${request.businessId}'
+)">
+
+💬 Open Chat
+
 </button>
 
-</div>
+`
+:
+""
+}
 
 </div>
+
+`;
+
+});
+
+
+container.innerHTML =
+html;
+
+
+}catch(err){
+
+console.log(err);
+
+
+container.innerHTML = `
+
+<div class="empty">
+
+Unable to load requests.
+
+</div>
+
+`;
+
+}
+
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+function logoutStudent(){
+
+const confirmLogout =
+confirm(
+"Are you sure you want to logout?"
+);
+
+
+if(!confirmLogout){
+
+return;
+
+}
+
+
+/*
+We only remove dashboard
+session information.
+*/
+
+localStorage.removeItem(
+"studentName"
+);
+
+localStorage.removeItem(
+"studentPhone"
+);
+
+localStorage.removeItem(
+"studentLocation"
+);
+
+localStorage.removeItem(
+"chatRequestId"
+);
+
+localStorage.removeItem(
+"chatBusinessId"
+);
+
+
+/*
+Change this to your actual
+student login page if different.
+*/
+
+window.location.href =
+"student.html";
+
+}
+
+
+/* =========================================
+   INITIAL LOAD
+========================================= */
+
+loadStudent();
+
+loadStats();
+
+loadFeaturedWorker();
+
+loadTopWorkers();
+
+loadStudentNotificationBadge();
+
+
+/*
+Refresh notification badge
+every 10 seconds.
+*/
+
+setInterval(
+loadStudentNotificationBadge,
+10000
+);
+
+</script>
 
 </body>
 
