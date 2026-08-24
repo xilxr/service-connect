@@ -1256,7 +1256,7 @@ res.json([]);
 
 /*
 =========================================
-SMART SEARCH
+SMART SEARCH + CREATE SERVICE REQUEST
 =========================================
 */
 
@@ -1264,14 +1264,39 @@ app.post("/request", async (req, res) => {
 
   try {
 
-    const { studentName, studentPhone, message, location } = req.body;
+    const {
+      studentName,
+      studentPhone,
+      message,
+      location
+    } = req.body;
+
+    if (
+      !studentName ||
+      !studentPhone ||
+      !message ||
+      !location
+    ) {
+
+      return res.json({
+        error: "Please fill all required fields."
+      });
+
+    }
 
     const text = message.toLowerCase();
 
     let service = "";
 
+    /*
+    ==============================
+    DETECT SERVICE
+    ==============================
+    */
+
     if (
       text.includes("electric") ||
+      text.includes("electrical") ||
       text.includes("light") ||
       text.includes("socket")
     ) {
@@ -1281,11 +1306,10 @@ app.post("/request", async (req, res) => {
     }
 
     else if (
-
       text.includes("pipe") ||
       text.includes("water") ||
-      text.includes("tap")
-
+      text.includes("tap") ||
+      text.includes("plumb")
     ) {
 
       service = "plumb";
@@ -1293,187 +1317,332 @@ app.post("/request", async (req, res) => {
     }
 
     else if (
-
       text.includes("generator") ||
       text.includes("engine") ||
       text.includes("mechanic")
-
     ) {
 
       service = "mech";
 
     }
 
-   else if(
+    else if (
+      text.includes("cake") ||
+      text.includes("bake") ||
+      text.includes("food")
+    ) {
 
-text.includes("cake") ||
-text.includes("bake") ||
-text.includes("food")
+      service = "bake";
 
-){
+    }
 
-service="bake";
+    else if (
+      text.includes("cloth") ||
+      text.includes("fashion") ||
+      text.includes("tailor")
+    ) {
 
-}
+      service = "tail";
 
-else if(
+    }
 
-text.includes("cloth") ||
-text.includes("fashion") ||
-text.includes("tailor")
+    else if (
+      text.includes("hair") ||
+      text.includes("barber")
+    ) {
 
-){
+      service = "barb";
 
-service="tail";
+    }
 
-}
+    else {
 
-else if(
+      service = text;
 
-text.includes("hair") ||
-text.includes("barber")
+    }
 
-){
+    /*
+    ==============================
+    LOCATION MATCHING
+    ==============================
+    */
 
-service="barb";
+    const searchLocation =
+      location.toLowerCase().trim();
 
-}
-    
-    const searchLocation = location.toLowerCase();
+    const nearbyMap = {
 
-const nearbyMap = {
+      futo: [
+        "futo",
+        "eziobodo",
+        "ihiagwa",
+        "umuchima"
+      ],
 
-futo: ["futo","eziobodo","ihiagwa","umuchima"],
+      eziobodo: [
+        "eziobodo",
+        "futo",
+        "ihiagwa"
+      ],
 
-eziobodo: ["eziobodo","futo","ihiagwa"],
+      ihiagwa: [
+        "ihiagwa",
+        "futo",
+        "eziobodo"
+      ],
 
-ihiagwa: ["ihiagwa","futo","eziobodo"],
+      nekede: [
+        "nekede",
+        "owerri",
+        "futo"
+      ],
 
-nekede: ["nekede","owerri","futo"],
+      owerri: [
+        "owerri",
+        "nekede",
+        "futo"
+      ]
 
-owerri: ["owerri","nekede","futo"]
+    };
 
-};
+    const allowedLocations =
+      nearbyMap[searchLocation] ||
+      [searchLocation];
 
-const allowedLocations =
-nearbyMap[searchLocation] || [searchLocation];
+    /*
+    ==============================
+    FIND VERIFIED AVAILABLE WORKERS
+    ==============================
+    */
 
-const matches = await Business.find({
+    const matches = await Business.find({
 
-verified: true,
+      verified: true,
 
-availability: "Available",
+      availability: {
+        $regex: "^available$",
+        $options: "i"
+      },
 
-service: {
-
-$regex: service,
-
-$options: "i"
-
-},
-
-location: {
-
-$in: allowedLocations
-
-}
-
-});
-
-matches.sort((a,b)=>{
-
-const aIndex =
-allowedLocations.indexOf(a.location);
-
-const bIndex =
-allowedLocations.indexOf(b.location);
-
-if(aIndex !== bIndex){
-
-return aIndex - bIndex;
-
-}
-
-return b.rating - a.rating;
-
-});
-
-for(const worker of matches){
-
-worker.searchAppearances++;
-
-worker.totalLeads++;
-
-await worker.save();
-
-}
-
-for(const worker of matches){
-
-let request = await Request.findOne({
-
-businessId:worker._id,
-studentPhone
-
-});
-
-if(!request){
-
-request = await Request.create({
-
-businessId:worker._id,
-studentName,
-studentPhone,
-message,
-service,
-location,
-status:"Pending"
-
-});
-
-await Notification.create({
-
-title:"New Job Request",
-
-message:`${studentName} requested ${worker.service}.`,
-
-receiverType:"business",
-
-businessId:worker._id,
-
-studentPhone,
-
-requestId:request._id,
-
-type:"job"
-
-});
-
-}else{
-
-request.message = message;
-request.service = service;
-request.location = location;
-
-await request.save();
-
-}
-
-worker.requestId = request._id;
-
-}
-
-    res.json({
-
-      matches
+      service: {
+        $regex: service,
+        $options: "i"
+      },
+
+      location: {
+        $in: allowedLocations
+      }
 
     });
 
-  } catch (err) {
+    /*
+    ==============================
+    NO WORKER FOUND
+    ==============================
+    */
+
+    if (matches.length === 0) {
+
+      return res.json({
+
+        matches: [],
+
+        message:
+          "No verified worker found in your area."
+
+      });
+
+    }
+
+    /*
+    ==============================
+    SORT WORKERS
+    ==============================
+    */
+
+    matches.sort((a, b) => {
+
+      const aIndex =
+        allowedLocations.indexOf(
+          a.location
+        );
+
+      const bIndex =
+        allowedLocations.indexOf(
+          b.location
+        );
+
+      if (aIndex !== bIndex) {
+
+        return aIndex - bIndex;
+
+      }
+
+      return b.rating - a.rating;
+
+    });
+
+    /*
+    ==============================
+    CREATE / FIND REQUEST
+    ==============================
+    */
+
+    const responseWorkers = [];
+
+    for (const worker of matches) {
+
+      worker.searchAppearances++;
+      worker.totalLeads++;
+
+      /*
+      Find existing request for this
+      student + worker
+      */
+
+      let request =
+        await Request.findOne({
+
+          businessId: worker._id,
+
+          studentPhone: studentPhone,
+
+          status: {
+            $in: [
+              "Pending",
+              "Accepted"
+            ]
+          }
+
+        });
+
+      /*
+      Create new request if needed
+      */
+
+      if (!request) {
+
+        request =
+          await Request.create({
+
+            businessId: worker._id,
+
+            studentName,
+
+            studentPhone,
+
+            message,
+
+            service,
+
+            location,
+
+            status: "Pending"
+
+          });
+
+        /*
+        Notify business owner
+        */
+
+        await Notification.create({
+
+          title: "New Job Request",
+
+          message:
+            `${studentName} requested ${worker.service}.`,
+
+          receiverType: "business",
+
+          businessId: worker._id.toString(),
+
+          studentPhone,
+
+          requestId:
+            request._id.toString(),
+
+          type: "job"
+
+        });
+
+      }
+
+      await worker.save();
+
+      /*
+      IMPORTANT:
+      Return a separate object instead of
+      trying to add requestId to Business.
+      */
+
+      responseWorkers.push({
+
+        _id: worker._id,
+
+        name: worker.name,
+
+        service: worker.service,
+
+        phone: worker.phone,
+
+        location: worker.location,
+
+        profilePicture:
+          worker.profilePicture,
+
+        coverPhoto:
+          worker.coverPhoto,
+
+        shortBio:
+          worker.shortBio,
+
+        availability:
+          worker.availability,
+
+        rating:
+          worker.rating,
+
+        reviews:
+          worker.reviews,
+
+        trustScore:
+          worker.trustScore,
+
+        verified:
+          worker.verified,
+
+        requestId:
+          request._id.toString()
+
+      });
+
+    }
+
+    /*
+    ==============================
+    SEND RESULTS
+    ==============================
+    */
 
     res.json({
 
-      error: "Search failed"
+      matches: responseWorkers
+
+    });
+
+  }
+
+  catch (err) {
+
+    console.log(
+      "SMART SEARCH ERROR:",
+      err
+    );
+
+    res.status(500).json({
+
+      error:
+        "Search failed. Please try again."
 
     });
 
