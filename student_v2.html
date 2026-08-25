@@ -3017,6 +3017,147 @@ the server.
 
 }
 
+/* =========================================
+   HIRE WORKER
+========================================= */
+
+async function hireWorker(
+businessId,
+requestId
+){
+
+if(!businessId){
+
+alert("Worker information is missing.");
+
+return;
+
+}
+
+if(!requestId){
+
+alert(
+"Please search for this worker again before hiring."
+);
+
+return;
+
+}
+
+
+const studentName =
+localStorage.getItem("studentName") || "";
+
+const studentPhone =
+localStorage.getItem("studentPhone") || "";
+
+
+if(!studentName || !studentPhone){
+
+alert(
+"Please enter your name and phone number first."
+);
+
+return;
+
+}
+
+
+const confirmHire =
+confirm(
+"Do you want to hire this worker?"
+);
+
+
+if(!confirmHire){
+
+return;
+
+}
+
+
+try{
+
+const res =
+await fetch(
+API + "/hire-worker",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+businessId,
+requestId,
+studentName,
+studentPhone
+
+})
+
+});
+
+
+const data =
+await res.json();
+
+
+if(!res.ok){
+
+alert(
+data.error ||
+"Unable to send hire request."
+);
+
+return;
+
+}
+
+
+alert(
+data.message ||
+"Hire request sent successfully!"
+);
+
+
+/*
+Save the request information
+so the student can use the chat.
+*/
+
+localStorage.setItem(
+"chatRequestId",
+requestId
+);
+
+localStorage.setItem(
+"chatBusinessId",
+businessId
+);
+
+
+/*
+Refresh the student's requests
+*/
+
+loadStudentRequests();
+
+
+}catch(err){
+
+console.log(err);
+
+alert(
+"Unable to connect to the server."
+);
+
+}
+
+}
 
 /* =========================================
    OPEN CHAT
