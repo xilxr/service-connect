@@ -1563,6 +1563,223 @@ app.post("/request", async (req, res) => {
 
 /*
 =========================================
+HIRE WORKER
+=========================================
+*/
+
+app.post("/hire", async (req, res) => {
+
+  try {
+
+    const {
+      studentId,
+      studentName,
+      studentPhone,
+      businessId,
+      message,
+      service,
+      location
+    } = req.body;
+
+    /*
+    ==============================
+    CHECK REQUIRED INFORMATION
+    ==============================
+    */
+
+    if (
+      !studentName ||
+      !studentPhone ||
+      !businessId ||
+      !message
+    ) {
+
+      return res.json({
+
+        error:
+          "Missing required information."
+
+      });
+
+    }
+
+    /*
+    ==============================
+    FIND WORKER
+    ==============================
+    */
+
+    const business =
+      await Business.findById(businessId);
+
+    if (!business) {
+
+      return res.json({
+
+        error:
+          "Worker not found."
+
+      });
+
+    }
+
+    /*
+    ==============================
+    CHECK WORKER AVAILABILITY
+    ==============================
+    */
+
+    if (
+      !business.availability ||
+      business.availability.toLowerCase()
+      !== "available"
+    ) {
+
+      return res.json({
+
+        error:
+          "This worker is currently unavailable."
+
+      });
+
+    }
+
+    /*
+    ==============================
+    CHECK FOR EXISTING ACTIVE REQUEST
+    ==============================
+    */
+
+    let request =
+      await Request.findOne({
+
+        businessId:
+          business._id.toString(),
+
+        studentPhone,
+
+        status: {
+          $in: [
+            "Pending",
+            "Accepted"
+          ]
+        }
+
+      });
+
+    /*
+    ==============================
+    CREATE NEW HIRE REQUEST
+    ==============================
+    */
+
+    if (!request) {
+
+      request =
+        await Request.create({
+
+          studentId:
+            studentId || "",
+
+          studentName,
+
+          studentPhone,
+
+          businessId:
+            business._id.toString(),
+
+          message,
+
+          service:
+            service || business.service,
+
+          location:
+            location || "",
+
+          status:
+            "Pending",
+
+          hired:
+            true
+
+        });
+
+    }
+
+    /*
+    ==============================
+    SEND NOTIFICATION TO WORKER
+    ==============================
+    */
+
+    await Notification.create({
+
+      title:
+        "New Hire Request",
+
+      message:
+        `${studentName} wants to hire you for ${service || business.service}.`,
+
+      receiverType:
+        "business",
+
+      businessId:
+        business._id.toString(),
+
+      studentPhone,
+
+      requestId:
+        request._id.toString(),
+
+      type:
+        "hire"
+
+    });
+
+    /*
+    ==============================
+    SUCCESS
+    ==============================
+    */
+
+    res.json({
+
+      message:
+        `Hire request sent to ${business.name} ✔`,
+
+      requestId:
+        request._id.toString(),
+
+      businessId:
+        business._id.toString(),
+
+      workerName:
+        business.name
+
+    });
+
+  }
+
+  catch (err) {
+
+    console.log(
+      "HIRE ERROR:",
+      err
+    );
+
+    res.status(500).json({
+
+      error:
+        "Unable to send hire request."
+
+    });
+
+  }
+
+});
+
+/*
+=========================================
 RATE BUSINESS
 =========================================
 */
