@@ -1256,7 +1256,7 @@ res.json([]);
 
 /*
 =========================================
-SMART SEARCH + CREATE SERVICE REQUEST
+SMART SEARCH WORKERS
 =========================================
 */
 
@@ -1463,14 +1463,10 @@ app.post("/request", async (req, res) => {
     matches.sort((a, b) => {
 
       const aIndex =
-        allowedLocations.indexOf(
-          a.location
-        );
+        allowedLocations.indexOf(a.location);
 
       const bIndex =
-        allowedLocations.indexOf(
-          b.location
-        );
+        allowedLocations.indexOf(b.location);
 
       if (aIndex !== bIndex) {
 
@@ -1484,108 +1480,27 @@ app.post("/request", async (req, res) => {
 
     /*
     ==============================
-    CREATE / FIND REQUEST
+    RETURN WORKERS
     ==============================
     */
 
-    const responseWorkers = [];
+    const responseWorkers =
+      matches.map(worker => ({
 
-    for (const worker of matches) {
+        _id:
+          worker._id,
 
-      worker.searchAppearances++;
-      worker.totalLeads++;
+        name:
+          worker.name,
 
-      /*
-      Find existing request for this
-      student + worker
-      */
+        service:
+          worker.service,
 
-      let request =
-        await Request.findOne({
+        phone:
+          worker.phone,
 
-          businessId: worker._id,
-
-          studentPhone: studentPhone,
-
-          status: {
-            $in: [
-              "Pending",
-              "Accepted"
-            ]
-          }
-
-        });
-
-      /*
-      Create new request if needed
-      */
-
-      if (!request) {
-
-        request =
-          await Request.create({
-
-            businessId: worker._id,
-
-            studentName,
-
-            studentPhone,
-
-            message,
-
-            service,
-
-            location,
-
-            status: "Pending"
-
-          });
-
-        /*
-        Notify business owner
-        */
-
-        await Notification.create({
-
-          title: "New Job Request",
-
-          message:
-            `${studentName} requested ${worker.service}.`,
-
-          receiverType: "business",
-
-          businessId: worker._id.toString(),
-
-          studentPhone,
-
-          requestId:
-            request._id.toString(),
-
-          type: "job"
-
-        });
-
-      }
-
-      await worker.save();
-
-      /*
-      IMPORTANT:
-      Return a separate object instead of
-      trying to add requestId to Business.
-      */
-
-      responseWorkers.push({
-
-        _id: worker._id,
-
-        name: worker.name,
-
-        service: worker.service,
-
-        phone: worker.phone,
-
-        location: worker.location,
+        location:
+          worker.location,
 
         profilePicture:
           worker.profilePicture,
@@ -1609,24 +1524,20 @@ app.post("/request", async (req, res) => {
           worker.trustScore,
 
         verified:
-          worker.verified,
+          worker.verified
 
-        requestId:
-          request._id.toString()
-
-      });
-
-    }
+      }));
 
     /*
     ==============================
-    SEND RESULTS
+    SEND SEARCH RESULTS
     ==============================
     */
 
     res.json({
 
-      matches: responseWorkers
+      matches:
+        responseWorkers
 
     });
 
