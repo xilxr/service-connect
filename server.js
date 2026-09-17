@@ -14,7 +14,7 @@ DATABASE
 */
 
 mongoose.connect(
-"mongodb+srv://kernel_void:Goodmoney1.@futodash.cxegic0.mongodb.net/serviceDB?retryWrites=true&w=majority"
+process.env.MONGODB_URI
 )
 .then(()=>console.log("MongoDB Connected ✔"))
 .catch(err=>console.log(err));
