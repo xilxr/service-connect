@@ -1,17 +1,65 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-
+const crypto = require("crypto");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !ADMIN_SECRET) {
+  console.error("❌ Admin security environment variables are missing");
+}
 /*
 =========================================
 DATABASE
 =========================================
 */
+
+function createAdminToken() {
+  const expiresAt = Date.now() + (12 * 60 * 60 * 1000);
+
+  const data = `admin:${expiresAt}`;
+
+  const signature = crypto
+    .createHmac("sha256", ADMIN_SECRET)
+    .update(data)
+    .digest("hex");
+
+  return Buffer.from(`${data}:${signature}`).toString("base64");
+}
+
+function verifyAdminToken(token) {
+  try {
+    const decoded = Buffer.from(token, "base64").toString("utf8");
+    const parts = decoded.split(":");
+
+    if (parts.length !== 3) return false;
+
+    const [role, expiresAt, signature] = parts;
+
+    if (role !== "admin") return false;
+    if (Date.now() > Number(expiresAt)) return false;
+
+    const data = `admin:${expiresAt}`;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", ADMIN_SECRET)
+      .update(data)
+      .digest("hex");
+
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature)
+    );
+  } catch {
+    return false;
+  }
+}
 
 mongoose.connect(
 process.env.MONGODB_URI
@@ -151,6 +199,11 @@ default:100
 paid:{
 type:Boolean,
 default:false
+},
+
+paymentSubmittedAt: {
+type: Date,
+default: null
 },
 
 verified:{
@@ -833,6 +886,7 @@ app.post("/business/pay", async (req, res) => {
     }
 
     business.paid = true;
+business.paymentSubmittedAt = new Date();
 
     await business.save();
 
@@ -968,13 +1022,60 @@ app.post("/business/updateProfile", async (req, res) => {
   }
 
 });
+
+/*
+=========================================
+ADMIN LOGIN
+=========================================
+*/
+
+app.post("/admin/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (
+    username !== ADMIN_USERNAME ||
+    password !== ADMIN_PASSWORD
+  ) {
+    return res.status(401).json({
+      message: "Invalid admin username or password"
+    });
+  }
+
+  const token = createAdminToken();
+
+  res.json({
+    success: true,
+    token
+  });
+});
+
+function requireAdmin(req, res, next) {
+  const authHeader = req.headers.authorization || "";
+
+  if (!authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      message: "Admin login required"
+    });
+  }
+
+  const token = authHeader.substring(7);
+
+  if (!verifyAdminToken(token)) {
+    return res.status(401).json({
+      message: "Invalid or expired admin session"
+    });
+  }
+
+  next();
+}
+
 /*
 =========================================
 ADMIN - GET ALL BUSINESSES
 =========================================
 */
 
-app.get("/admin/businesses", async (req, res) => {
+app.get("/admin/businesses", requireAdmin, async (req, res) => {
 
   try {
 
@@ -1085,7 +1186,7 @@ ADMIN APPROVE
 =========================================
 */
 
-app.post("/admin/approve", async (req, res) => {
+app.post("/admin/approve", requireAdmin, async (req, res) => {
 
   try {
 
@@ -1148,8 +1249,8 @@ ADMIN DISAPPROVE
 =========================================
 */
 
-app.post("/admin/unapprove", async (req, res) => {
-
+app.post("/admin/unapprove", requireAdmin, async (req, res) => {
+  
   try {
 
     const { id } = req.body;
@@ -1188,7 +1289,7 @@ AUTO EXPIRE AFTER 30 DAYS
 =========================================
 */
 
-app.get("/business/check-expiry", async (req, res) => {
+app.get("/business/check-expiry", requireAdmin, async (req, res) => {
 
   const businesses = await Business.find({
     verified: true
@@ -1424,6 +1525,8 @@ app.post("/request", async (req, res) => {
         $options: "i"
       },
 
+      expiryDate: { $gt: new Date() },
+      
       service: {
         $regex: service,
         $options: "i"
@@ -1623,6 +1726,16 @@ app.post("/hire", async (req, res) => {
 
     }
 
+if (
+  !business.verified ||
+  !business.expiryDate ||
+  business.expiryDate <= new Date()
+) {
+  return res.json({
+    error: "This worker is no longer approved."
+  });
+}
+    
     /*
     ==============================
     CHECK WORKER AVAILABILITY
@@ -2120,7 +2233,7 @@ AUTO EXPIRE BUSINESSES
 ====================================
 */
 
-app.get("/admin/check-expiry", async (req, res) => {
+app.get("/admin/check-expiry", requireAdmin, async (req, res) => {
 
   try {
 
