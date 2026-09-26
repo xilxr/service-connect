@@ -1691,21 +1691,19 @@ app.post("/hire", async (req, res) => {
     */
 
     if (
-      !studentName ||
-      !studentPhone ||
-      !businessId ||
-      !message
-    ) {
+  !studentName ||
+  !studentPhone ||
+  !businessId
+) {
 
-      return res.json({
+  return res.json({
 
-        error:
-          "Missing required information."
+    error:
+      "Missing required information."
 
-      });
+  });
 
-    }
-
+}
     /*
     ==============================
     FIND WORKER
