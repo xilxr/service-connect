@@ -1657,17 +1657,14 @@ Find trusted professionals around you quickly and easily.
 
 </div>
 
-
 <div class="stats">
 
 <div class="statCard">
 
-<h2 id="totalWorkers">
-0
-</h2>
+<h2>🛠</h2>
 
 <p>
-Workers
+Trusted Professionals
 </p>
 
 </div>
@@ -1675,12 +1672,10 @@ Workers
 
 <div class="statCard">
 
-<h2 id="verifiedWorkers">
-0
-</h2>
+<h2>✅</h2>
 
 <p>
-Verified
+Verified Providers
 </p>
 
 </div>
@@ -1688,18 +1683,15 @@ Verified
 
 <div class="statCard">
 
-<h2 id="locations">
-0
-</h2>
+<h2>📍</h2>
 
 <p>
-Locations
+Growing Community
 </p>
 
 </div>
 
 </div>
-
 
 <!-- PROFILE SUMMARY -->
 
@@ -2381,71 +2373,6 @@ document.getElementById("profileLocation")
 location || "Not set";
 
 }
-
-
-/* =========================================
-   LOAD STATS
-========================================= */
-
-async function loadStats(){
-
-try{
-
-const res =
-await fetch(API + "/admin/businesses");
-
-const data =
-await res.json();
-
-
-document.getElementById("totalWorkers")
-.innerHTML =
-data.length;
-
-
-let verified=0;
-
-const locations =
-new Set();
-
-
-data.forEach(worker=>{
-
-if(worker.verified){
-
-verified++;
-
-}
-
-if(worker.location){
-
-locations.add(
-worker.location.toLowerCase()
-);
-
-}
-
-});
-
-
-document.getElementById("verifiedWorkers")
-.innerHTML =
-verified;
-
-
-document.getElementById("locations")
-.innerHTML =
-locations.size;
-
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
 
 /* =========================================
    FEATURED WORKER
@@ -3890,8 +3817,6 @@ window.location.href =
 ========================================= */
 
 loadStudent();
-
-loadStats();
 
 loadFeaturedWorker();
 
