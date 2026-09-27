@@ -2967,11 +2967,28 @@ localStorage.getItem("studentName") || "";
 const studentPhone =
 localStorage.getItem("studentPhone") || "";
 
+const service =
+document.getElementById("service").value.trim();
+
+const location =
+document.getElementById("location").value.trim();
+
 
 if(!studentName || !studentPhone){
 
 alert(
 "Please enter your name and phone number first."
+);
+
+return;
+
+}
+
+
+if(!service){
+
+alert(
+"Please enter the service you need first."
 );
 
 return;
@@ -3011,7 +3028,10 @@ body:JSON.stringify({
 businessId,
 requestId,
 studentName,
-studentPhone
+studentPhone,
+message: service,
+service: service,
+location: location
 
 })
 
@@ -3041,13 +3061,12 @@ data.message ||
 
 
 /*
-Save the request information
-so the student can use the chat.
+Save the REAL request ID created by the server
 */
 
 localStorage.setItem(
 "chatRequestId",
-requestId
+data.requestId
 );
 
 localStorage.setItem(
