@@ -2097,6 +2097,46 @@ res.json([]);
 
 /*
 ====================================
+STUDENT NOTIFICATION UNREAD COUNT
+====================================
+*/
+
+app.get("/student/notifications/:phone/unread-count", async (req,res)=>{
+
+try{
+
+const count = await Notification.countDocuments({
+
+receiverId:req.params.phone,
+
+receiverType:"student",
+
+read:false
+
+});
+
+res.json({
+
+count
+
+});
+
+}catch(err){
+
+console.log(err);
+
+res.json({
+
+count:0
+
+});
+
+}
+
+});
+
+/*
+====================================
 MARK STUDENT NOTIFICATIONS AS READ
 ====================================
 */
