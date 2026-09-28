@@ -1654,7 +1654,6 @@ onclick="openPage('findService',this)">
 
 </button>
 
-
 <button
 class="menuItem"
 onclick="openPage('requests',this)">
@@ -1663,8 +1662,13 @@ onclick="openPage('requests',this)">
 
 <span class="menuText">My Requests</span>
 
-</button>
+<span
+id="requestMenuBadge"
+class="menuBadge">
+0
+</span>
 
+</button>
 
 <button
 class="menuItem"
@@ -3456,13 +3460,11 @@ localStorage.getItem(
 "studentPhone"
 );
 
-
 if(!phone){
 
 return;
 
 }
-
 
 try{
 
@@ -3473,18 +3475,21 @@ API +
 phone
 );
 
-
 const notifications =
 await res.json();
 
 
 const unread =
 notifications.filter(
-n=>!n.read
+n => !n.read
 );
 
 
-const badges = [
+/*
+Unread notifications
+*/
+
+const notificationBadges = [
 
 document.getElementById(
 "studentNotificationCount"
@@ -3497,27 +3502,74 @@ document.getElementById(
 ];
 
 
-badges.forEach(badge=>{
+notificationBadges.forEach(
+badge => {
 
-if(!badge)return;
+if(!badge) return;
 
 
-if(unread.length>0){
+if(unread.length > 0){
 
-badge.style.display="flex";
+badge.style.display =
+"flex";
 
 badge.innerHTML =
 unread.length;
 
 }else{
 
-badge.style.display="none";
+badge.style.display =
+"none";
 
-badge.innerHTML="0";
+badge.innerHTML =
+"0";
 
 }
 
 });
+
+
+/*
+Unread request updates
+
+Only notifications connected
+to a service request count here.
+*/
+
+const unreadRequests =
+unread.filter(
+notification =>
+notification.requestId
+);
+
+
+const requestBadge =
+document.getElementById(
+"requestMenuBadge"
+);
+
+
+if(requestBadge){
+
+if(unreadRequests.length > 0){
+
+requestBadge.style.display =
+"flex";
+
+requestBadge.innerHTML =
+unreadRequests.length;
+
+}else{
+
+requestBadge.style.display =
+"none";
+
+requestBadge.innerHTML =
+"0";
+
+}
+
+}
 
 
 }catch(err){
