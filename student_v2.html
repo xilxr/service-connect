@@ -1199,19 +1199,101 @@ font-size:13px;
 
 .notificationItem{
 
+background:#0f172a;
+
+border:1px solid #1e293b;
+
+padding:16px;
+
+border-radius:16px;
+
+margin-bottom:12px;
+
+box-shadow:0 6px 18px rgba(0,0,0,.18);
+
+}
+
+.notificationItem.unread{
+
+border-left:4px solid #ef4444;
+
+background:#111c30;
+
+}
+
+.notificationHeader{
+
+display:flex;
+
+align-items:flex-start;
+
+gap:10px;
+
+}
+
+.notificationIcon{
+
+width:38px;
+
+height:38px;
+
+border-radius:50%;
+
 background:#1e293b;
 
-padding:15px;
+display:flex;
 
-border-radius:13px;
+align-items:center;
 
-margin-bottom:10px;
+justify-content:center;
+
+font-size:18px;
+
+flex-shrink:0;
+
+}
+
+.notificationTitleArea{
+
+flex:1;
+
+min-width:0;
+
+}
+
+.notificationTitleRow{
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+flex-wrap:wrap;
 
 }
 
 .notificationItem b{
 
 font-size:14px;
+
+color:white;
+
+}
+
+.notificationNew{
+
+background:#ef4444;
+
+color:white;
+
+font-size:9px;
+
+font-weight:700;
+
+padding:3px 7px;
+
+border-radius:20px;
 
 }
 
@@ -1221,9 +1303,9 @@ font-size:13px;
 
 color:#cbd5e1;
 
-margin-top:6px;
+margin-top:8px;
 
-line-height:1.5;
+line-height:1.6;
 
 }
 
@@ -1233,7 +1315,106 @@ font-size:10px;
 
 color:#64748b;
 
-margin-top:8px;
+margin-top:10px;
+
+}
+
+.notificationChatButton{
+
+width:100%;
+
+border:none;
+
+background:#22c55e;
+
+color:white;
+
+padding:11px;
+
+border-radius:10px;
+
+font-weight:600;
+
+font-size:12px;
+
+margin-top:12px;
+
+}
+
+.notificationChatButton:hover{
+
+background:#16a34a;
+
+}
+
+
+/* =========================================
+   NEW REQUEST UPDATE
+========================================= */
+
+.requestNewBadge{
+
+display:inline-flex;
+
+align-items:center;
+
+gap:5px;
+
+background:#ef4444;
+
+color:white;
+
+font-size:10px;
+
+font-weight:700;
+
+padding:5px 9px;
+
+border-radius:20px;
+
+margin-top:12px;
+
+}
+
+.requestStatus{
+
+padding:6px 10px;
+
+border-radius:20px;
+
+font-size:10px;
+
+font-weight:600;
+
+white-space:nowrap;
+
+background:#14532d;
+
+color:#bbf7d0;
+
+}
+
+.requestStatus.pending{
+
+background:#78350f;
+
+color:#fde68a;
+
+}
+
+.requestStatus.declined{
+
+background:#7f1d1d;
+
+color:#fecaca;
+
+}
+
+.requestStatus.completed{
+
+background:#1e3a8a;
+
+color:#bfdbfe;
 
 }
 
@@ -2162,6 +2343,11 @@ Dark
 const API =
 "https://service-backend-jezm.onrender.com";
 
+/* =========================================
+   UNREAD REQUEST UPDATES
+========================================= */
+
+let unreadStudentRequestIds = new Set();
 
 /* =========================================
    SAVED STUDENT DATA
@@ -3342,9 +3528,8 @@ console.log(err);
 
 }
 
-
 /* =========================================
-   LOAD NOTIFICATIONS
+ LOAD STUDENT NOTIFICATIONS
 ========================================= */
 
 async function loadStudentNotifications(){
@@ -3380,7 +3565,7 @@ return;
 
 
 list.innerHTML =
-'<div class="loader">Loading...</div>';
+'<div class="loader">Loading notifications...</div>';
 
 
 try{
@@ -3417,6 +3602,26 @@ return;
 }
 
 
+/*
+Remember which request notifications
+are still unread before marking them read.
+*/
+
+unreadStudentRequestIds =
+new Set(
+notifications
+.filter(
+notification =>
+!notification.read &&
+notification.requestId
+)
+.map(
+notification =>
+String(notification.requestId)
+)
+);
+
+
 let html="";
 
 
@@ -3433,8 +3638,7 @@ notification.requestId
 button = `
 
 <button
-class="searchButton"
-style="margin-top:10px;"
+class="notificationChatButton"
 onclick="openStudentChat(
 '${notification.requestId}',
 '${notification.businessId}'
@@ -3449,21 +3653,98 @@ onclick="openStudentChat(
 }
 
 
+/*
+Choose a simple icon based on
+the notification type.
+*/
+
+let icon="🔔";
+
+
+if(
+notification.type === "chat"
+){
+
+icon="💬";
+
+}
+
+else if(
+notification.type === "hire"
+){
+
+icon="🛠️";
+
+}
+
+else if(
+notification.title &&
+notification.title
+.toLowerCase()
+.includes("request")
+){
+
+icon="📋";
+
+}
+
+else if(
+notification.title &&
+notification.title
+.toLowerCase()
+.includes("approved")
+){
+
+icon="✅";
+
+}
+
+
+const unreadClass =
+!notification.read
+?
+"unread"
+:
+"";
+
+
+const newLabel =
+!notification.read
+?
+`<span class="notificationNew">NEW</span>`
+:
+"";
+
+
 html += `
 
-<div class="notificationItem">
+<div class="notificationItem ${unreadClass}">
+
+<div class="notificationHeader">
+
+<div class="notificationIcon">
+
+${icon}
+
+</div>
+
+<div class="notificationTitleArea">
+
+<div class="notificationTitleRow">
 
 <b>
 ${notification.title}
 </b>
+
+${newLabel}
+
+</div>
 
 <div class="notificationMessage">
 
 ${notification.message}
 
 </div>
-
-${button}
 
 <div class="notificationTime">
 
@@ -3472,6 +3753,12 @@ notification.createdAt
 ).toLocaleString()}
 
 </div>
+
+</div>
+
+</div>
+
+${button}
 
 </div>
 
@@ -3484,7 +3771,10 @@ list.innerHTML =
 html;
 
 
-/* mark as read */
+/*
+Mark notifications as read
+after displaying them.
+*/
 
 await fetch(
 API +
@@ -3528,7 +3818,6 @@ Unable to load notifications.
 }
 
 }
-
 
 /* =========================================
    OPEN STUDENT CHAT
@@ -3598,16 +3887,58 @@ container.innerHTML =
 
 try{
 
-const res =
-await fetch(
+/*
+Load requests and notifications together.
+
+The notification tells us whether
+a particular request has a new update.
+*/
+
+const [
+requestsRes,
+notificationsRes
+] = await Promise.all([
+
+fetch(
 API +
 "/student/requests/" +
 phone
-);
+),
+
+fetch(
+API +
+"/student/notifications/" +
+phone
+)
+
+]);
 
 
 const requests =
-await res.json();
+await requestsRes.json();
+
+const notifications =
+await notificationsRes.json();
+
+
+/*
+Build a list of request IDs that
+still have unread notifications.
+*/
+
+unreadStudentRequestIds =
+new Set(
+(notifications || [])
+.filter(
+notification =>
+!notification.read &&
+notification.requestId
+)
+.map(
+notification =>
+String(notification.requestId)
+)
+);
 
 
 if(
@@ -3635,7 +3966,65 @@ let html="";
 
 requests.forEach(request=>{
 
+const requestId =
+String(request._id);
+
+
+const isNew =
+unreadStudentRequestIds
+.has(requestId);
+
+
 let statusClass =
+"requestStatus";
+
+
+if(
+request.status === "Pending"
+){
+
+statusClass +=
+" pending";
+
+}
+
+else if(
+request.status === "Declined"
+){
+
+statusClass +=
+" declined";
+
+}
+
+else if(
+request.status === "Completed"
+){
+
+statusClass +=
+" completed";
+
+}
+
+
+/*
+Show a red NEW UPDATE badge
+when the business has responded.
+*/
+
+const newUpdate =
+isNew
+?
+`
+
+<div class="requestNewBadge">
+
+🔴 NEW UPDATE
+
+</div>
+
+`
+:
 "";
 
 
@@ -3648,13 +4037,16 @@ style="
 display:flex;
 justify-content:space-between;
 gap:10px;
-align-items:center;
+align-items:flex-start;
 ">
 
 <div>
 
 <b>
-${request.service || "Service Request"}
+
+${request.service ||
+"Service Request"}
+
 </b>
 
 <p
@@ -3672,18 +4064,16 @@ margin-top:5px;
 
 
 <div
-style="
-background:#14532d;
-padding:5px 9px;
-border-radius:20px;
-font-size:10px;
-">
+class="${statusClass}">
 
 ${request.status || "Pending"}
 
 </div>
 
 </div>
+
+
+${newUpdate}
 
 
 <p
@@ -3762,7 +4152,6 @@ Unable to load requests.
 }
 
 }
-
 
 /* =========================================
    LOGOUT
