@@ -3472,21 +3472,21 @@ const res =
 await fetch(
 API +
 "/student/notifications/" +
-phone
+encodeURIComponent(phone) +
+"/unread-count"
 );
 
-const notifications =
+const data =
 await res.json();
 
-
-const unread =
-notifications.filter(
-n => !n.read
-);
+const unreadCount =
+Number(data.count || 0);
 
 
 /*
-Unread notifications
+====================================
+NOTIFICATION BADGES
+====================================
 */
 
 const notificationBadges = [
@@ -3508,13 +3508,13 @@ badge => {
 if(!badge) return;
 
 
-if(unread.length > 0){
+if(unreadCount > 0){
 
 badge.style.display =
 "flex";
 
 badge.innerHTML =
-unread.length;
+unreadCount;
 
 }else{
 
@@ -3529,52 +3529,12 @@ badge.innerHTML =
 });
 
 
-/*
-Unread request updates
-
-Only notifications connected
-to a service request count here.
-*/
-
-const unreadRequests =
-unread.filter(
-notification =>
-notification.requestId
-);
-
-
-const requestBadge =
-document.getElementById(
-"requestMenuBadge"
-);
-
-
-if(requestBadge){
-
-if(unreadRequests.length > 0){
-
-requestBadge.style.display =
-"flex";
-
-requestBadge.innerHTML =
-unreadRequests.length;
-
-}else{
-
-requestBadge.style.display =
-"none";
-
-requestBadge.innerHTML =
-"0";
-
-}
-
-}
-
-
 }catch(err){
 
-console.log(err);
+console.log(
+"Unable to load notification count:",
+err
+);
 
 }
 
