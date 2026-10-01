@@ -2472,6 +2472,7 @@ page.classList.remove("active");
 document.getElementById(pageId)
 .classList.add("active");
 
+
 document.querySelectorAll(".menuItem")
 .forEach(item=>{
 
@@ -2479,16 +2480,47 @@ item.classList.remove("active");
 
 });
 
+
 closeDrawer();
 
+
+/*
+When the notification bell is opened,
+hide the red notification number.
+
+This does NOT mark notifications as read.
+*/
+
 if(pageId==="notifications"){
+
+const notificationBadges = [
+
+document.getElementById(
+"studentNotificationCount"
+),
+
+document.getElementById(
+"notificationMenuBadge"
+)
+
+];
+
+notificationBadges.forEach(badge=>{
+
+if(!badge) return;
+
+badge.style.display="none";
+
+badge.innerHTML="0";
+
+});
+
 
 loadStudentNotifications();
 
 }
 
 }
-
 
 /* =========================================
    LOAD STUDENT INFORMATION
