@@ -2187,6 +2187,55 @@ error:"Unable to update notifications."
 
 /*
 ====================================
+MARK ONE STUDENT NOTIFICATION READ
+====================================
+*/
+
+app.post("/student/notifications/read-one", async (req,res)=>{
+
+  try{
+
+    const { phone, notificationId } = req.body;
+
+    if(!phone || !notificationId){
+
+      return res.json({
+        error:"Missing notification information."
+      });
+
+    }
+
+    await Notification.updateOne(
+      {
+        _id:notificationId,
+        receiverId:phone,
+        receiverType:"student"
+      },
+      {
+        $set:{
+          read:true
+        }
+      }
+    );
+
+    res.json({
+      message:"Notification marked as read."
+    });
+
+  }catch(err){
+
+    console.log(err);
+
+    res.json({
+      error:"Unable to mark notification as read."
+    });
+
+  }
+
+});
+
+/*
+====================================
 GET BUSINESS NOTIFICATIONS
 ====================================
 */
