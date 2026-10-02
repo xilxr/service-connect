@@ -3954,6 +3954,74 @@ err
 }
 
 /* =========================================
+   MARK ALL STUDENT NOTIFICATIONS AS READ
+========================================= */
+
+async function markAllStudentNotificationsRead(){
+
+const phone =
+localStorage.getItem("studentPhone");
+
+if(!phone){
+
+return;
+
+}
+
+try{
+
+const res =
+await fetch(
+API +
+"/student/notifications/read",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+phone
+})
+
+});
+
+
+if(!res.ok){
+
+alert("Unable to mark notifications as read.");
+
+return;
+
+}
+
+
+/*
+Reload notifications so all
+blue unread backgrounds disappear.
+*/
+
+loadStudentNotifications();
+
+loadStudentNotificationBadge();
+
+
+}catch(err){
+
+console.log(err);
+
+alert(
+"Unable to mark notifications as read."
+);
+
+}
+
+}
+
+/* =========================================
    OPEN STUDENT CHAT
 ========================================= */
 
