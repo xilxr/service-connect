@@ -3864,6 +3864,59 @@ Unable to load notifications.
 }
 
 /* =========================================
+   MARK ONE NOTIFICATION AS READ
+========================================= */
+
+async function markStudentNotificationRead(
+notificationId
+){
+
+const phone =
+localStorage.getItem(
+"studentPhone"
+);
+
+if(!phone || !notificationId){
+
+return;
+
+}
+
+try{
+
+await fetch(
+API +
+"/student/notifications/read-one",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+phone,
+notificationId
+
+})
+
+});
+
+}catch(err){
+
+console.log(
+"Unable to mark notification as read:",
+err
+);
+
+}
+
+}
+
+/* =========================================
    OPEN STUDENT CHAT
 ========================================= */
 
