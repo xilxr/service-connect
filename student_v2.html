@@ -3762,7 +3762,10 @@ const newLabel =
 
 html += `
 
-<div class="notificationItem ${unreadClass}">
+<div
+class="notificationItem ${unreadClass}"
+onclick="markStudentNotificationRead('${notification._id}', this)"
+>
 
 <div class="notificationHeader">
 
@@ -3868,7 +3871,8 @@ Unable to load notifications.
 ========================================= */
 
 async function markStudentNotificationRead(
-notificationId
+notificationId,
+element
 ){
 
 const phone =
@@ -3904,6 +3908,21 @@ notificationId
 })
 
 });
+
+if(element){
+
+element.classList.remove("unread");
+
+const newLabel =
+element.querySelector(".notificationNew");
+
+if(newLabel){
+
+newLabel.remove();
+
+}
+
+}
 
 }catch(err){
 
