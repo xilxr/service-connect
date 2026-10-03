@@ -596,6 +596,8 @@ businessId:business._id.toString(),
 
 type:"request_status"
 
+studentViewed:false
+
 });
 
 await business.save();
