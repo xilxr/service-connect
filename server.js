@@ -497,7 +497,7 @@ receiverType:"student",
 
 receiverId:request.studentPhone,
 
-type:"chat",
+type:"request_status",
 
 requestId:request._id,
 
