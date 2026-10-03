@@ -499,6 +499,8 @@ receiverId:request.studentPhone,
 
 type:"request_status",
 
+studentViewed:false
+
 requestId:request._id,
 
 businessId:business._id
