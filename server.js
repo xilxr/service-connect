@@ -2150,6 +2150,22 @@ count:0
 
 });
 
+app.get("/student/requests/:phone/unread-count", async (req, res) => {
+  try {
+    const count = await Notification.countDocuments({
+      receiverId: req.params.phone,
+      receiverType: "student",
+      requestId: { $ne: "" },
+      studentViewed: false
+    });
+
+    res.json({ count });
+  } catch (err) {
+    console.log(err);
+    res.json({ count: 0 });
+  }
+});
+
 /*
 ====================================
 MARK STUDENT NOTIFICATIONS AS READ
