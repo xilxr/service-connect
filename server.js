@@ -2166,6 +2166,34 @@ app.get("/student/requests/:phone/unread-count", async (req, res) => {
   }
 });
 
+app.post("/student/requests/viewed", async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    await Notification.updateMany(
+      {
+        receiverId: phone,
+        receiverType: "student",
+        requestId: { $ne: "" },
+        studentViewed: false
+      },
+      {
+        $set: { studentViewed: true }
+      }
+    );
+
+    res.json({
+      message: "Student request updates marked as viewed."
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.json({
+      error: "Unable to mark request updates as viewed."
+    });
+  }
+});
+
 /*
 ====================================
 MARK STUDENT NOTIFICATIONS AS READ
