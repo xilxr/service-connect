@@ -3505,33 +3505,56 @@ alert(
 
 async function loadStudentNotificationBadge(){
 
-const phone =
-localStorage.getItem(
-"studentPhone"
-);
+  try{
 
-if(!phone){
+    const phone = localStorage.getItem("studentPhone");
 
-return;
+    if(!phone) return;
+
+    // Notification bell count
+    const notificationRes = await fetch(
+      `${API}/student/notifications/${phone}/unread-count`
+    );
+
+    const notificationData = await notificationRes.json();
+
+    const notificationCount = notificationData.count || 0;
+
+    document.getElementById("studentNotificationCount").textContent =
+      notificationCount;
+
+    document.getElementById("notificationMenuBadge").textContent =
+      notificationCount;
+
+
+    // My Requests unread update count
+    const requestRes = await fetch(
+      `${API}/student/requests/${phone}/unread-count`
+    );
+
+    const requestData = await requestRes.json();
+
+    const requestCount = requestData.count || 0;
+
+    const requestBadge =
+      document.getElementById("requestMenuBadge");
+
+    if(requestBadge){
+
+      requestBadge.textContent = requestCount;
+
+      requestBadge.style.display =
+        requestCount > 0 ? "inline-flex" : "none";
+
+    }
+
+  }catch(err){
+
+    console.log("Unable to load student badges:", err);
+
+  }
 
 }
-
-try{
-
-const res =
-await fetch(
-API +
-"/student/notifications/" +
-encodeURIComponent(phone) +
-"/unread-count"
-);
-
-const data =
-await res.json();
-
-const unreadCount =
-Number(data.count || 0);
-
 
 /*
 ====================================
