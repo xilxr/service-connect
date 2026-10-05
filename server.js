@@ -594,7 +594,7 @@ requestId:request._id.toString(),
 
 businessId:business._id.toString(),
 
-type:"request_status"
+type:"request_status",
 
 studentViewed:false
 
