@@ -2300,29 +2300,17 @@ GET BUSINESS NOTIFICATIONS
 */
 
 app.get("/notifications/business/:businessId",async(req,res)=>{
+  try{
+    const notifications=await Notification.find({
+      businessId:req.params.businessId,
+      receiverType:"business"
+    }).sort({createdAt:-1});
 
-try{
-
-const notifications=await Notification.find({
-
-businessId:req.params.businessId
-
-}).sort({
-
-createdAt:-1
-
-});
-
-res.json(notifications);
-
-}catch(err){
-
-console.log(err);
-
-res.json([]);
-
-}
-
+    res.json(notifications);
+  }catch(err){
+    console.log(err);
+    res.json([]);
+  }
 });
 
 /*
