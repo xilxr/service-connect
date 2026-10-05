@@ -499,7 +499,7 @@ receiverId:request.studentPhone,
 
 type:"request_status",
 
-studentViewed:false
+studentViewed:false,
 
 requestId:request._id,
 
