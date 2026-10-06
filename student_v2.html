@@ -3556,63 +3556,6 @@ async function loadStudentNotificationBadge(){
 
 }
 
-/*
-====================================
-NOTIFICATION BADGES
-====================================
-*/
-
-const notificationBadges = [
-
-document.getElementById(
-"studentNotificationCount"
-),
-
-document.getElementById(
-"notificationMenuBadge"
-)
-
-];
-
-
-notificationBadges.forEach(
-badge => {
-
-if(!badge) return;
-
-
-if(unreadCount > 0){
-
-badge.style.display =
-"flex";
-
-badge.innerHTML =
-unreadCount;
-
-}else{
-
-badge.style.display =
-"none";
-
-badge.innerHTML =
-"0";
-
-}
-
-});
-
-
-}catch(err){
-
-console.log(
-"Unable to load notification count:",
-err
-);
-
-}
-
-}
-
 /* =========================================
  LOAD STUDENT NOTIFICATIONS
 ========================================= */
