@@ -1822,11 +1822,11 @@ if (
           location:
             location || "",
 
-          status:
-            "Pending",
-
-          hired:
-            true
+          status:"Pending",
+          
+          viewed:false,
+          
+          hired:true
 
         });
 
