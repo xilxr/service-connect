@@ -2150,19 +2150,21 @@ count:0
 
 });
 
-app.get("/student/requests/:phone/unread-count", async (req, res) => {
-  try {
-    const count = await Notification.countDocuments({
-      receiverId: req.params.phone,
-      receiverType: "student",
-      requestId: { $ne: "" },
-      studentViewed: false
+app.get("/student/requests/:phone/unread-count", async (req,res)=>{
+  try{
+
+    const count = await Request.countDocuments({
+      studentPhone: req.params.phone,
+      viewed: false
     });
 
     res.json({ count });
-  } catch (err) {
+
+  }catch(err){
+
     console.log(err);
     res.json({ count: 0 });
+
   }
 });
 
