@@ -4090,22 +4090,15 @@ await notificationsRes.json();
 
 
 /*
-Build a list of request IDs that
-still have unread notifications.
+Use the request itself to determine
+whether it has been viewed.
 */
 
 unreadStudentRequestIds =
 new Set(
-(notifications || [])
-.filter(
-notification =>
-!notification.read &&
-notification.requestId
-)
-.map(
-notification =>
-String(notification.requestId)
-)
+(requests || [])
+.filter(request => request.viewed === false)
+.map(request => String(request._id))
 );
 
 
