@@ -2169,31 +2169,43 @@ app.get("/student/requests/:phone/unread-count", async (req,res)=>{
 });
 
 app.post("/student/requests/viewed", async (req, res) => {
+
   try {
+
     const { phone } = req.body;
 
-    await Notification.updateMany(
+    if (!phone) {
+      return res.json({
+        error: "Student phone is required."
+      });
+    }
+
+    await Request.updateMany(
       {
-        receiverId: phone,
-        receiverType: "student",
-        requestId: { $ne: "" },
-        studentViewed: false
+        studentPhone: phone,
+        viewed: false
       },
       {
-        $set: { studentViewed: true }
+        $set: {
+          viewed: true
+        }
       }
     );
 
     res.json({
-      message: "Student request updates marked as viewed."
+      message: "Student requests marked as viewed."
     });
 
   } catch (err) {
+
     console.log(err);
+
     res.json({
-      error: "Unable to mark request updates as viewed."
+      error: "Unable to mark requests as viewed."
     });
+
   }
+
 });
 
 /*
