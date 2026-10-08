@@ -2410,12 +2410,11 @@ document.getElementById("overlay")
 
 }
 
-
 /* =========================================
    OPEN PAGE
 ========================================= */
 
-function openPage(pageId,button){
+async function openPage(pageId,button){
 
 document.querySelectorAll(".page")
 .forEach(page=>{
@@ -2457,22 +2456,67 @@ button.classList.add("active");
 closeDrawer();
 
 
-/* load page data */
+/*
+When My Requests is opened,
+mark the student's requests as viewed.
 
-if(pageId==="requests"){
+This removes the red My Requests
+badge but does NOT change the
+request status.
+*/
+
+if(pageId === "requests"){
+
+const phone =
+localStorage.getItem("studentPhone");
+
+if(phone){
+
+try{
+
+await fetch(
+`${API}/student/requests/viewed`,
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+phone
+})
+
+});
+
+/*
+Refresh the badge immediately
+after requests are marked viewed.
+*/
+
+await loadStudentNotificationBadge();
+
+}catch(err){
+
+console.log(
+"Unable to mark student requests as viewed:",
+err
+);
+
+}
 
 loadStudentRequests();
 
 }
 
-if(pageId==="notifications"){
+if(pageId === "notifications"){
 
 loadStudentNotifications();
 
 }
 
 }
-
 
 /* =========================================
    OPEN PAGE FROM HEADER
