@@ -4367,6 +4367,51 @@ window.location.href =
 
 }
 
+/* =========================================
+   MARK STUDENT REQUESTS AS VIEWED
+========================================= */
+
+async function markStudentRequestsViewed(){
+
+const phone =
+localStorage.getItem("studentPhone");
+
+if(!phone){
+
+return;
+
+}
+
+try{
+
+await fetch(
+API + "/student/requests/viewed",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+phone
+})
+
+);
+
+loadStudentNotificationBadge();
+
+}catch(err){
+
+console.log(
+"Unable to mark student requests as viewed:",
+err
+);
+
+}
+
+}
 
 /* =========================================
    INITIAL LOAD
