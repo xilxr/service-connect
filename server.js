@@ -434,6 +434,7 @@ error:"Request not found"
 
 
 request.status = status;
+request.viewed = false;
 
 await request.save();
 
