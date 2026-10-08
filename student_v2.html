@@ -4292,6 +4292,38 @@ onclick="openStudentChat(
 container.innerHTML =
 html;
 
+/* Mark student requests as viewed only when
+   the My Requests page is actually open */
+
+const requestsPage =
+document.getElementById("requests");
+
+if(
+requestsPage &&
+requestsPage.classList.contains("active")
+){
+
+fetch(
+API + "/student/requests/viewed",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+phone: phone
+})
+}
+)
+.then(()=>loadStudentNotificationBadge())
+.catch(err =>
+console.log(
+"Unable to mark requests as viewed:",
+err
+)
+);
+
+}
 
 }catch(err){
 
