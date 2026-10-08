@@ -565,6 +565,8 @@ error:"Request not found"
 // update request status
 
 request.status="Completed";
+  
+request.viewed = false;
 
 await request.save();
 
