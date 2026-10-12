@@ -3518,12 +3518,23 @@ async function loadStudentNotificationBadge(){
 
     const notificationCount = notificationData.count || 0;
 
-    document.getElementById("studentNotificationCount").textContent =
-      notificationCount;
+    const bellBadge =
+  document.getElementById("studentNotificationCount");
 
-    document.getElementById("notificationMenuBadge").textContent =
-      notificationCount;
+const menuBadge =
+  document.getElementById("notificationMenuBadge");
 
+if (bellBadge) {
+  bellBadge.textContent = notificationCount;
+  bellBadge.style.display =
+    notificationCount > 0 ? "inline-flex" : "none";
+}
+
+if (menuBadge) {
+  menuBadge.textContent = notificationCount;
+  menuBadge.style.display =
+    notificationCount > 0 ? "inline-flex" : "none";
+}
 
     // My Requests unread update count
     const requestRes = await fetch(
