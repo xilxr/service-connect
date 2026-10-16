@@ -2336,46 +2336,29 @@ MARK BUSINESS NOTIFICATIONS AS READ
 ====================================
 */
 
-app.post("/notifications/business/:businessId/read",async(req,res)=>{
+app.post("/notifications/business/:businessId/read", async (req, res) => {
+  try {
+    await Notification.updateMany(
+      {
+        businessId: req.params.businessId,
+        receiverType: "business",
+        read: false
+      },
+      {
+        $set: { read: true }
+      }
+    );
 
-try{
+    res.json({
+      message: "Business notifications marked as read."
+    });
+  } catch (err) {
+    console.log(err);
 
-await Notification.updateMany(
-
-{
-
-businessId:req.params.businessId,
-
-read:false
-
-},
-
-{
-
-$set:{read:true}
-
-}
-
-);
-
-res.json({
-
-message:"Notifications marked as read."
-
-});
-
-}catch(err){
-
-console.log(err);
-
-res.status(500).json({
-
-error:err.message
-
-});
-
-}
-
+    res.status(500).json({
+      error: err.message
+    });
+  }
 });
 
 /*
