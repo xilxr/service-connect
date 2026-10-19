@@ -2930,6 +2930,29 @@ res.json({});
 
 });
 
+// MARK MESSAGES AS READ
+app.post("/chat/read/:requestId", async (req, res) => {
+  try {
+    const { readerType } = req.body;
+
+    await Chat.updateMany(
+      {
+        requestId: req.params.requestId,
+        senderType: { $ne: readerType },
+        read: false
+      },
+      {
+        $set: { read: true, unread: false }
+      }
+    );
+
+    res.json({ message: "Messages marked as read" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Unable to mark messages as read" });
+  }
+});
+
 /*
 ====================================
 BUSINESS UNREAD MESSAGE COUNT
