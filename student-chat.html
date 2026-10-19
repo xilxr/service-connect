@@ -170,6 +170,12 @@ API+"/chat/messages/"+requestId
 const data =
 await res.json();
 
+await fetch(API+"/chat/read/"+requestId,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({readerType:"student"})
+});
+
 const box =
 document.getElementById("messages");
 
