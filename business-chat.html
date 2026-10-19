@@ -169,6 +169,12 @@ API+"/chat/messages/"+requestId
 
 const messages=await res.json();
 
+await fetch(API+"/chat/read/"+requestId,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({readerType:"business"})
+});
+
 const chat=document.getElementById("chatBox");
 
 if(!messages.length){
