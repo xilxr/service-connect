@@ -203,7 +203,9 @@ ${new Date(m.createdAt).toLocaleTimeString([], {
 })}
 
 ${m.senderType === "business"
-  ? (m.read ? '<span style="color:#53bdeb"> ✓✓</span>' : ' ✓')
+? (m.read
+  ? '<span style="color:#00BFFF;font-weight:bold"> ✓✓</span>'
+  : '<span style="color:#FFFFFF;font-weight:bold"> ✓</span>')
   : ''}
 
 </div>
