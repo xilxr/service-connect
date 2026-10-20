@@ -183,16 +183,20 @@ let html="";
 
 data.forEach(m=>{
 
-html +=
-
-`<div class="message ${
-m.senderType==="student"
-?"student"
-:"business"
+html += `
+<div class="message ${
+  m.senderType === "student" ? "student" : "business"
 }">
-
-${m.message}
-
+  ${m.message}
+  <div style="font-size:11px;opacity:.7;margin-top:5px;text-align:right">
+    ${new Date(m.createdAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    })}
+    ${m.senderType === "student"
+      ? (m.read ? '<span style="color:#53bdeb"> ✓✓</span>' : ' ✓')
+      : ''}
+  </div>
 </div>`;
 
 });
