@@ -195,9 +195,16 @@ html+=`
 
 ${m.message}
 
-<div class="time">
+<div class="time" style="text-align:right">
 
-${new Date(m.createdAt).toLocaleTimeString()}
+${new Date(m.createdAt).toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit"
+})}
+
+${m.senderType === "business"
+  ? (m.read ? '<span style="color:#53bdeb"> ✓✓</span>' : ' ✓')
+  : ''}
 
 </div>
 
