@@ -123,6 +123,8 @@ localStorage.getItem("businessId");
 
 loadConversations();
 
+setInterval(loadConversations, 5000);
+
 async function loadConversations(){
 
 try{
