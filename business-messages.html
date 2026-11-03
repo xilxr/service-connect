@@ -218,6 +218,26 @@ const time = document.getElementById(
 "time-"+r._id
 );
 
+const unreadBox = document.getElementById(
+"unread-"+r._id
+);
+
+const messagesResponse = await fetch(
+API+"/chat/messages/"+r._id
+);
+
+const messages = await messagesResponse.json();
+
+const unreadCount = messages.filter(m =>
+m.senderType === "student" && m.read === false
+).length;
+
+if(unreadBox){
+unreadBox.innerHTML = unreadCount > 0
+? `<span class="unreadBadge">${unreadCount}</span>`
+: "";
+}
+
 if(lastMessage.message){
 
 if(row){
