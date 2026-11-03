@@ -125,7 +125,13 @@ loadConversations();
 
 setInterval(loadConversations, 5000);
 
+let isLoadingConversations = false;
+
 async function loadConversations(){
+
+if(isLoadingConversations) return;
+
+isLoadingConversations = true;
 
 try{
 
@@ -269,6 +275,8 @@ console.log(err);
 console.log("Error loading conversations:",err);
 document.getElementById("conversationList").textContent =
 "Unable to load conversations. Please refresh.";
+}finally{
+isLoadingConversations = false;
 }
 
 }
