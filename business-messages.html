@@ -181,7 +181,7 @@ ${(r.studentName || "S").charAt(0).toUpperCase()}
 ${r.studentName || "Student"}
 </div>
 
-<div class="lastMessage">
+<div class="lastMessage" id="preview-${r._id}">
 ${r.service || "Tap to open conversation"}
 </div>
 
@@ -200,10 +200,43 @@ ${r.service || "Tap to open conversation"}
 
 list.innerHTML = html;
 
+for(const r of uniqueRequests){
+
+try{
+
+const response = await fetch(
+API+"/chat/last/"+r._id
+);
+
+const lastMessage = await response.json();
+
+const row = document.getElementById(
+"preview-"+r._id
+);
+
+const time = document.getElementById(
+"time-"+r._id
+);
+
+if(lastMessage.message){
+
+if(row){
+row.textContent = lastMessage.message;
+}
+
+if(time){
+time.textContent = new Date(
+lastMessage.createdAt
+).toLocaleTimeString([],{
+hour:"2-digit",
+minute:"2-digit"
+});
+}
+
+}
+
 }catch(err){
-
 console.log(err);
-
 }
 
 }
