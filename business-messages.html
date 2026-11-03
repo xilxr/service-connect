@@ -200,7 +200,9 @@ ${r.service || "Tap to open conversation"}
 
 });
 
-list.innerHTML = html;
+if(list.innerHTML !== html){
+  list.innerHTML = html;
+}
 
 for(const r of uniqueRequests){
 
