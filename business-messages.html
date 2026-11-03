@@ -168,21 +168,29 @@ uniqueRequests.forEach(r=>{
 
 html += `
 
-<div
-onclick="openChat('${r._id}','${r.studentName}')"
-style="
-background:#1e293b;
-margin:12px;
-padding:15px;
-border-radius:12px;
-cursor:pointer;
-">
+<div class="conversation"
+onclick="openChat('${r._id}','${r.studentName}')">
 
-<b>${r.studentName}</b>
+<div class="avatar">
+${(r.studentName || "S").charAt(0).toUpperCase()}
+</div>
 
-<br><br>
+<div class="conversationInfo">
 
-${r.service}
+<div class="conversationName">
+${r.studentName || "Student"}
+</div>
+
+<div class="lastMessage">
+${r.service || "Tap to open conversation"}
+</div>
+
+</div>
+
+<div class="conversationMeta">
+<div class="messageTime" id="time-${r._id}"></div>
+<div id="unread-${r._id}"></div>
+</div>
 
 </div>
 
