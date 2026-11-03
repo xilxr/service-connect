@@ -261,6 +261,14 @@ console.log(err);
 
 }
 
+}catch(err){
+console.log("Error loading conversations:",err);
+document.getElementById("conversationList").textContent =
+"Unable to load conversations. Please refresh.";
+}
+
+}
+
 function openChat(requestId,name){
 
 localStorage.setItem(
