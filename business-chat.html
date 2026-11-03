@@ -113,7 +113,7 @@ onclick="history.back()">
 <div class="header">
 
 <h2 id="customerName">
-Business Chat
+💬 SERVICE CONNECT
 </h2>
 
 </div>
@@ -152,8 +152,8 @@ localStorage.getItem("chatRequestId");
 const customerName=
 localStorage.getItem("chatCustomerName");
 
-document.getElementById("customerName").innerHTML=
-customerName || "Customer";
+document.getElementById("customerName").textContent=
+"💬 SERVICE CONNECT";
 
 loadMessages();
 
