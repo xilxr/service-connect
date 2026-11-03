@@ -10,6 +10,98 @@ content="width=device-width,initial-scale=1.0">
 
 <title>Messages</title>
 
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#ffffff;
+  color:#111827;
+  font-family:Arial,sans-serif;
+}
+
+h2{
+  background:#075e54;
+  color:white;
+  margin:0;
+  padding:22px 16px;
+  text-align:left;
+  font-size:23px;
+}
+
+#conversationList{
+  padding:8px 0;
+}
+
+.conversation{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:15px;
+  border-bottom:1px solid #e5e7eb;
+  cursor:pointer;
+}
+
+.avatar{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:#d1fae5;
+  color:#075e54;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:bold;
+  flex-shrink:0;
+}
+
+.conversationInfo{
+  flex:1;
+  min-width:0;
+}
+
+.conversationName{
+  font-size:17px;
+  font-weight:bold;
+}
+
+.lastMessage{
+  color:#667781;
+  font-size:14px;
+  margin-top:6px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.conversationMeta{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+}
+
+.messageTime{
+  color:#667781;
+  font-size:12px;
+}
+
+.unreadBadge{
+  background:#25d366;
+  color:white;
+  border-radius:50%;
+  min-width:21px;
+  height:21px;
+  padding:3px;
+  text-align:center;
+  font-size:12px;
+  font-weight:bold;
+}
+</style>
+
 </head>
 
 <body>
