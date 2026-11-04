@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Student Messages | Service Connect</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:white;color:#111827}
+header{background:#075e54;color:white;padding:20px;font-size:22px;font-weight:bold}
+.chat{display:flex;align-items:center;gap:12px;padding:15px;border-bottom:1px solid #e5e7eb;cursor:pointer}
+.avatar{width:52px;height:52px;border-radius:50%;background:#d1fae5;color:#075e54;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;flex-shrink:0}
+.info{flex:1;min-width:0}
+.name{font-size:17px;font-weight:bold}
+.preview{font-size:14px;color:#667781;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.time{font-size:12px;color:#667781}
+.badge{background:#25d366;color:white;border-radius:20px;padding:4px 7px;font-size:12px;font-weight:bold}
+#status{padding:20px;text-align:center;color:#667781}
+</style>
+</head>
+
+<body>
+<header>💬 SERVICE CONNECT</header>
+<div id="conversationList">
+<div id="status">Loading conversations...</div>
+</div>
+
+<script>
+const API="https://service-backend-jezm.onrender.com";
+const studentPhone=localStorage.getItem("studentPhone");
+
+let loading=false;
+
+async function loadConversations(){
+if(loading)return;
+loading=true;
+
+const list=document.getElementById("conversationList");
+
+try{
+if(!studentPhone){
+list.innerHTML='<div id="status">Student account not found. Please open your student dashboard first.</div>';
+return;
+}
+
+// Requires a backend endpoint returning this student's requests.
+const res=await fetch(
+API+"/student/"+encodeURIComponent(studentPhone)+"/requests"
+);
+
+if(!res.ok)throw new Error("Unable to retrieve requests");
+
+const requests=await res.json();
+
+if(!Array.isArray(requests))throw new Error("Invalid response");
+
+if(!requests.length){
+list.innerHTML='<div id="status">No conversations yet.</div>';
+return;
+}
+
+const conversations=await Promise.all(requests.map(async r=>{
+const requestId=r._id;
+const response=await fetch(API+"/chat/messages/"+requestId);
+if(!response.ok)throw new Error("Unable to retrieve messages");
+
+const messages=await response.json();
+if(!Array.isArray(messages))throw new Error("Invalid messages");
+
+const last=messages[messages.length-1];
+const unread=messages.filter(m=>m.senderType==="business" && !m.read).length;
+
+return {r,last,unread};
+}));
+
+conversations.sort((a,b)=>
+new Date(b.last?.createdAt||b.r.createdAt||0)-
+new Date(a.last?.createdAt||a.r.createdAt||0)
+);
+
+list.innerHTML="";
+
+for(const {r,last,unread} of conversations){
+const name=r.businessName||r.service||"Business Owner";
+
+const item=document.createElement("div");
+item.className="chat";
+
+const avatar=document.createElement("div");
+avatar.className="avatar";
+avatar.textContent=name.charAt(0).toUpperCase();
+
+const info=document.createElement("div");
+info.className="info";
+
+const title=document.createElement("div");
+title.className="name";
+title.textContent=name;
+
+const preview=document.createElement("div");
+preview.className="preview";
+preview.textContent=last?.message||r.service||"Tap to open chat";
+
+info.append(title,preview);
+
+const meta=document.createElement("div");
+meta.className="meta";
+
+const time=document.createElement("div");
+time.className="time";
+time.textContent=last?.createdAt
+?new Date(last.createdAt).toLocaleTimeString([],{
+hour:"2-digit",minute:"2-digit"
+}):"";
+
+meta.appendChild(time);
+
+if(unread>0){
+const badge=document.createElement("span");
+badge.className="badge";
+badge.textContent=unread;
+meta.appendChild(badge);
+}
+
+item.append(avatar,info,meta);
+
+item.onclick=()=>{
+localStorage.setItem("chatRequestId",r._id);
+localStorage.setItem("chatBusinessId",r.businessId||"");
+window.location.href="student-chat.html";
+};
+
+list.appendChild(item);
+}
+
+}catch(err){
+console.error(err);
+list.innerHTML='<div id="status">Unable to load conversations. Please check the connection or backend endpoint.</div>';
+}finally{
+loading=false;
+}
+}
+
+loadConversations();
+setInterval(loadConversations,5000);
+</script>
+</body>
+</html>
