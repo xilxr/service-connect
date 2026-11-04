@@ -57,6 +57,19 @@ margin-right:auto;
 color:white;
 }
 
+.dateSeparator{
+display:table;
+margin:20px auto 12px;
+padding:7px 14px;
+background:#182b34;
+color:#d1d7db;
+font-size:12px;
+font-weight:bold;
+border-radius:10px;
+text-align:center;
+box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+
 .bottom{
 position:fixed;
 bottom:0;
@@ -180,8 +193,49 @@ const box =
 document.getElementById("messages");
 
 let html="";
+let lastDate="";
 
 data.forEach(m=>{
+
+const messageDate = new Date(m.createdAt);
+
+const dateKey = [
+messageDate.getFullYear(),
+messageDate.getMonth(),
+messageDate.getDate()
+].join("-");
+
+if(dateKey !== lastDate){
+
+const today = new Date();
+
+const yesterday = new Date(today);
+yesterday.setDate(today.getDate()-1);
+
+const sameDay = (a,b) =>
+a.getFullYear() === b.getFullYear() &&
+a.getMonth() === b.getMonth() &&
+a.getDate() === b.getDate();
+
+let dateLabel;
+
+if(sameDay(messageDate,today)){
+dateLabel="Today";
+}else if(sameDay(messageDate,yesterday)){
+dateLabel="Yesterday";
+}else{
+dateLabel=messageDate.toLocaleDateString("en-US",{
+year:"numeric",
+month:"long",
+day:"numeric"
+});
+}
+
+html += `<div class="dateSeparator">${dateLabel}</div>`;
+
+lastDate=dateKey;
+
+}
 
 html += `
 <div class="message ${
