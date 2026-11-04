@@ -2791,6 +2791,38 @@ senderType,
 message
 }=req.body;
 
+// =========================================
+// BLOCK MESSAGES AFTER JOB COMPLETION
+// =========================================
+
+if (!mongoose.isValidObjectId(requestId)) {
+  return res.status(400).json({
+    error: "Invalid conversation ID."
+  });
+}
+
+const hireRequest = await Request.findById(requestId);
+
+if (!hireRequest) {
+  return res.status(404).json({
+    error: "Conversation not found."
+  });
+}
+
+if (hireRequest.status === "Completed") {
+  return res.status(403).json({
+    error: "This service has been completed. You can no longer send messages in this conversation. Hire this professional again to start a new chat.",
+    chatLocked: true
+  });
+}
+
+if (hireRequest.status === "Declined") {
+  return res.status(403).json({
+    error: "This service request was declined. Messaging is unavailable.",
+    chatLocked: true
+  });
+}
+
 const chat = await Chat.create({
 
 requestId,
