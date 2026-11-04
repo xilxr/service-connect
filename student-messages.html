@@ -47,7 +47,7 @@ return;
 
 // Requires a backend endpoint returning this student's requests.
 const res=await fetch(
-API+"/student/"+encodeURIComponent(studentPhone)+"/requests"
+API+"/student/requests/"+encodeURIComponent(studentPhone)
 );
 
 if(!res.ok)throw new Error("Unable to retrieve requests");
