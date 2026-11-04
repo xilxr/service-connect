@@ -113,6 +113,28 @@ margin:10px;
 
 }
 
+.chatClosedNotice{
+display:none;
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#202c33;
+color:#d1d7db;
+padding:18px 15px;
+padding-bottom:max(18px,env(safe-area-inset-bottom));
+text-align:center;
+font-size:13px;
+line-height:1.6;
+border-top:1px solid #374151;
+}
+
+button:disabled,
+input:disabled{
+opacity:.5;
+cursor:not-allowed;
+}
+
 </style>
 
 </head>
@@ -153,6 +175,12 @@ Send
 
 </div>
 
+<div id="chatClosedNotice" class="chatClosedNotice">
+🔒 This service has been completed.<br>
+You can no longer send messages in this conversation.<br>
+Hire this professional again to start a new chat.
+</div>
+
 <script>
 
 const API =
@@ -167,9 +195,51 @@ localStorage.getItem("studentPhone");
 const businessId =
 localStorage.getItem("chatBusinessId");
 
+let chatLocked=false;
+
+function lockChat(){
+
+chatLocked=true;
+
+document.querySelector(".bottom").style.display="none";
+
+document.getElementById("message").disabled=true;
+
+document.querySelector(".bottom button").disabled=true;
+
+document.getElementById("chatClosedNotice").style.display="block";
+
+document.getElementById("messages").style.paddingBottom="110px";
+
+}
+
+async function checkChatStatus(){
+
+try{
+
+const res=await fetch(
+API+"/request/"+encodeURIComponent(requestId)
+);
+
+if(!res.ok) return;
+
+const request=await res.json();
+
+if(request.status==="Completed"){
+lockChat();
+}
+
+}catch(err){
+console.log("Chat status check failed:",err);
+}
+
+}
+
 loadMessages();
+checkChatStatus();
 
 setInterval(loadMessages,2000);
+setInterval(checkChatStatus,3000);
 
 async function loadMessages(){
 
@@ -270,38 +340,63 @@ console.log(err);
 
 async function sendMessage(){
 
-const message =
-document.getElementById("message").value.trim();
+if(chatLocked) return;
 
-if(message==="") return;
+const input=document.getElementById("message");
 
-await fetch(
+const message=input.value.trim();
 
-API+"/chat/send",
+if(!message) return;
 
-{
+try{
+
+const res=await fetch(API+"/chat/send",{
 
 method:"POST",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
 
 body:JSON.stringify({
-
 requestId,
-
 businessId,
-
 studentPhone,
-
 senderType:"student",
-
 message
-
 })
+
+});
+
+const data=await res.json();
+
+if(data.chatLocked){
+
+lockChat();
+
+return;
+
+}
+
+if(!res.ok || data.error){
+
+alert(data.error || "Unable to send message.");
+
+return;
+
+}
+
+input.value="";
+
+loadMessages();
+
+}catch(err){
+
+console.log(err);
+
+alert("Unable to send message. Please try again.");
+
+}
 
 }
 
