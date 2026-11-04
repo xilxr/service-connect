@@ -3490,9 +3490,72 @@ alert(
 
 }
 
+/* =========================================
+   STUDENT UNREAD MESSAGE COUNT
+========================================= */
+
+async function loadStudentMessageBadge(){
+
+  const phone = localStorage.getItem("studentPhone");
+  const badge = document.getElementById("studentMessageCount");
+
+  if(!phone || !badge) return;
+
+  try{
+
+    const res = await fetch(
+      API + "/student/requests/" + encodeURIComponent(phone)
+    );
+
+    if(!res.ok) throw new Error("Unable to load requests");
+
+    const requests = await res.json();
+
+    if(!Array.isArray(requests)) return;
+
+    let unreadCount = 0;
+
+    const results = await Promise.all(
+      requests.map(async request => {
+
+        const response = await fetch(
+          API + "/chat/messages/" + request._id
+        );
+
+        if(!response.ok) return [];
+
+        return await response.json();
+      })
+    );
+
+    results.forEach(messages => {
+
+      if(!Array.isArray(messages)) return;
+
+      unreadCount += messages.filter(message =>
+        message.senderType === "business" &&
+        message.read === false
+      ).length;
+
+    });
+
+    badge.textContent = unreadCount;
+    badge.style.display =
+      unreadCount > 0 ? "inline-flex" : "none";
+
+  }catch(err){
+
+    console.log("Message badge error:", err);
+
+  }
+
+}
+
+loadStudentMessageBadge();
+setInterval(loadStudentMessageBadge, 10000);
 
 /* =========================================
-   LOAD NOTIFICATION BADGE
+   LOAD STUDENT NOTIFICATION BADGE
 ========================================= */
 
 async function loadStudentNotificationBadge(){
