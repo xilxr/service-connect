@@ -405,6 +405,13 @@ async function sendMessage(){
 
 if(chatLocked) return;
 
+await loadChatStudent();
+
+if(!chatStudentPhone){
+alert("Unable to identify this student. Please try again.");
+return;
+}
+
 const input=document.getElementById("message");
 
 const message=input.value.trim();
@@ -425,6 +432,7 @@ body:JSON.stringify({
 
 requestId,
 businessId,
+studentPhone:chatStudentPhone,
 senderType:"business",
 message
 
