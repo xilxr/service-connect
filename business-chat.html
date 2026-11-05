@@ -209,6 +209,37 @@ localStorage.getItem("chatRequestId");
 const customerName=
 localStorage.getItem("chatCustomerName");
 
+let chatStudentPhone="";
+
+async function loadChatStudent(){
+
+try{
+
+const res=await fetch(
+API+"/request/"+encodeURIComponent(requestId)
+);
+
+if(!res.ok) return;
+
+const request=await res.json();
+
+if(request.businessId!==businessId){
+console.error("Conversation does not belong to this business.");
+return;
+}
+
+chatStudentPhone=request.studentPhone || "";
+
+}catch(err){
+
+console.log("Unable to load student information:",err);
+
+}
+
+}
+
+loadChatStudent();
+
 document.getElementById("customerName").textContent=
 "💬 SERVICE CONNECT";
 
