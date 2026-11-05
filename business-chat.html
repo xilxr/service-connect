@@ -119,6 +119,29 @@ background:#475569;
 margin:10px;
 }
 
+.chatClosedNotice{
+display:none;
+background:#202c33;
+color:#d1d7db;
+padding:18px 15px;
+padding-bottom:max(18px,env(safe-area-inset-bottom));
+text-align:center;
+font-size:13px;
+line-height:1.7;
+border-top:1px solid #374151;
+}
+
+.chatClosedNotice strong{
+color:#f8fafc;
+font-size:15px;
+}
+
+button:disabled,
+input:disabled{
+opacity:.5;
+cursor:not-allowed;
+}
+
 </style>
 
 </head>
@@ -157,6 +180,20 @@ Send
 
 </div>
 
+<div id="chatClosedNotice" class="chatClosedNotice">
+
+🔒 <strong>Service Completed</strong>
+
+<p>
+This job has been marked as completed, and this conversation is now closed.
+</p>
+
+<p>
+Your previous messages remain available. If this customer hires you again, a new conversation will be created.
+</p>
+
+</div>
+
 <script>
 
 const API="https://service-backend-jezm.onrender.com";
@@ -175,9 +212,53 @@ localStorage.getItem("chatCustomerName");
 document.getElementById("customerName").textContent=
 "💬 SERVICE CONNECT";
 
+let chatLocked=false;
+
+function lockChat(){
+
+chatLocked=true;
+
+document.querySelector(".footer").style.display="none";
+
+document.getElementById("message").disabled=true;
+
+document.querySelector(".footer button").disabled=true;
+
+document.getElementById("chatClosedNotice").style.display="block";
+
+}
+
+async function checkChatStatus(){
+
+try{
+
+const res=await fetch(
+API+"/request/"+encodeURIComponent(requestId)
+);
+
+if(!res.ok) return;
+
+const request=await res.json();
+
+if(request.status==="Completed"){
+
+lockChat();
+
+}
+
+}catch(err){
+
+console.log("Chat status check failed:",err);
+
+}
+
+}
+
 loadMessages();
+checkChatStatus();
 
 setInterval(loadMessages,3000);
+setInterval(checkChatStatus,3000);
 
 async function loadMessages(){
 
@@ -291,6 +372,8 @@ console.log(err);
 
 async function sendMessage(){
 
+if(chatLocked) return;
+
 const input=document.getElementById("message");
 
 const message=input.value.trim();
@@ -299,7 +382,7 @@ if(!message) return;
 
 try{
 
-await fetch(API+"/chat/send",{
+const res=await fetch(API+"/chat/send",{
 
 method:"POST",
 
@@ -310,16 +393,31 @@ headers:{
 body:JSON.stringify({
 
 requestId,
-
 businessId,
-
 senderType:"business",
-
 message
 
 })
 
 });
+
+const data=await res.json();
+
+if(data.chatLocked){
+
+lockChat();
+
+return;
+
+}
+
+if(!res.ok || data.error){
+
+alert(data.error || "Unable to send message.");
+
+return;
+
+}
 
 input.value="";
 
@@ -327,7 +425,9 @@ loadMessages();
 
 }catch(err){
 
-alert("Unable to send message");
+console.log(err);
+
+alert("Unable to send message. Please try again.");
 
 }
 
