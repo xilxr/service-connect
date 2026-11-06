@@ -2809,6 +2809,11 @@ if (!hireRequest) {
   });
 }
 
+// Get the student's actual name from the hire request
+const actualStudentName =
+  hireRequest.studentName?.trim() ||
+  "A student";
+
 if (hireRequest.status === "Completed") {
   return res.status(403).json({
     error: "This service has been completed. You can no longer send messages in this conversation. Hire this professional again to start a new chat.",
@@ -2828,7 +2833,7 @@ const chat = await Chat.create({
 requestId,
 businessId,
 studentPhone,
-studentName,
+studentName: actualStudentName,
 senderType,
 message,
 unread:true,
@@ -2842,7 +2847,7 @@ await Notification.create({
 
 title:"New Message",
 
-message:`${studentName} sent you a message.`,
+message:`${actualStudentName} sent you a message.`,
 
 receiverType:"business",
 
