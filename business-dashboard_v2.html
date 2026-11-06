@@ -690,25 +690,89 @@ margin-bottom:18px;
 }
 
 .notificationItem{
+background:#111b30;
+padding:20px;
+border-radius:18px;
+margin-bottom:14px;
+border:1px solid #263449;
+}
 
+.notificationItem.unread{
+background:#192953;
+border-left:4px solid #3b82f6;
+}
+
+.notificationHeader{
+display:flex;
+align-items:flex-start;
+gap:14px;
+}
+
+.notificationIcon{
+width:48px;
+height:48px;
+min-width:48px;
+border-radius:50%;
 background:#1e293b;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:23px;
+}
 
-padding:13px;
+.notificationDetails{
+flex:1;
+min-width:0;
+}
 
-border-radius:12px;
+.notificationTitle{
+font-size:17px;
+font-weight:bold;
+line-height:1.4;
+}
 
-margin-bottom:12px;
-
+.notificationMessage{
+font-size:14px;
+color:#cbd5e1;
+line-height:1.7;
+margin-top:10px;
+overflow-wrap:anywhere;
 }
 
 .notificationItem small{
-
 display:block;
-
 color:#94a3b8;
+font-size:12px;
+margin-top:14px;
+}
 
-margin-top:10px;
+.notificationNew{
+display:inline-block;
+background:#ef4444;
+color:white;
+font-size:11px;
+font-weight:bold;
+padding:5px 10px;
+border-radius:20px;
+margin-left:8px;
+}
 
+.notificationAction{
+width:100%;
+background:#22c55e;
+color:white;
+font-weight:bold;
+border-radius:12px;
+padding:14px;
+margin-top:16px;
+}
+
+.modalContent{
+max-width:600px;
+}
+
+#notificationList{
+margin-top:15px;
 }
 
 /* ==============================
@@ -2227,23 +2291,7 @@ list.innerHTML =
 "Loading...";
 
 
-try{
-
-await fetch(
-
-API+
-"/notifications/business/"+
-businessId+
-"/read",
-
-{
-
-method:"POST"
-
-}
-
-);
-
+try(
 
 const res =
 await fetch(
@@ -2281,24 +2329,66 @@ return;
 }
 
 
-let html = "";
+let html="";
 
+function escapeNotificationText(value){
+return String(value ?? "").replace(/[&<>"']/g, c=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#39;"
+}[c]));
+}
 
 data.forEach(n=>{
 
-html += `
+const isUnread=!n.read;
 
-<div class="notificationItem">
+let icon="🔔";
 
-<b>${n.title}</b>
+if(n.type==="chat"){
+icon="💬";
+}else if(n.type==="hire"){
+icon="📥";
+}else if(n.type==="review"){
+icon="⭐";
+}else if(n.type==="approval"){
+icon="✅";
+}else if(n.type==="subscription"){
+icon="🔄";
+}
 
-<br><br>
+const title=escapeNotificationText(n.title || "Notification");
+const message=escapeNotificationText(n.message || "");
+const date=new Date(n.createdAt).toLocaleString();
 
-${n.message}
+html+=`
 
-<small>
-${new Date(n.createdAt).toLocaleString()}
-</small>
+<div class="notificationItem ${isUnread?"unread":""}">
+
+<div class="notificationHeader">
+
+<div class="notificationIcon">
+${icon}
+</div>
+
+<div class="notificationDetails">
+
+<div class="notificationTitle">
+${title}
+${isUnread?'<span class="notificationNew">NEW</span>':""}
+</div>
+
+<div class="notificationMessage">
+${message}
+</div>
+
+<small>${date}</small>
+
+</div>
+
+</div>
 
 </div>
 
@@ -2306,9 +2396,7 @@ ${new Date(n.createdAt).toLocaleString()}
 
 });
 
-
-list.innerHTML =
-html;
+list.innerHTML=html;
 
 
 }catch(err){
