@@ -2272,138 +2272,213 @@ OPEN NOTIFICATIONS
 
 async function openNotifications(){
 
-closeMenu();
+  closeMenu();
 
+  const modal = document.getElementById("notificationModal");
+  const list = document.getElementById("notificationList");
 
-document.getElementById(
-"notificationModal"
-).style.display =
-"block";
+  modal.style.display = "block";
+  list.innerHTML = "Loading notifications...";
 
+  try{
 
-const list =
-document.getElementById(
-"notificationList"
-);
+    const res = await fetch(
+      API + "/notifications/business/" + businessId
+    );
 
+    if(!res.ok) throw new Error("Unable to load notifications");
 
-list.innerHTML =
-"Loading...";
+    const data = await res.json();
 
+    if(!Array.isArray(data)){
+      throw new Error("Invalid notification response");
+    }
 
-try{
+    // Keep track of which notifications were new
+    // BEFORE marking them as read.
+    const newNotifications = data.filter(n => !n.read);
+    const olderNotifications = data.filter(n => n.read);
 
-const res =
-await fetch(
+    function escapeText(value){
+      return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c]));
+    }
 
-API+
-"/notifications/business/"+
-businessId
+    function renderNotification(n, isNew){
 
-);
+      let icon = "🔔";
 
+      if(n.type === "chat") icon = "💬";
+      else if(n.type === "hire") icon = "📥";
+      else if(n.type === "review") icon = "⭐";
+      else if(n.type === "approval") icon = "✅";
+      else if(n.type === "subscription") icon = "🔄";
 
-const data =
-await res.json();
+      const title = escapeText(n.title || "Notification");
+      const message = escapeText(n.message || "");
+      const date = n.createdAt
+        ? new Date(n.createdAt).toLocaleString()
+        : "";
 
+      const safeRequestId = String(n.requestId || "");
 
-if(data.length === 0){
+      const chatButton =
+        n.type === "chat" &&
+        /^[a-f0-9]{24}$/i.test(safeRequestId)
+        ? `
+          <button class="notificationAction"
+          onclick="openNotificationChat('${safeRequestId}')">
+            💬 Open Chat
+          </button>
+        `
+        : "";
 
-list.innerHTML =
-"No notifications.";
+      return `
+        <div class="notificationItem ${isNew ? "unread" : ""}">
 
-return;
+          <div class="notificationHeader">
+
+            <div class="notificationIcon">${icon}</div>
+
+            <div class="notificationDetails">
+
+              <div class="notificationTitle">
+                ${title}
+                ${isNew ? '<span class="notificationNew">NEW</span>' : ""}
+              </div>
+
+              <div class="notificationMessage">
+                ${message}
+              </div>
+
+              <small>${escapeText(date)}</small>
+
+            </div>
+
+          </div>
+
+          ${chatButton}
+
+        </div>
+      `;
+    }
+
+    let html = "";
+
+    // Show new notifications first.
+    if(newNotifications.length){
+
+      html += `
+        <h3 style="margin:16px 0;color:#fff;">
+          🔔 New Notifications (${newNotifications.length})
+        </h3>
+      `;
+
+      html += newNotifications
+        .map(n => renderNotification(n, true))
+        .join("");
+
+    }else{
+
+      html += `
+        <p style="color:#94a3b8;padding:15px 0;">
+          You're all caught up! No new notifications.
+        </p>
+      `;
+
+    }
+
+    // Keep previously viewed notifications hidden
+    // until the business owner requests them.
+    if(olderNotifications.length){
+
+      html += `
+        <button
+          id="viewOlderNotificationsBtn"
+          style="background:#1e293b;color:#fff;margin-top:15px;"
+          onclick="toggleOlderNotifications()">
+          📂 View Older Notifications (${olderNotifications.length})
+        </button>
+
+        <div id="olderNotificationsSection"
+             style="display:none;margin-top:18px;">
+
+          <h3 style="margin-bottom:15px;color:#cbd5e1;">
+            Earlier Notifications
+          </h3>
+
+          ${olderNotifications
+            .map(n => renderNotification(n, false))
+            .join("")}
+
+        </div>
+      `;
+    }
+
+    list.innerHTML = html;
+
+    // Mark everything as read automatically,
+    // just like the student dashboard.
+    if(newNotifications.length){
+
+      const readRes = await fetch(
+        API + "/notifications/business/" + businessId + "/read",
+        { method:"POST" }
+      );
+
+      if(!readRes.ok){
+        throw new Error("Unable to mark notifications as read");
+      }
+
+      const readData = await readRes.json();
+
+      if(readData.error){
+        throw new Error(readData.error);
+      }
+
+      // Clear both notification badges.
+      setBadge("notificationCount", 0);
+      setBadge("sideNotificationCount", 0);
+
+    }
+
+  }catch(err){
+
+    console.error("Notification error:", err);
+
+    if(list.innerHTML === "Loading notifications..."){
+      list.innerHTML = "Unable to load notifications. Please try again.";
+    }
+
+  }
 
 }
 
+function toggleOlderNotifications(){
 
-let html="";
+  const section =
+    document.getElementById("olderNotificationsSection");
 
-function escapeNotificationText(value){
-return String(value ?? "").replace(/[&<>"']/g, c=>({
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;",
-'"':"&quot;",
-"'":"&#39;"
-}[c]));
-}
+  const button =
+    document.getElementById("viewOlderNotificationsBtn");
 
-data.forEach(n=>{
+  if(!section || !button) return;
 
-const isUnread=!n.read;
+  const isHidden = section.style.display === "none";
 
-let icon="🔔";
+  section.style.display = isHidden ? "block" : "none";
 
-if(n.type==="chat"){
-icon="💬";
-}else if(n.type==="hire"){
-icon="📥";
-}else if(n.type==="review"){
-icon="⭐";
-}else if(n.type==="approval"){
-icon="✅";
-}else if(n.type==="subscription"){
-icon="🔄";
-}
-
-const title=escapeNotificationText(n.title || "Notification");
-const message=escapeNotificationText(n.message || "");
-const date=new Date(n.createdAt).toLocaleString();
-
-html+=`
-
-<div class="notificationItem ${isUnread?"unread":""}">
-
-<div class="notificationHeader">
-
-<div class="notificationIcon">
-${icon}
-</div>
-
-<div class="notificationDetails">
-
-<div class="notificationTitle">
-${title}
-${isUnread?'<span class="notificationNew">NEW</span>':""}
-</div>
-
-<div class="notificationMessage">
-${message}
-</div>
-
-<small>${date}</small>
-
-</div>
-
-</div>
-
-${n.type === "chat" && n.requestId ? `
-<button class="notificationAction"
-onclick="openNotificationChat('${n.requestId}')">
-💬 Open Chat
-</button>
-` : ""}
-
-</div>
-
-`;
-
-});
-
-list.innerHTML=html;
-
-
-}catch(err){
-
-console.log(err);
-
-list.innerHTML =
-"Unable to load notifications.";
+  button.textContent = isHidden
+    ? "▲ Hide Older Notifications"
+    : "📂 View Older Notifications";
 
 }
 
-}
 
 function openNotificationChat(requestId){
 
