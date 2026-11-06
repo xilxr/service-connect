@@ -2291,7 +2291,7 @@ list.innerHTML =
 "Loading...";
 
 
-try(
+try{
 
 const res =
 await fetch(
@@ -2305,18 +2305,6 @@ businessId
 
 const data =
 await res.json();
-
-
-setBadge(
-"notificationCount",
-0
-);
-
-
-setBadge(
-"sideNotificationCount",
-0
-);
 
 
 if(data.length === 0){
