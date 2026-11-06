@@ -2378,6 +2378,13 @@ ${message}
 
 </div>
 
+${n.type === "chat" && n.requestId ? `
+<button class="notificationAction"
+onclick="openNotificationChat('${n.requestId}')">
+💬 Open Chat
+</button>
+` : ""}
+
 </div>
 
 `;
@@ -2398,6 +2405,16 @@ list.innerHTML =
 
 }
 
+function openNotificationChat(requestId){
+
+if(!requestId) return;
+
+localStorage.setItem("chatRequestId",requestId);
+
+window.location.href =
+"business-chat.html?requestId="+encodeURIComponent(requestId);
+
+}
 
 function closeNotifications(){
 
