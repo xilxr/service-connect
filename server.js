@@ -376,6 +376,81 @@ default:Date.now
 
 });
 
+/* =========================================
+   STUDENT ACCOUNT REGISTRATION
+========================================= */
+
+app.post("/student/register", async (req, res) => {
+
+  try {
+
+    const { name, phone, password, location } = req.body;
+
+    if (
+      typeof name !== "string" ||
+      typeof phone !== "string" ||
+      typeof password !== "string" ||
+      !name.trim() ||
+      !phone.trim() ||
+      password.length < 8
+    ) {
+      return res.status(400).json({
+        error: "Enter your name, phone number, and a password of at least 8 characters."
+      });
+    }
+
+    const cleanName = name.trim();
+    const cleanPhone = phone.trim();
+
+    if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
+      return res.status(400).json({
+        error: "Enter a valid phone number without spaces."
+      });
+    }
+
+    const existingStudent = await Student.findOne({
+      phone: cleanPhone
+    });
+
+    if (existingStudent) {
+      return res.status(409).json({
+        error: "This phone number is already registered. Please log in."
+      });
+    }
+
+    const hashedPassword = hashStudentPassword(password);
+
+    const student = await Student.create({
+      name: cleanName,
+      phone: cleanPhone,
+      password: hashedPassword,
+      location: typeof location === "string"
+        ? location.trim()
+        : ""
+    });
+
+    return res.status(201).json({
+      message: "Student account created successfully ✔",
+      student: {
+        id: student._id,
+        name: student.name,
+        phone: student.phone,
+        location: student.location
+      }
+    });
+
+  } catch (error) {
+
+    console.error("STUDENT REGISTRATION ERROR:", error);
+
+    return res.status(500).json({
+      error: "Registration failed. Please try again."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 REQUEST SCHEMA
