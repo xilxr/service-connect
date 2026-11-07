@@ -2419,9 +2419,19 @@ function showStudentHomeOnBack(){
 
 }
 
-window.addEventListener("popstate", function(){
+window.addEventListener("popstate", function(event){
 
-  showStudentHomeOnBack();
+  const pageId = event.state?.studentPage;
+
+  if(pageId && document.getElementById(pageId)){
+
+    openPageByName(pageId);
+
+  }else{
+
+    showStudentHomeOnBack();
+
+  }
 
 });
 
