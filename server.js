@@ -279,15 +279,32 @@ STUDENT SCHEMA
 
 const Student = mongoose.model("Student",{
 
-name:String,
+name:{
+  type:String,
+  required:true,
+  trim:true
+},
 
-email:String,
+email:{
+  type:String,
+  default:""
+},
 
-password:String,
+password:{
+  type:String,
+  default:""
+},
 
-phone:String,
+phone:{
+  type:String,
+  required:true,
+  trim:true
+},
 
-location:String,
+location:{
+  type:String,
+  default:""
+},
 
 profilePicture:{
 type:String,
