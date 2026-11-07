@@ -59,6 +59,22 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
+/* =========================================
+   STUDENT SESSION CONFIGURATION
+========================================= */
+
+const STUDENT_SESSION_SECRET =
+  process.env.STUDENT_SESSION_SECRET;
+
+if (
+  !STUDENT_SESSION_SECRET ||
+  Buffer.byteLength(STUDENT_SESSION_SECRET, "utf8") < 32
+) {
+  console.error(
+    "❌ STUDENT_SESSION_SECRET is missing or too short"
+  );
+}
+
 if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !ADMIN_SECRET) {
   console.error("❌ Admin security environment variables are missing");
 }
