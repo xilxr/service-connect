@@ -676,19 +676,27 @@ app.post("/student/login", async (req, res) => {
 
     }
 
-    return res.json({
+    const token = createStudentToken(
+  student._id.toString()
+);
 
-      message: "Login successful ✔",
+return res.json({
 
-      student: {
-        id: student._id,
-        name: student.name,
-        phone: student.phone,
-        location: student.location,
-        profilePicture: student.profilePicture
-      }
+  message: "Login successful ✔",
 
-    });
+  token,
+
+  expiresIn: 30 * 24 * 60 * 60,
+
+  student: {
+    id: student._id,
+    name: student.name,
+    phone: student.phone,
+    location: student.location,
+    profilePicture: student.profilePicture
+  }
+
+});
 
   } catch (error) {
 
