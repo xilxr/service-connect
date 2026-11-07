@@ -3,7 +3,55 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const app = express();
+/* =========================================
+   STUDENT PASSWORD SECURITY
+========================================= */
 
+function hashStudentPassword(password) {
+
+  const salt = crypto.randomBytes(16).toString("hex");
+
+  const hash = crypto.scryptSync(
+    password,
+    salt,
+    64
+  ).toString("hex");
+
+  return `${salt}:${hash}`;
+
+}
+
+function verifyStudentPassword(password, storedPassword) {
+
+  try {
+
+    const parts = storedPassword.split(":");
+
+    if (parts.length !== 2) return false;
+
+    const [salt, originalHash] = parts;
+
+    const newHash = crypto.scryptSync(
+      password,
+      salt,
+      64
+    );
+
+    const savedHash = Buffer.from(originalHash, "hex");
+
+    if (newHash.length !== savedHash.length) {
+      return false;
+    }
+
+    return crypto.timingSafeEqual(newHash, savedHash);
+
+  } catch (error) {
+
+    return false;
+
+  }
+
+}
 app.use(cors());
 app.use(express.json());
 
