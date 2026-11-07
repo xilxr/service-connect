@@ -3,6 +3,33 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const app = express();
+
+/* =========================================
+   CREATE STUDENT SESSION TOKEN
+========================================= */
+
+function createStudentToken(studentId) {
+
+  if (!STUDENT_SESSION_SECRET) {
+    throw new Error("Student session secret is missing");
+  }
+
+  const expiresAt =
+    Date.now() + (30 * 24 * 60 * 60 * 1000);
+
+  const data = `student:${studentId}:${expiresAt}`;
+
+  const signature = crypto
+    .createHmac("sha256", STUDENT_SESSION_SECRET)
+    .update(data)
+    .digest("hex");
+
+  return Buffer.from(
+    `${data}:${signature}`
+  ).toString("base64url");
+
+}
+
 /* =========================================
    STUDENT PASSWORD SECURITY
 ========================================= */
