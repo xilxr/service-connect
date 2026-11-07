@@ -554,6 +554,11 @@ type:Array,
 default:[]
 },
 
+sessionVersion:{
+  type:Number,
+  default:0
+},
+
 createdAt:{
 type:Date,
 default:Date.now
