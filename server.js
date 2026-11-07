@@ -31,6 +31,89 @@ function createStudentToken(studentId) {
 }
 
 /* =========================================
+   VERIFY STUDENT SESSION TOKEN
+========================================= */
+
+function verifyStudentToken(token) {
+
+  try {
+
+    if (
+      typeof token !== "string" ||
+      !token ||
+      !STUDENT_SESSION_SECRET
+    ) {
+      return null;
+    }
+
+    const decoded = Buffer.from(
+      token,
+      "base64url"
+    ).toString("utf8");
+
+    const parts = decoded.split(":");
+
+    if (parts.length !== 4) {
+      return null;
+    }
+
+    const [role, studentId, expiresAt, signature] = parts;
+
+    if (role !== "student") {
+      return null;
+    }
+
+    if (!mongoose.isValidObjectId(studentId)) {
+      return null;
+    }
+
+    const expiry = Number(expiresAt);
+
+    if (
+      !Number.isSafeInteger(expiry) ||
+      Date.now() >= expiry
+    ) {
+      return null;
+    }
+
+    if (!/^[a-f0-9]{64}$/i.test(signature)) {
+      return null;
+    }
+
+    const data = `student:${studentId}:${expiresAt}`;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", STUDENT_SESSION_SECRET)
+      .update(data)
+      .digest();
+
+    const receivedSignature = Buffer.from(
+      signature,
+      "hex"
+    );
+
+    if (
+      receivedSignature.length !== expectedSignature.length
+    ) {
+      return null;
+    }
+
+    const valid = crypto.timingSafeEqual(
+      receivedSignature,
+      expectedSignature
+    );
+
+    return valid ? studentId : null;
+
+  } catch (error) {
+
+    return null;
+
+  }
+
+}
+
+/* =========================================
    STUDENT PASSWORD SECURITY
 ========================================= */
 
