@@ -783,6 +783,35 @@ app.get("/student/me", requireStudent, async (req, res) => {
 
 });
 
+/* =========================================
+   STUDENT SECURE LOGOUT
+========================================= */
+
+app.post("/student/logout", requireStudent, async (req, res) => {
+
+  try {
+
+    await Student.updateOne(
+      { _id: req.student._id },
+      { $inc: { sessionVersion: 1 } }
+    );
+
+    return res.json({
+      message: "Logged out successfully ✔"
+    });
+
+  } catch (error) {
+
+    console.error("STUDENT LOGOUT ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to log out. Please try again."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 REQUEST SCHEMA
