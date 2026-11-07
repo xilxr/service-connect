@@ -2360,6 +2360,20 @@ const API =
 "https://service-backend-jezm.onrender.com";
 
 /* =========================================
+   STUDENT DASHBOARD HISTORY INITIALIZATION
+========================================= */
+
+if(!history.state?.studentPage){
+
+  history.replaceState(
+    {studentPage:"home"},
+    "",
+    window.location.href
+  );
+
+}
+
+/* =========================================
    UNREAD REQUEST UPDATES
 ========================================= */
 
