@@ -2513,6 +2513,19 @@ loadStudentNotifications();
 
 function openPageByName(pageId){
 
+if(
+  document.getElementById(pageId) &&
+  history.state?.studentPage !== pageId
+){
+
+  history.pushState(
+    {studentPage:pageId},
+    "",
+    window.location.href
+  );
+
+}
+
 document.querySelectorAll(".page")
 .forEach(page=>{
 
