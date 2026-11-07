@@ -114,6 +114,64 @@ function verifyStudentToken(token) {
 }
 
 /* =========================================
+   REQUIRE STUDENT LOGIN
+========================================= */
+
+async function requireStudent(req, res, next) {
+
+  try {
+
+    const authHeader =
+      req.headers.authorization || "";
+
+    if (!authHeader.startsWith("Bearer ")) {
+
+      return res.status(401).json({
+        error: "Student login required."
+      });
+
+    }
+
+    const token = authHeader.slice(7).trim();
+
+    const studentId = verifyStudentToken(token);
+
+    if (!studentId) {
+
+      return res.status(401).json({
+        error: "Invalid or expired student session."
+      });
+
+    }
+
+    const student = await Student.findById(studentId)
+      .select("-password");
+
+    if (!student) {
+
+      return res.status(401).json({
+        error: "Student account no longer exists."
+      });
+
+    }
+
+    req.student = student;
+
+    next();
+
+  } catch (error) {
+
+    console.error("STUDENT AUTH ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to verify student login."
+    });
+
+  }
+
+}
+
+/* =========================================
    STUDENT PASSWORD SECURITY
 ========================================= */
 
