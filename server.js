@@ -54,11 +54,17 @@ function verifyStudentToken(token) {
 
     const parts = decoded.split(":");
 
-    if (parts.length !== 4) {
+    if (parts.length !== 5) {
       return null;
     }
 
-    const [role, studentId, expiresAt, signature] = parts;
+    const [
+      role,
+      studentId,
+      sessionVersion,
+      expiresAt,
+      signature
+    ] = parts;
 
     if (role !== "student") {
       return null;
@@ -68,9 +74,12 @@ function verifyStudentToken(token) {
       return null;
     }
 
+    const version = Number(sessionVersion);
     const expiry = Number(expiresAt);
 
     if (
+      !Number.isSafeInteger(version) ||
+      version < 0 ||
       !Number.isSafeInteger(expiry) ||
       Date.now() >= expiry
     ) {
@@ -81,7 +90,8 @@ function verifyStudentToken(token) {
       return null;
     }
 
-    const data = `student:${studentId}:${expiresAt}`;
+    const data =
+      `student:${studentId}:${sessionVersion}:${expiresAt}`;
 
     const expectedSignature = crypto
       .createHmac("sha256", STUDENT_SESSION_SECRET)
@@ -99,12 +109,19 @@ function verifyStudentToken(token) {
       return null;
     }
 
-    const valid = crypto.timingSafeEqual(
-      receivedSignature,
-      expectedSignature
-    );
+    if (
+      !crypto.timingSafeEqual(
+        receivedSignature,
+        expectedSignature
+      )
+    ) {
+      return null;
+    }
 
-    return valid ? studentId : null;
+    return {
+      studentId,
+      sessionVersion: version
+    };
 
   } catch (error) {
 
