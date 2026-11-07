@@ -710,6 +710,43 @@ return res.json({
 
 });
 
+/* =========================================
+   CHECK STUDENT LOGIN SESSION
+========================================= */
+
+app.get("/student/me", requireStudent, async (req, res) => {
+
+  try {
+
+    const student = req.student;
+
+    return res.json({
+
+      loggedIn: true,
+
+      student: {
+        id: student._id,
+        name: student.name,
+        phone: student.phone,
+        location: student.location,
+        profilePicture: student.profilePicture,
+        shortBio: student.shortBio
+      }
+
+    });
+
+  } catch (error) {
+
+    console.error("STUDENT SESSION ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to load student account."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 REQUEST SCHEMA
