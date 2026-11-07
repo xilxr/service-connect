@@ -346,7 +346,8 @@ password:{
 phone:{
   type:String,
   required:true,
-  trim:true
+  trim:true,
+  unique:true
 },
 
 location:{
