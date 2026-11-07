@@ -2404,6 +2404,27 @@ document.getElementById("overlay")
 
 }
 
+/* STUDENT DASHBOARD NAVIGATION */
+
+function showStudentHomeOnBack(){
+
+  const activePage =
+    document.querySelector(".page.active");
+
+  if(activePage && activePage.id !== "home"){
+
+    openPageByName("home");
+
+  }
+
+}
+
+window.addEventListener("popstate", function(){
+
+  showStudentHomeOnBack();
+
+});
+
 /* =========================================
    OPEN PAGE
 ========================================= */
