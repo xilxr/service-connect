@@ -452,6 +452,72 @@ app.post("/student/register", async (req, res) => {
 
 });
 
+/* =========================================
+   STUDENT LOGIN
+========================================= */
+
+app.post("/student/login", async (req, res) => {
+
+  try {
+
+    const { phone, password } = req.body;
+
+    if (
+      typeof phone !== "string" ||
+      typeof password !== "string" ||
+      !phone.trim() ||
+      !password
+    ) {
+
+      return res.status(400).json({
+        error: "Please enter your phone number and password."
+      });
+
+    }
+
+    const cleanPhone = phone.trim();
+
+    const student = await Student.findOne({
+      phone: cleanPhone
+    });
+
+    if (
+      !student ||
+      !verifyStudentPassword(password, student.password)
+    ) {
+
+      return res.status(401).json({
+        error: "Incorrect phone number or password."
+      });
+
+    }
+
+    return res.json({
+
+      message: "Login successful ✔",
+
+      student: {
+        id: student._id,
+        name: student.name,
+        phone: student.phone,
+        location: student.location,
+        profilePicture: student.profilePicture
+      }
+
+    });
+
+  } catch (error) {
+
+    console.error("STUDENT LOGIN ERROR:", error);
+
+    return res.status(500).json({
+      error: "Login failed. Please try again."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 REQUEST SCHEMA
