@@ -2446,6 +2446,16 @@ if(page){
 
 page.classList.add("active");
 
+if(history.state?.studentPage !== pageId){
+
+history.pushState(
+{studentPage:pageId},
+"",
+window.location.href
+);
+
+}
+
 }
 
 
