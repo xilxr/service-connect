@@ -8,7 +8,7 @@ const app = express();
    CREATE STUDENT SESSION TOKEN
 ========================================= */
 
-function createStudentToken(studentId) {
+function createStudentToken(studentId, sessionVersion) {
 
   if (!STUDENT_SESSION_SECRET) {
     throw new Error("Student session secret is missing");
@@ -17,7 +17,8 @@ function createStudentToken(studentId) {
   const expiresAt =
     Date.now() + (30 * 24 * 60 * 60 * 1000);
 
-  const data = `student:${studentId}:${expiresAt}`;
+  const data =
+    `student:${studentId}:${sessionVersion}:${expiresAt}`;
 
   const signature = crypto
     .createHmac("sha256", STUDENT_SESSION_SECRET)
@@ -682,7 +683,8 @@ app.post("/student/login", async (req, res) => {
     }
 
     const token = createStudentToken(
-  student._id.toString()
+  student._id.toString(),
+  student.sessionVersion ?? 0
 );
 
 return res.json({
