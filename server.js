@@ -152,26 +152,38 @@ async function requireStudent(req, res, next) {
 
     const token = authHeader.slice(7).trim();
 
-    const studentId = verifyStudentToken(token);
+    const session = verifyStudentToken(token);
 
-    if (!studentId) {
+if (!session) {
 
-      return res.status(401).json({
-        error: "Invalid or expired student session."
-      });
+  return res.status(401).json({
+    error: "Invalid or expired student session."
+  });
 
-    }
+}
 
-    const student = await Student.findById(studentId)
-      .select("-password");
+const student = await Student.findById(
+  session.studentId
+).select("-password");
 
-    if (!student) {
+if (!student) {
 
-      return res.status(401).json({
-        error: "Student account no longer exists."
-      });
+  return res.status(401).json({
+    error: "Student account no longer exists."
+  });
 
-    }
+}
+
+if (
+  (student.sessionVersion ?? 0) !==
+  session.sessionVersion
+) {
+
+  return res.status(401).json({
+    error: "Your session has ended. Please log in again."
+  });
+
+}
 
     req.student = student;
 
