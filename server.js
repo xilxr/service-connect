@@ -2696,10 +2696,16 @@ if (req.params.phone !== req.student.phone) {
   }
 });
 
-app.post("/student/requests/viewed", async (req, res) => {
+app.post("/student/requests/viewed", requireStudent, async (req, res) => {
 
   try {
 
+if (req.body.phone && req.body.phone !== req.student.phone) {
+  return res.status(403).json({
+    error: "You cannot update another student's requests."
+  });
+}
+   
     const { phone } = req.body;
 
     if (!phone) {
