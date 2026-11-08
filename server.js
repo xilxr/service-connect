@@ -2671,9 +2671,16 @@ count:0
 
 });
 
-app.get("/student/requests/:phone/unread-count", async (req,res)=>{
+app.get("/student/requests/:phone/unread-count", requireStudent, async (req, res) => {
+
   try{
 
+if (req.params.phone !== req.student.phone) {
+  return res.status(403).json({
+    error: "You cannot access another student's request count."
+  });
+}
+   
     const count = await Request.countDocuments({
       studentPhone: req.params.phone,
       viewed: false
