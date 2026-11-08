@@ -1846,13 +1846,19 @@ STUDENT REQUESTS PHONE
 =========================================
 */
 
-app.get("/student/requests/:phone", async(req,res)=>{
+app.get("/student/requests/:phone", requireStudent, async(req,res)=>{
 
 try{
 
+if (req.params.phone !== req.student.phone) {
+  return res.status(403).json({
+    error: "You cannot access another student's requests."
+  });
+}
+
 const requests = await Request.find({
 
-studentPhone:req.params.phone
+studentPhone:req.student.phone
 
 }).sort({
 
