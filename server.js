@@ -2189,19 +2189,19 @@ HIRE WORKER
 =========================================
 */
 
-app.post("/hire", async (req, res) => {
-
+app.post("/hire", requireStudent, async (req, res) => {
   try {
 
     const {
-      studentId,
-      studentName,
-      studentPhone,
-      businessId,
-      message,
-      service,
-      location
-    } = req.body;
+  businessId,
+  message,
+  service,
+  location
+} = req.body;
+
+const studentId = req.student._id.toString();
+const studentName = req.student.name;
+const studentPhone = req.student.phone;
 
     /*
     ==============================
