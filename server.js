@@ -2631,9 +2631,15 @@ STUDENT NOTIFICATION UNREAD COUNT
 ====================================
 */
 
-app.get("/student/notifications/:phone/unread-count", async (req,res)=>{
+app.get("/student/notifications/:phone/unread-count", requireStudent, async (req, res) => {
 
 try{
+
+if (req.params.phone !== req.student.phone) {
+  return res.status(403).json({
+    error: "You cannot access another student's notifications."
+  });
+}
 
 const count = await Notification.countDocuments({
 
