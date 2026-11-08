@@ -2594,13 +2594,18 @@ GET STUDENT NOTIFICATIONS
 ====================================
 */
 
-app.get("/student/notifications/:phone", async (req,res)=>{
-
+app.get("/student/notifications/:phone", requireStudent, async (req,res)=>{
 try{
+
+if (req.params.phone !== req.student.phone) {
+  return res.status(403).json({
+    error: "You cannot access another student's notifications."
+  });
+}
 
 const notifications = await Notification.find({
 
-receiverId:req.params.phone
+receiverId:req.student.phone
 
 }).sort({
 
