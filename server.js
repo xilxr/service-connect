@@ -250,6 +250,19 @@ function verifyStudentPassword(password, storedPassword) {
   }
 
 }
+
+/* =========================================
+   BUSINESS PASSWORD SECURITY
+========================================= */
+
+function hashBusinessPassword(password) {
+  return hashStudentPassword(password);
+}
+
+function verifyBusinessPassword(password, storedPassword) {
+  return verifyStudentPassword(password, storedPassword);
+}
+
 app.use(cors());
 app.use(express.json());
 
