@@ -163,6 +163,76 @@ function verifyBusinessToken(token) {
 }
 
 /* =========================================
+   REQUIRE BUSINESS OWNER LOGIN
+========================================= */
+
+async function requireBusiness(req, res, next) {
+
+  try {
+
+    const authHeader =
+      req.headers.authorization || "";
+
+    if (!authHeader.startsWith("Bearer ")) {
+
+      return res.status(401).json({
+        error: "Business owner login required."
+      });
+
+    }
+
+    const token = authHeader.slice(7).trim();
+
+    const session = verifyBusinessToken(token);
+
+    if (!session) {
+
+      return res.status(401).json({
+        error: "Invalid or expired business session."
+      });
+
+    }
+
+    const business = await Business.findById(
+      session.businessId
+    );
+
+    if (!business) {
+
+      return res.status(401).json({
+        error: "Business account no longer exists."
+      });
+
+    }
+
+    if (
+      (business.sessionVersion ?? 0) !==
+      session.sessionVersion
+    ) {
+
+      return res.status(401).json({
+        error: "Your session has ended. Please log in again."
+      });
+
+    }
+
+    req.business = business;
+
+    next();
+
+  } catch (error) {
+
+    console.error("BUSINESS AUTH ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to verify business login."
+    });
+
+  }
+
+}
+
+/* =========================================
    VERIFY STUDENT SESSION TOKEN
 ========================================= */
 
