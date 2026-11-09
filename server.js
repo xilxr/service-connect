@@ -2740,47 +2740,39 @@ MARK STUDENT NOTIFICATIONS AS READ
 ====================================
 */
 
-app.post("/student/notifications/read", async (req,res)=>{
+app.post("/student/notifications/read", requireStudent, async (req, res) => {
 
-try{
+  try {
 
-const { phone } = req.body;
+    // Get phone number from the verified student account
+    const phone = req.student.phone;
 
-await Notification.updateMany(
+    await Notification.updateMany(
+      {
+        receiverId: phone,
+        receiverType: "student",
+        read: false
+      },
+      {
+        $set: {
+          read: true
+        }
+      }
+    );
 
-{
+    res.json({
+      message: "Student notifications marked as read."
+    });
 
-receiverId: phone,
-receiverType: "student",
-read: false
+  } catch (err) {
 
-},
+    console.log(err);
 
-{
+    res.status(500).json({
+      error: "Unable to update notifications."
+    });
 
-$set:{read:true}
-
-}
-
-);
-
-res.json({
-
-message:"Student notifications marked as read."
-
-});
-
-}catch(err){
-
-console.log(err);
-
-res.json({
-
-error:"Unable to update notifications."
-
-});
-
-}
+  }
 
 });
 
