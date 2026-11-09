@@ -2706,25 +2706,17 @@ if (req.body.phone && req.body.phone !== req.student.phone) {
   });
 }
    
-    const { phone } = req.body;
-
-    if (!phone) {
-      return res.json({
-        error: "Student phone is required."
-      });
-    }
-
     await Request.updateMany(
-      {
-        studentPhone: phone,
-        viewed: false
-      },
-      {
-        $set: {
-          viewed: true
-        }
-      }
-    );
+  {
+    studentPhone: req.student.phone,
+    viewed: false
+  },
+  {
+    $set: {
+      viewed: true
+    }
+  }
+);
 
     res.json({
       message: "Student requests marked as viewed."
