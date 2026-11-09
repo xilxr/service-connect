@@ -277,6 +277,13 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const STUDENT_SESSION_SECRET =
   process.env.STUDENT_SESSION_SECRET;
 
+/* =========================================
+   BUSINESS SESSION CONFIGURATION
+========================================= */
+
+const BUSINESS_SESSION_SECRET =
+  process.env.BUSINESS_SESSION_SECRET;
+
 if (
   !STUDENT_SESSION_SECRET ||
   Buffer.byteLength(STUDENT_SESSION_SECRET, "utf8") < 32
