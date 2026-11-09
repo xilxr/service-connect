@@ -3399,43 +3399,43 @@ read: false
 
 });
 
-if(senderType==="student"){
+if (senderType === "student") {
 
-await Notification.create({
+  await Notification.create({
 
-title:"New Message",
+    title: "New Message",
 
-message:`${actualStudentName} sent you a message.`,
+    message: `${actualStudentName} sent you a message.`,
 
-receiverType:"business",
+    receiverType: "business",
 
-businessId,
+    businessId: hireRequest.businessId,
 
-requestId,
+    requestId: hireRequest._id,
 
-type:"chat"
+    type: "chat"
 
-});
+  });
 
-}else{
+} else {
 
-await Notification.create({
+  await Notification.create({
 
-title:"New Message",
+    title: "New Message",
 
-message:"You have received a new message.",
+    message: "You have received a new message.",
 
-receiverType:"student",
+    receiverType: "student",
 
-receiverId:studentPhone,
+    receiverId: hireRequest.studentPhone,
 
-requestId,
+    requestId: hireRequest._id,
 
-businessId,
+    businessId: hireRequest.businessId,
 
-type:"chat"
+    type: "chat"
 
-});
+  });
 
 }
 
