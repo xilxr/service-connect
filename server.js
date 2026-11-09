@@ -3388,14 +3388,14 @@ if (hireRequest.status === "Declined") {
 
 const chat = await Chat.create({
 
-requestId,
-businessId,
-studentPhone,
+requestId: hireRequest._id,
+businessId: hireRequest.businessId,
+studentPhone: hireRequest.studentPhone,
 studentName: actualStudentName,
 senderType,
 message,
-unread:true,
-read:false
+unread: true,
+read: false
 
 });
 
