@@ -32,6 +32,36 @@ function createStudentToken(studentId, sessionVersion) {
 }
 
 /* =========================================
+   CREATE BUSINESS SESSION TOKEN
+========================================= */
+
+function createBusinessToken(businessId, sessionVersion) {
+
+  if (
+    !BUSINESS_SESSION_SECRET ||
+    Buffer.byteLength(BUSINESS_SESSION_SECRET, "utf8") < 32
+  ) {
+    throw new Error("Business session secret is missing or too short");
+  }
+
+  const expiresAt =
+    Date.now() + (30 * 24 * 60 * 60 * 1000);
+
+  const data =
+    `business:${businessId}:${sessionVersion}:${expiresAt}`;
+
+  const signature = crypto
+    .createHmac("sha256", BUSINESS_SESSION_SECRET)
+    .update(data)
+    .digest("hex");
+
+  return Buffer.from(
+    `${data}:${signature}`
+  ).toString("base64url");
+
+}
+
+/* =========================================
    VERIFY STUDENT SESSION TOKEN
 ========================================= */
 
