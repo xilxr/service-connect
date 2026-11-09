@@ -3328,6 +3328,45 @@ if (!hireRequest) {
   });
 }
 
+// =========================================
+// VERIFY STUDENT CHAT IDENTITY
+// =========================================
+
+if (senderType === "student") {
+
+  const authorization = req.headers.authorization || "";
+
+  const token = authorization.startsWith("Bearer ")
+    ? authorization.slice(7)
+    : "";
+
+  const session = verifyStudentToken(token);
+
+  if (!session) {
+    return res.status(401).json({
+      error: "Please log in to send messages."
+    });
+  }
+
+  const loggedInStudent = await Student.findById(session.studentId);
+
+  if (
+    !loggedInStudent ||
+    (loggedInStudent.sessionVersion ?? 0) !== session.sessionVersion
+  ) {
+    return res.status(401).json({
+      error: "Your login session has expired. Please log in again."
+    });
+  }
+
+  if (hireRequest.studentPhone !== loggedInStudent.phone) {
+    return res.status(403).json({
+      error: "You cannot send messages in another student's conversation."
+    });
+  }
+
+}
+
 // Get the student's actual name from the hire request
 const actualStudentName =
   hireRequest.studentName?.trim() ||
