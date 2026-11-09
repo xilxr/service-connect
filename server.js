@@ -349,9 +349,15 @@ type:String,
 default:""
 },
 
-password:{
-type:String,
-default:""
+password: {
+  type: String,
+  default: "",
+  select: false
+},
+
+sessionVersion: {
+  type: Number,
+  default: 0
 },
 
 service:String,
