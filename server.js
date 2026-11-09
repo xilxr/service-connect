@@ -62,6 +62,107 @@ function createBusinessToken(businessId, sessionVersion) {
 }
 
 /* =========================================
+   VERIFY BUSINESS SESSION TOKEN
+========================================= */
+
+function verifyBusinessToken(token) {
+
+  try {
+
+    if (
+      typeof token !== "string" ||
+      !token ||
+      !BUSINESS_SESSION_SECRET ||
+      Buffer.byteLength(BUSINESS_SESSION_SECRET, "utf8") < 32
+    ) {
+      return null;
+    }
+
+    const decoded = Buffer.from(
+      token,
+      "base64url"
+    ).toString("utf8");
+
+    const parts = decoded.split(":");
+
+    if (parts.length !== 5) {
+      return null;
+    }
+
+    const [
+      role,
+      businessId,
+      sessionVersion,
+      expiresAt,
+      signature
+    ] = parts;
+
+    if (role !== "business") {
+      return null;
+    }
+
+    if (!mongoose.isValidObjectId(businessId)) {
+      return null;
+    }
+
+    const version = Number(sessionVersion);
+    const expiry = Number(expiresAt);
+
+    if (
+      !Number.isSafeInteger(version) ||
+      version < 0 ||
+      !Number.isSafeInteger(expiry) ||
+      Date.now() >= expiry
+    ) {
+      return null;
+    }
+
+    if (!/^[a-f0-9]{64}$/i.test(signature)) {
+      return null;
+    }
+
+    const data =
+      `business:${businessId}:${sessionVersion}:${expiresAt}`;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", BUSINESS_SESSION_SECRET)
+      .update(data)
+      .digest();
+
+    const receivedSignature = Buffer.from(
+      signature,
+      "hex"
+    );
+
+    if (
+      receivedSignature.length !== expectedSignature.length
+    ) {
+      return null;
+    }
+
+    if (
+      !crypto.timingSafeEqual(
+        receivedSignature,
+        expectedSignature
+      )
+    ) {
+      return null;
+    }
+
+    return {
+      businessId,
+      sessionVersion: version
+    };
+
+  } catch (error) {
+
+    return null;
+
+  }
+
+}
+
+/* =========================================
    VERIFY STUDENT SESSION TOKEN
 ========================================= */
 
