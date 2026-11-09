@@ -3320,6 +3320,19 @@ if (!mongoose.isValidObjectId(requestId)) {
   });
 }
 
+// =========================================
+// VALIDATE CHAT SENDER TYPE
+// =========================================
+
+if (
+  senderType !== "student" &&
+  senderType !== "business"
+) {
+  return res.status(400).json({
+    error: "Invalid chat sender type."
+  });
+}
+
 const hireRequest = await Request.findById(requestId);
 
 if (!hireRequest) {
