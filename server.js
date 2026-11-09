@@ -2782,43 +2782,47 @@ MARK ONE STUDENT NOTIFICATION READ
 ====================================
 */
 
-app.post("/student/notifications/read-one", async (req,res)=>{
+app.post("/student/notifications/read-one", requireStudent, async (req, res) => {
 
-  try{
+  try {
 
-    const { phone, notificationId } = req.body;
+    // Get notification ID from the browser
+    const { notificationId } = req.body;
 
-    if(!phone || !notificationId){
+    // Get phone number from the verified student account
+    const phone = req.student.phone;
 
-      return res.json({
-        error:"Missing notification information."
+    if (!notificationId) {
+
+      return res.status(400).json({
+        error: "Missing notification information."
       });
 
     }
 
     await Notification.updateOne(
       {
-        _id:notificationId,
-        receiverId:phone,
-        receiverType:"student"
+        _id: notificationId,
+        receiverId: phone,
+        receiverType: "student"
       },
       {
-        $set:{
-          read:true
+        $set: {
+          read: true
         }
       }
     );
 
     res.json({
-      message:"Notification marked as read."
+      message: "Notification marked as read."
     });
 
-  }catch(err){
+  } catch (err) {
 
     console.log(err);
 
-    res.json({
-      error:"Unable to mark notification as read."
+    res.status(500).json({
+      error: "Unable to mark notification as read."
     });
 
   }
