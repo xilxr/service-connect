@@ -464,6 +464,16 @@ function verifyBusinessPassword(password, storedPassword) {
   return verifyStudentPassword(password, storedPassword);
 }
 
+/* =========================================
+   GENERATE BUSINESS PASSWORD SETUP CODE
+========================================= */
+
+function generateBusinessSetupCode() {
+
+  return crypto.randomBytes(32).toString("hex");
+
+}
+
 app.use(cors());
 app.use(express.json());
 
