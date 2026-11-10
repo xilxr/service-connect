@@ -4134,35 +4134,109 @@ error:"Unable to send message."
 
 });
 
-/*
-====================================
-GET CHAT MESSAGES
-====================================
-*/
+/* =========================================
+   SECURE CHAT MESSAGE READING
+========================================= */
 
-app.get("/chat/messages/:requestId", async (req,res)=>{
+app.get("/chat/messages/:requestId", async (req, res) => {
 
-try{
+  try {
 
-const messages = await Chat.find({
+    const requestId = req.params.requestId;
 
-requestId:req.params.requestId
+    if (!mongoose.Types.ObjectId.isValid(requestId)) {
+      return res.status(400).json({
+        error: "Invalid conversation ID."
+      });
+    }
 
-}).sort({
+    const hireRequest = await HireRequest.findById(requestId);
 
-createdAt:1
+    if (!hireRequest) {
+      return res.status(404).json({
+        error: "Conversation not found."
+      });
+    }
 
-});
+    const authorization = req.headers.authorization || "";
 
-res.json(messages);
+    const token = authorization.startsWith("Bearer ")
+      ? authorization.slice(7).trim()
+      : "";
 
-}catch(err){
+    let authorized = false;
 
-console.log(err);
+    // CHECK STUDENT LOGIN
 
-res.json([]);
+    const studentSession = verifyStudentToken(token);
 
-}
+    if (studentSession) {
+
+      const student = await Student.findById(
+        studentSession.studentId
+      );
+
+      if (
+        student &&
+        (student.sessionVersion ?? 0) ===
+          studentSession.sessionVersion &&
+        student.phone === hireRequest.studentPhone
+      ) {
+        authorized = true;
+      }
+
+    }
+
+    // CHECK BUSINESS OWNER LOGIN
+
+    if (!authorized) {
+
+      const businessSession = verifyBusinessToken(token);
+
+      if (businessSession) {
+
+        const business = await Business.findById(
+          businessSession.businessId
+        );
+
+        if (
+          business &&
+          (business.sessionVersion ?? 0) ===
+            businessSession.sessionVersion &&
+          hireRequest.businessId &&
+          hireRequest.businessId.toString() ===
+            business._id.toString()
+        ) {
+          authorized = true;
+        }
+
+      }
+
+    }
+
+    if (!authorized) {
+      return res.status(403).json({
+        error: "You are not authorized to read this conversation."
+      });
+    }
+
+    const messages = await Chat.find({
+      requestId: requestId
+    }).sort({
+      createdAt: 1
+    });
+
+    return res.json(messages);
+
+  } catch (error) {
+
+    console.error("CHAT MESSAGES ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to load chat messages."
+    });
+
+  }
 
 });
 
