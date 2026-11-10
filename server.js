@@ -4344,6 +4344,124 @@ app.get("/chat/last/:requestId", async (req, res) => {
 
 });
 
+/* =========================================
+   SECURE MARK MESSAGES AS READ
+========================================= */
+
+app.post("/chat/read/:requestId", async (req, res) => {
+
+  try {
+
+    const requestId = req.params.requestId;
+
+    if (!mongoose.isValidObjectId(requestId)) {
+      return res.status(400).json({
+        error: "Invalid conversation ID."
+      });
+    }
+
+    const hireRequest = await Request.findById(requestId);
+
+    if (!hireRequest) {
+      return res.status(404).json({
+        error: "Conversation not found."
+      });
+    }
+
+    const authHeader = req.headers.authorization || "";
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7).trim()
+      : "";
+
+    let readerType = null;
+
+    // VERIFY STUDENT
+
+    const studentSession = verifyStudentToken(token);
+
+    if (studentSession) {
+
+      const student = await Student.findById(
+        studentSession.studentId
+      );
+
+      if (
+        student &&
+        (student.sessionVersion ?? 0) ===
+          studentSession.sessionVersion &&
+        student.phone === hireRequest.studentPhone
+      ) {
+        readerType = "student";
+      }
+
+    }
+
+    // VERIFY BUSINESS OWNER
+
+    if (!readerType) {
+
+      const businessSession = verifyBusinessToken(token);
+
+      if (businessSession) {
+
+        const business = await Business.findById(
+          businessSession.businessId
+        );
+
+        if (
+          business &&
+          (business.sessionVersion ?? 0) ===
+            businessSession.sessionVersion &&
+          hireRequest.businessId &&
+          hireRequest.businessId.toString() ===
+            business._id.toString()
+        ) {
+          readerType = "business";
+        }
+
+      }
+
+    }
+
+    if (!readerType) {
+      return res.status(403).json({
+        error: "You cannot access this conversation."
+      });
+    }
+
+    await Chat.updateMany(
+      {
+        requestId: requestId,
+        senderType: readerType === "student"
+          ? "business"
+          : "student",
+        read: false
+      },
+      {
+        $set: {
+          read: true,
+          unread: false
+        }
+      }
+    );
+
+    return res.json({
+      message: "Messages marked as read ✔"
+    });
+
+  } catch (error) {
+
+    console.error("CHAT READ ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to mark messages as read."
+    });
+
+  }
+
+});
+
 /*
 ====================================
 BUSINESS UNREAD MESSAGE COUNT
