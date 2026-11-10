@@ -2204,6 +2204,116 @@ app.post("/admin/business/password-setup/issue", requireAdmin, async (req, res) 
 
 });
 
+/* =========================================
+   BUSINESS FIRST PASSWORD SETUP
+========================================= */
+
+app.post("/business/password-setup/complete", async (req, res) => {
+
+  try {
+
+    const { businessId, setupCode, password } = req.body || {};
+
+    if (
+      !mongoose.isValidObjectId(businessId) ||
+      typeof setupCode !== "string" ||
+      !/^[a-f0-9]{64}$/.test(setupCode) ||
+      typeof password !== "string" ||
+      password.length < 8 ||
+      Buffer.byteLength(password, "utf8") > 1024
+    ) {
+      return res.status(400).json({
+        error: "Enter valid setup details and a password of at least 8 characters."
+      });
+    }
+
+    const business = await Business.findById(businessId)
+      .select("+password +passwordSetupTokenHash");
+
+    if (
+      !business ||
+      !business.passwordSetupApproved ||
+      business.passwordSetupCompleted ||
+      business.password ||
+      !business.passwordSetupTokenHash ||
+      !business.passwordSetupTokenExpiresAt ||
+      business.passwordSetupTokenExpiresAt <= new Date()
+    ) {
+      return res.status(400).json({
+        error: "Invalid or expired password setup request."
+      });
+    }
+
+    const submittedHash = Buffer.from(
+      hashBusinessSetupCode(setupCode),
+      "hex"
+    );
+
+    const savedHash = Buffer.from(
+      business.passwordSetupTokenHash,
+      "hex"
+    );
+
+    if (
+      savedHash.length !== 32 ||
+      !crypto.timingSafeEqual(submittedHash, savedHash)
+    ) {
+      return res.status(400).json({
+        error: "Invalid or expired password setup request."
+      });
+    }
+
+    const hashedPassword = hashBusinessPassword(password);
+
+    const updatedBusiness = await Business.findOneAndUpdate(
+      {
+        _id: business._id,
+        passwordSetupApproved: true,
+        passwordSetupCompleted: { $ne: true },
+        passwordSetupTokenHash: business.passwordSetupTokenHash,
+        passwordSetupTokenExpiresAt: { $gt: new Date() },
+        $or: [
+          { password: "" },
+          { password: { $exists: false } }
+        ]
+      },
+      {
+        $set: {
+          password: hashedPassword,
+          passwordSetupApproved: false,
+          passwordSetupCompleted: true,
+          passwordSetupTokenHash: "",
+          passwordSetupTokenExpiresAt: null
+        },
+        $inc: {
+          sessionVersion: 1
+        }
+      },
+      { new: true }
+    );
+
+    if (!updatedBusiness) {
+      return res.status(409).json({
+        error: "This setup code is no longer valid."
+      });
+    }
+
+    return res.json({
+      message: "Password created successfully. You can now log in."
+    });
+
+  } catch (error) {
+
+    console.error("BUSINESS PASSWORD SETUP ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to complete password setup."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 AUTO EXPIRE AFTER 30 DAYS
