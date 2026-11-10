@@ -4327,35 +4327,45 @@ res.json({count:0});
 
 });
 
-/*
-====================================
-BUSINESS CONVERSATIONS
-====================================
-*/
+/* =========================================
+   SECURE BUSINESS CONVERSATIONS
+========================================= */
 
-app.get("/chat/business/:businessId", async (req,res)=>{
+app.get("/chat/business/:businessId", requireBusiness, async (req, res) => {
 
-try{
+  try {
 
-const requests = await Request.find({
+    const requestedBusinessId = req.params.businessId;
 
-businessId:req.params.businessId
+    const loggedInBusinessId =
+      req.business._id.toString();
 
-}).sort({
+    // Prevent access to another business owner's chats
+    if (requestedBusinessId !== loggedInBusinessId) {
 
-createdAt:-1
+      return res.status(403).json({
+        error: "You cannot access another business owner's conversations."
+      });
 
-});
+    }
 
-res.json(requests);
+    const requests = await Request.find({
+      businessId: loggedInBusinessId
+    }).sort({
+      createdAt: -1
+    });
 
-}catch(err){
+    return res.json(requests);
 
-console.log(err);
+  } catch (error) {
 
-res.json([]);
+    console.error("BUSINESS CONVERSATIONS ERROR:", error);
 
-}
+    return res.status(500).json({
+      error: "Unable to load conversations."
+    });
+
+  }
 
 });
 
