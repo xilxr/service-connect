@@ -2138,6 +2138,72 @@ app.post("/admin/business/password-setup/approve", requireAdmin, async (req, res
 
 });
 
+/* =========================================
+   ADMIN ISSUE BUSINESS PASSWORD SETUP CODE
+========================================= */
+
+app.post("/admin/business/password-setup/issue", requireAdmin, async (req, res) => {
+
+  try {
+
+    const { businessId } = req.body || {};
+
+    if (!mongoose.isValidObjectId(businessId)) {
+      return res.status(400).json({
+        error: "Invalid business ID."
+      });
+    }
+
+    const business = await Business.findById(businessId)
+      .select("+password +passwordSetupTokenHash");
+
+    if (!business) {
+      return res.status(404).json({
+        error: "Business account not found."
+      });
+    }
+
+    if (!business.passwordSetupApproved) {
+      return res.status(403).json({
+        error: "Approve this owner for password setup first."
+      });
+    }
+
+    if (business.passwordSetupCompleted || business.password) {
+      return res.status(409).json({
+        error: "This business already has a password."
+      });
+    }
+
+    const setupCode = generateBusinessSetupCode();
+
+    business.passwordSetupTokenHash =
+      hashBusinessSetupCode(setupCode);
+
+    business.passwordSetupTokenExpiresAt =
+      new Date(Date.now() + 15 * 60 * 1000);
+
+    await business.save();
+
+    return res.json({
+      message: "One-time setup code generated.",
+      businessId: business._id,
+      setupCode,
+      expiresInMinutes: 15
+    });
+
+  } catch (error) {
+
+    console.error("BUSINESS SETUP CODE ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to generate password setup code."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 AUTO EXPIRE AFTER 30 DAYS
