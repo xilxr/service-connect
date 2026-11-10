@@ -605,6 +605,21 @@ passwordSetupCompleted: {
   default: false
 },
 
+// =========================================
+// BUSINESS PASSWORD SETUP TOKEN
+// =========================================
+
+passwordSetupTokenHash: {
+  type: String,
+  default: "",
+  select: false
+},
+
+passwordSetupTokenExpiresAt: {
+  type: Date,
+  default: null
+},
+
 service:String,
 
 phone:String,
