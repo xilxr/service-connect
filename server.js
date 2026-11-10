@@ -1167,24 +1167,48 @@ default:Date.now
 
 });
 
-app.get("/business/:id/requests", async (req, res) => {
+/* =========================================
+   SECURE BUSINESS HIRE REQUESTS
+========================================= */
 
-try {
+app.get("/business/:id/requests", requireBusiness, async (req, res) => {
 
-const requests = await Request.find({
-  businessId: req.params.id
-}).sort({
-  createdAt: -1
-});
+  try {
 
-res.json(requests);
+    const requestedBusinessId = req.params.id;
 
-} catch (err) {
+    const loggedInBusinessId =
+      req.business._id.toString();
 
-console.log(err);
-res.json([]);
+    // Prevent access to another business owner's requests
 
-}
+    if (requestedBusinessId !== loggedInBusinessId) {
+
+      return res.status(403).json({
+        error: "You cannot access another business owner's requests."
+      });
+
+    }
+
+    // Retrieve only this business owner's hire requests
+
+    const requests = await Request.find({
+      businessId: loggedInBusinessId
+    }).sort({
+      createdAt: -1
+    });
+
+    return res.json(requests);
+
+  } catch (error) {
+
+    console.error("BUSINESS REQUESTS ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to load hire requests."
+    });
+
+  }
 
 });
 
