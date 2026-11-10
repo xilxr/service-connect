@@ -1693,6 +1693,48 @@ app.post("/business/login", async (req, res) => {
 
 });
 
+/* =========================================
+   CHECK BUSINESS OWNER LOGIN SESSION
+========================================= */
+
+app.get("/business/me", requireBusiness, async (req, res) => {
+
+  try {
+
+    const business = req.business;
+
+    return res.json({
+
+      loggedIn: true,
+
+      business: {
+        _id: business._id,
+        businessCode: business.businessCode,
+        name: business.name,
+        service: business.service,
+        phone: business.phone,
+        location: business.location,
+        profilePicture: business.profilePicture,
+        coverPhoto: business.coverPhoto,
+        shortBio: business.shortBio,
+        verified: business.verified,
+        availability: business.availability
+      }
+
+    });
+
+  } catch (error) {
+
+    console.error("BUSINESS SESSION ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to load business account."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 BUSINESS PAYMENT
