@@ -581,6 +581,20 @@ sessionVersion: {
   default: 0
 },
 
+// =========================================
+// BUSINESS PASSWORD SETUP APPROVAL
+// =========================================
+
+passwordSetupApproved: {
+  type: Boolean,
+  default: false
+},
+
+passwordSetupCompleted: {
+  type: Boolean,
+  default: false
+},
+
 service:String,
 
 phone:String,
