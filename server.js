@@ -1735,6 +1735,35 @@ app.get("/business/me", requireBusiness, async (req, res) => {
 
 });
 
+/* =========================================
+   SECURE BUSINESS OWNER LOGOUT
+========================================= */
+
+app.post("/business/logout", requireBusiness, async (req, res) => {
+
+  try {
+
+    await Business.updateOne(
+      { _id: req.business._id },
+      { $inc: { sessionVersion: 1 } }
+    );
+
+    return res.json({
+      message: "Logged out successfully ✔"
+    });
+
+  } catch (error) {
+
+    console.error("BUSINESS LOGOUT ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to log out. Please try again."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 BUSINESS PAYMENT
