@@ -1617,49 +1617,82 @@ app.post("/business/signup", async (req, res) => {
 
 });
 
-/*
-=========================================
-BUSINESS LOGIN
-=========================================
-*/
+/* =========================================
+   SECURE BUSINESS OWNER LOGIN
+========================================= */
 
 app.post("/business/login", async (req, res) => {
 
   try {
 
-    const businessCode = req.body.businessCode.trim().toUpperCase();
+    const { businessCode, password } = req.body || {};
 
-const business = await Business.findOne({
-    businessCode
-});
-
-    if (!business) {
-
-      return res.json({
-        error: "Business not found"
+    if (
+      typeof businessCode !== "string" ||
+      !businessCode.trim() ||
+      typeof password !== "string" ||
+      !password
+    ) {
+      return res.status(400).json({
+        error: "Please enter your business code and password."
       });
-
     }
 
-    res.json({
+    const cleanCode = businessCode.trim().toUpperCase();
+
+    const business = await Business.findOne({
+      businessCode: cleanCode
+    }).select("+password");
+
+    if (
+      !business ||
+      !business.password ||
+      !verifyBusinessPassword(password, business.password)
+    ) {
+      return res.status(401).json({
+        error: "Incorrect business code or password."
+      });
+    }
+
+    const token = createBusinessToken(
+      business._id.toString(),
+      business.sessionVersion ?? 0
+    );
+
+    return res.json({
 
       message: "Login successful ✔",
 
-      business
+      token,
+
+      expiresIn: 30 * 24 * 60 * 60,
+
+      business: {
+        _id: business._id,
+        businessCode: business.businessCode,
+        name: business.name,
+        service: business.service,
+        phone: business.phone,
+        location: business.location,
+        profilePicture: business.profilePicture,
+        verified: business.verified,
+        availability: business.availability
+      }
 
     });
 
-  } catch (err) {
+  } catch (error) {
 
-    console.log(err);
+    console.error("BUSINESS LOGIN ERROR:", error);
 
-    res.json({
-      error: "Login failed"
+    return res.status(500).json({
+      error: "Unable to log in. Please try again."
     });
 
   }
 
 });
+
 /*
 =========================================
 BUSINESS PAYMENT
