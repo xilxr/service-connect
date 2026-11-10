@@ -474,6 +474,19 @@ function generateBusinessSetupCode() {
 
 }
 
+/* =========================================
+   HASH BUSINESS PASSWORD SETUP CODE
+========================================= */
+
+function hashBusinessSetupCode(code) {
+
+  return crypto
+    .createHash("sha256")
+    .update(code)
+    .digest("hex");
+
+}
+
 app.use(cors());
 app.use(express.json());
 
