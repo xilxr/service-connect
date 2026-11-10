@@ -4462,35 +4462,49 @@ app.post("/chat/read/:requestId", async (req, res) => {
 
 });
 
-/*
-====================================
-BUSINESS UNREAD MESSAGE COUNT
-====================================
-*/
+/* =========================================
+   SECURE BUSINESS UNREAD MESSAGE COUNT
+========================================= */
 
-app.get("/chat/unread/:businessId", async (req,res)=>{
+app.get("/chat/unread/:businessId", requireBusiness, async (req, res) => {
 
-try{
+  try {
 
-const count = await Chat.countDocuments({
+    const requestedBusinessId = req.params.businessId;
 
-businessId:req.params.businessId,
+    const loggedInBusinessId =
+      req.business._id.toString();
 
-senderType:"student",
+    // Prevent access to another owner's messages
+    if (requestedBusinessId !== loggedInBusinessId) {
 
-read:false
+      return res.status(403).json({
+        error: "You cannot access another business owner's messages."
+      });
 
-});
+    }
 
-res.json({count});
+    const count = await Chat.countDocuments({
 
-}catch(err){
+      businessId: loggedInBusinessId,
 
-console.log(err);
+      senderType: "student",
 
-res.json({count:0});
+      read: false
 
-}
+    });
+
+    return res.json({ count });
+
+  } catch (error) {
+
+    console.error("BUSINESS UNREAD COUNT ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to load unread messages."
+    });
+
+  }
 
 });
 
