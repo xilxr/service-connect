@@ -4240,59 +4240,108 @@ app.get("/chat/messages/:requestId", async (req, res) => {
 
 });
 
-/*
-====================================
-GET LAST MESSAGE
-====================================
-*/
+/* =========================================
+   SECURE LAST CHAT MESSAGE
+========================================= */
 
-app.get("/chat/last/:requestId", async (req,res)=>{
+app.get("/chat/last/:requestId", async (req, res) => {
 
-try{
-
-const message = await Chat.findOne({
-
-requestId:req.params.requestId
-
-}).sort({
-
-createdAt:-1
-
-});
-
-res.json(message || {});
-
-}catch(err){
-
-console.log(err);
-
-res.json({});
-
-}
-
-});
-
-// MARK MESSAGES AS READ
-app.post("/chat/read/:requestId", async (req, res) => {
   try {
-    const { readerType } = req.body;
 
-    await Chat.updateMany(
-      {
-        requestId: req.params.requestId,
-        senderType: { $ne: readerType },
-        read: false
-      },
-      {
-        $set: { read: true, unread: false }
+    const requestId = req.params.requestId;
+
+    if (!mongoose.isValidObjectId(requestId)) {
+      return res.status(400).json({
+        error: "Invalid conversation ID."
+      });
+    }
+
+    const hireRequest = await Request.findById(requestId);
+
+    if (!hireRequest) {
+      return res.status(404).json({
+        error: "Conversation not found."
+      });
+    }
+
+    const authHeader = req.headers.authorization || "";
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7).trim()
+      : "";
+
+    let authorized = false;
+
+    // Verify student ownership
+    const studentSession = verifyStudentToken(token);
+
+    if (studentSession) {
+
+      const student = await Student.findById(
+        studentSession.studentId
+      );
+
+      if (
+        student &&
+        (student.sessionVersion ?? 0) ===
+          studentSession.sessionVersion &&
+        student.phone === hireRequest.studentPhone
+      ) {
+        authorized = true;
       }
-    );
 
-    res.json({ message: "Messages marked as read" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Unable to mark messages as read" });
+    }
+
+    // Verify business ownership
+    if (!authorized) {
+
+      const businessSession = verifyBusinessToken(token);
+
+      if (businessSession) {
+
+        const business = await Business.findById(
+          businessSession.businessId
+        );
+
+        if (
+          business &&
+          (business.sessionVersion ?? 0) ===
+            businessSession.sessionVersion &&
+          hireRequest.businessId &&
+          hireRequest.businessId.toString() ===
+            business._id.toString()
+        ) {
+          authorized = true;
+        }
+
+      }
+
+    }
+
+    if (!authorized) {
+      return res.status(403).json({
+        error: "You cannot access this conversation."
+      });
+    }
+
+    const message = await Chat.findOne({
+      requestId: requestId
+    }).sort({
+      createdAt: -1
+    });
+
+    return res.json(message || {});
+
+  } catch (error) {
+
+    console.error("LAST CHAT MESSAGE ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to load the last message."
+    });
+
   }
+
 });
 
 /*
