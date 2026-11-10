@@ -2068,6 +2068,63 @@ app.post("/admin/unapprove", requireAdmin, async (req, res) => {
 
 });
 
+/* =========================================
+   ADMIN APPROVE BUSINESS PASSWORD SETUP
+========================================= */
+
+app.post("/admin/business/password-setup/approve", requireAdmin, async (req, res) => {
+
+  try {
+
+    const { businessId } = req.body || {};
+
+    if (!mongoose.isValidObjectId(businessId)) {
+      return res.status(400).json({
+        error: "Invalid business ID."
+      });
+    }
+
+    const business = await Business.findById(businessId)
+      .select("+password +passwordSetupTokenHash");
+
+    if (!business) {
+      return res.status(404).json({
+        error: "Business account not found."
+      });
+    }
+
+    if (business.passwordSetupCompleted || business.password) {
+      return res.status(409).json({
+        error: "This business already has a password."
+      });
+    }
+
+    business.passwordSetupApproved = true;
+
+    // Invalidate any previously issued setup code
+    business.passwordSetupTokenHash = "";
+    business.passwordSetupTokenExpiresAt = null;
+
+    await business.save();
+
+    return res.json({
+      message: "Password setup approved successfully.",
+      businessId: business._id,
+      passwordSetupApproved: true
+    });
+
+  } catch (error) {
+
+    console.error("BUSINESS PASSWORD APPROVAL ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to approve password setup."
+    });
+
+  }
+
+});
+
 /*
 =========================================
 AUTO EXPIRE AFTER 30 DAYS
