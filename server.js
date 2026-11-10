@@ -3996,6 +3996,50 @@ if (senderType === "student") {
 
 }
 
+// =========================================
+// VERIFY BUSINESS CHAT IDENTITY
+// =========================================
+
+if (senderType === "business") {
+
+  const authorization = req.headers.authorization || "";
+
+  const token = authorization.startsWith("Bearer ")
+    ? authorization.slice(7).trim()
+    : "";
+
+  const session = verifyBusinessToken(token);
+
+  if (!session) {
+    return res.status(401).json({
+      error: "Please log in as a business owner to send messages."
+    });
+  }
+
+  const loggedInBusiness = await Business.findById(
+    session.businessId
+  );
+
+  if (
+    !loggedInBusiness ||
+    (loggedInBusiness.sessionVersion ?? 0) !== session.sessionVersion
+  ) {
+    return res.status(401).json({
+      error: "Your business session has expired. Please log in again."
+    });
+  }
+
+  if (
+    hireRequest.businessId.toString() !==
+    loggedInBusiness._id.toString()
+  ) {
+    return res.status(403).json({
+      error: "You cannot send messages in another business owner's conversation."
+    });
+  }
+
+}
+
 // Get the student's actual name from the hire request
 const actualStudentName =
   hireRequest.studentName?.trim() ||
