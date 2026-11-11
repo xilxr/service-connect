@@ -1128,6 +1128,11 @@ reviewed: {
   default: false
 },
 
+reviewComment: {
+  type: String,
+  default: ""
+},
+
 createdAt:{
 type:Date,
 default:Date.now
