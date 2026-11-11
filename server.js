@@ -3129,6 +3129,35 @@ app.post("/rate", requireStudent, async (req, res) => {
 
     const { id, rating } = req.body;
 
+// Verify the rating is valid
+
+const ratingNumber = Number(rating);
+
+if (
+  !mongoose.isValidObjectId(id) ||
+  !Number.isInteger(ratingNumber) ||
+  ratingNumber < 1 ||
+  ratingNumber > 5
+) {
+  return res.status(400).json({
+    error: "Select a valid rating between 1 and 5."
+  });
+}
+
+// Verify this student has hired this worker
+
+const completedHire = await Request.findOne({
+  businessId: id,
+  studentPhone: req.student.phone,
+  status: "Completed"
+});
+
+if (!completedHire) {
+  return res.status(403).json({
+    error: "You can only rate workers after completing a job with them."
+  });
+}
+     
     const business =
       await Business.findById(id);
 
