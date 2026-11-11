@@ -2374,6 +2374,130 @@ Dark
 </main>
 
 
+<!-- =========================================
+     COMPLETED JOB RATING FORM
+========================================= -->
+
+<div
+  id="completedRatingModal"
+  style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    z-index:9999;
+    padding:20px;
+    align-items:center;
+    justify-content:center;
+  "
+>
+
+  <div style="
+    background:#0f172a;
+    border:1px solid #334155;
+    border-radius:20px;
+    padding:25px;
+    width:100%;
+    max-width:420px;
+    color:white;
+  ">
+
+    <button
+      type="button"
+      onclick="closeCompletedRating()"
+      style="
+        float:right;
+        background:transparent;
+        border:none;
+        color:white;
+        font-size:24px;
+      "
+    >✕</button>
+
+    <h2 style="margin-bottom:10px;">
+      ⭐ Rate This Business
+    </h2>
+
+    <p style="color:#94a3b8;font-size:13px;">
+      How was your experience with this professional?
+    </p>
+
+    <div
+      id="completedRatingStars"
+      style="
+        display:flex;
+        justify-content:center;
+        gap:12px;
+        font-size:36px;
+        margin:25px 0;
+      "
+    >
+      <button type="button" onclick="selectCompletedStars(1)">☆</button>
+      <button type="button" onclick="selectCompletedStars(2)">☆</button>
+      <button type="button" onclick="selectCompletedStars(3)">☆</button>
+      <button type="button" onclick="selectCompletedStars(4)">☆</button>
+      <button type="button" onclick="selectCompletedStars(5)">☆</button>
+    </div>
+
+    <label
+      for="completedRatingComment"
+      style="font-size:13px;"
+    >
+      Write your review
+    </label>
+
+    <textarea
+      id="completedRatingComment"
+      maxlength="1000"
+      placeholder="Tell others about your experience..."
+      style="
+        width:100%;
+        min-height:120px;
+        margin-top:10px;
+        padding:12px;
+        background:#020617;
+        border:1px solid #334155;
+        border-radius:12px;
+        color:white;
+        font-family:Poppins,sans-serif;
+        resize:vertical;
+      "
+    ></textarea>
+
+    <button
+      id="submitCompletedRatingButton"
+      type="button"
+      onclick="submitCompletedRating()"
+      style="
+        width:100%;
+        padding:14px;
+        margin-top:15px;
+        background:#22c55e;
+        border:none;
+        border-radius:12px;
+        color:white;
+        font-weight:700;
+      "
+    >
+      Submit Review
+    </button>
+
+    <p
+      id="completedRatingError"
+      role="alert"
+      style="
+        color:#f87171;
+        font-size:12px;
+        margin-top:12px;
+        text-align:center;
+      "
+    ></p>
+
+  </div>
+
+</div>
+
+
 <script>
 
 /* =========================================
