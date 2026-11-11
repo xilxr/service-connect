@@ -3123,7 +3123,7 @@ RATE BUSINESS
 =========================================
 */
 
-app.post("/rate", async (req, res) => {
+app.post("/rate", requireStudent, async (req, res) => {
 
   try {
 
