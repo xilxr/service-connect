@@ -1921,7 +1921,7 @@ UPDATE BUSINESS PROFILE
 =========================================
 */
 
-app.post("/business/updateProfile", async (req, res) => {
+app.post("/business/updateProfile", requireBusiness, async (req, res) => {
 
   try {
 
@@ -1943,6 +1943,16 @@ app.post("/business/updateProfile", async (req, res) => {
 
     } = req.body;
 
+// Verify the profile belongs to the logged-in business owner
+
+if (
+  id !== req.business._id.toString()
+) {
+  return res.status(403).json({
+    error: "You cannot edit another business owner's profile."
+  });
+}
+     
     const business =
       await Business.findById(id);
 
