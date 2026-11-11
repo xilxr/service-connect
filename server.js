@@ -1123,6 +1123,11 @@ type:Boolean,
 default:false
 },
 
+reviewed: {
+  type: Boolean,
+  default: false
+},
+
 createdAt:{
 type:Date,
 default:Date.now
@@ -3157,6 +3162,14 @@ if (!completedHire) {
     error: "You can only rate workers after completing a job with them."
   });
 }
+
+// Prevent repeated ratings for the same completed job
+
+if (completedHire.reviewed === true) {
+  return res.status(409).json({
+    error: "You have already rated this completed job."
+  });
+}
      
     const business =
       await Business.findById(id);
@@ -3191,6 +3204,12 @@ Math.round(
 
     await business.save();
 
+// Record that this completed job has been rated
+
+completedHire.reviewed = true;
+
+await completedHire.save();
+     
     res.json({
 
       message: "Rating submitted ✔"
