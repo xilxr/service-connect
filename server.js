@@ -3135,126 +3135,128 @@ RATE BUSINESS
 
 app.post("/rate", requireStudent, async (req, res) => {
 
+  const { id, requestId, rating, comment } = req.body || {};
+
+  const ratingNumber = Number(rating);
+
+  // Validate the rating and written review
+  if (
+    !mongoose.isValidObjectId(id) ||
+    !mongoose.isValidObjectId(requestId) ||
+    !Number.isInteger(ratingNumber) ||
+    ratingNumber < 1 ||
+    ratingNumber > 5 ||
+    typeof comment !== "string" ||
+    !comment.trim() ||
+    comment.trim().length > 1000
+  ) {
+    return res.status(400).json({
+      error: "Select 1–5 stars and write a review of 1–1000 characters."
+    });
+  }
+
+  const cleanComment = comment.trim();
+
+  const session = await mongoose.startSession();
+
   try {
 
-const { id, rating, comment } = req.body;
+    await session.withTransaction(async () => {
 
-// Validate the student's written review
+      // Claim only this student's completed job
+      const completedHire = await Request.findOneAndUpdate(
+        {
+          _id: requestId,
+          businessId: id,
+          studentPhone: req.student.phone,
+          status: "Completed",
+          reviewed: { $ne: true }
+        },
+        {
+          $set: {
+            reviewed: true,
+            reviewComment: cleanComment
+          }
+        },
+        {
+          new: true,
+          session
+        }
+      );
 
-if (
-  typeof comment !== "string" ||
-  !comment.trim() ||
-  comment.trim().length > 1000
-) {
-  return res.status(400).json({
-    error: "Please write a review between 1 and 1000 characters."
-  });
-}
+      if (!completedHire) {
+        const error = new Error(
+          "This job is not eligible for rating or has already been reviewed."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
 
-const cleanComment = comment.trim();
-     
-// Verify the rating is valid
+      // Find the business within the same transaction
+      const business = await Business.findById(id)
+        .session(session);
 
-const ratingNumber = Number(rating);
+      if (!business) {
+        const error = new Error("Business not found.");
+        error.statusCode = 404;
+        throw error;
+      }
 
-if (
-  !mongoose.isValidObjectId(id) ||
-  !Number.isInteger(ratingNumber) ||
-  ratingNumber < 1 ||
-  ratingNumber > 5
-) {
-  return res.status(400).json({
-    error: "Select a valid rating between 1 and 5."
-  });
-}
+      // Update the business's average star rating
+      const previousReviews = business.reviews || 0;
+      const previousRating = business.rating || 0;
 
-// Verify this student has hired this worker
+      const newReviewCount = previousReviews + 1;
 
-const completedHire = await Request.findOne({
-  businessId: id,
-  studentPhone: req.student.phone,
-  status: "Completed"
-});
+      business.rating =
+        ((previousRating * previousReviews) + ratingNumber)
+        / newReviewCount;
 
-if (!completedHire) {
-  return res.status(403).json({
-    error: "You can only rate workers after completing a job with them."
-  });
-}
+      business.reviews = newReviewCount;
 
-// Prevent repeated ratings for the same completed job
+      business.trustScore = Math.min(
+        100,
+        Math.round(
+          (business.rating * 20) +
+          (business.reviews * 2)
+        )
+      );
 
-// Atomically claim this completed job for rating
-
-const ratingClaim = await Request.findOneAndUpdate(
-  {
-    _id: completedHire._id,
-    status: "Completed",
-    reviewed: { $ne: true }
-  },
-  {
-    $set: {
-  reviewed: true,
-  reviewComment: cleanComment
-}
-  },
-  {
-    new: true
-  }
-);
-
-if (!ratingClaim) {
-  return res.status(409).json({
-    error: "This completed job has already been rated."
-  });
-}
-     
-    const business =
-      await Business.findById(id);
-
-    if (!business) {
-
-      return res.json({
-
-        error: "Business not found"
-
+      // Save the student's rating and comment
+      business.reviewList.push({
+        studentName: req.student.name,
+        rating: ratingNumber,
+        comment: cleanComment,
+        viewed: false,
+        createdAt: new Date()
       });
 
+      await business.save({ session });
+
+    });
+
+    return res.json({
+      message: "Thank you for rating this business!",
+      reviewed: true
+    });
+
+  } catch (error) {
+
+    console.error("RATING ERROR:", error);
+
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
+        error: error.message
+      });
     }
 
-    const total =
-      business.rating *
-      business.reviews;
-
-    business.reviews++;
-
-    business.rating =
-      (total + Number(rating))
-      / business.reviews;
-
-    business.trustScore = Math.min(
-100,
-Math.round(
-(business.rating * 20) +
-(business.reviews * 2)
-)
-);
-
-    await business.save();
-     
-    res.json({
-
-      message: "Rating submitted ✔"
-
+    return res.status(500).json({
+      error: "Unable to save your review. Please try again."
     });
 
-  } catch (err) {
+  } finally {
 
-    res.json({
-
-      error: "Rating failed"
-
-    });
+    await session.endSession();
 
   }
 
