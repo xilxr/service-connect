@@ -3165,9 +3165,25 @@ if (!completedHire) {
 
 // Prevent repeated ratings for the same completed job
 
-if (completedHire.reviewed === true) {
+// Atomically claim this completed job for rating
+
+const ratingClaim = await Request.findOneAndUpdate(
+  {
+    _id: completedHire._id,
+    status: "Completed",
+    reviewed: { $ne: true }
+  },
+  {
+    $set: { reviewed: true }
+  },
+  {
+    new: true
+  }
+);
+
+if (!ratingClaim) {
   return res.status(409).json({
-    error: "You have already rated this completed job."
+    error: "This completed job has already been rated."
   });
 }
      
