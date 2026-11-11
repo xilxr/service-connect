@@ -2508,6 +2508,16 @@ const API =
 "https://service-backend-jezm.onrender.com";
 
 /* =========================================
+   STUDENT AUTHENTICATION TOKEN
+========================================= */
+
+function getStudentAuthToken() {
+
+  return localStorage.getItem("studentToken") || "";
+
+}
+
+/* =========================================
    STUDENT DASHBOARD HISTORY INITIALIZATION
 ========================================= */
 
