@@ -3664,6 +3664,54 @@ function selectCompletedStars(score) {
 
 
 /* =========================================
+   OPEN COMPLETED JOB RATING FORM
+========================================= */
+
+function openCompletedJobRating(requestId, businessId) {
+
+  if (!requestId || !businessId) {
+    alert("This completed job cannot be rated yet.");
+    return;
+  }
+
+  completedRatingRequestId = requestId;
+  completedRatingBusinessId = businessId;
+
+  // Reset the previous rating
+  selectCompletedStars(0);
+
+  document.getElementById(
+    "completedRatingComment"
+  ).value = "";
+
+  document.getElementById(
+    "completedRatingError"
+  ).textContent = "";
+
+  document.getElementById(
+    "submitCompletedRatingButton"
+  ).disabled = false;
+
+  document.getElementById(
+    "completedRatingModal"
+  ).style.display = "flex";
+
+}
+
+/* =========================================
+   CLOSE COMPLETED JOB RATING FORM
+========================================= */
+
+function closeCompletedRating() {
+
+  document.getElementById(
+    "completedRatingModal"
+  ).style.display = "none";
+
+}
+
+
+/* =========================================
    RATE BUSINESS
 ========================================= */
 
