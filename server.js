@@ -3241,12 +3241,6 @@ Math.round(
 );
 
     await business.save();
-
-// Record that this completed job has been rated
-
-completedHire.reviewed = true;
-
-await completedHire.save();
      
     res.json({
 
