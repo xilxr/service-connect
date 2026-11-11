@@ -3193,7 +3193,10 @@ const ratingClaim = await Request.findOneAndUpdate(
     reviewed: { $ne: true }
   },
   {
-    $set: { reviewed: true }
+    $set: {
+  reviewed: true,
+  reviewComment: cleanComment
+}
   },
   {
     new: true
