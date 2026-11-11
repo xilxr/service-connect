@@ -1218,7 +1218,7 @@ REQUEST STATUS
 =========================================
 */
 
-app.post("/request/status", async (req,res)=>{
+app.post("/request/status", requireBusiness, async (req,res)=>{
 
 try{
 
@@ -1227,6 +1227,24 @@ const { requestId, status } = req.body;
 
 const request = await Request.findById(requestId);
 
+// Verify the request belongs to the logged-in business owner
+
+if (
+  request &&
+  request.businessId.toString() !== req.business._id.toString()
+) {
+  return res.status(403).json({
+    error: "You cannot update another business owner's request."
+  });
+}
+
+// Allow only valid status changes
+
+if (!["Accepted", "Declined"].includes(status)) {
+  return res.status(400).json({
+    error: "Invalid request status."
+  });
+}
 
 if(!request){
 
