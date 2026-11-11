@@ -3137,8 +3137,22 @@ app.post("/rate", requireStudent, async (req, res) => {
 
   try {
 
-    const { id, rating } = req.body;
+const { id, rating, comment } = req.body;
 
+// Validate the student's written review
+
+if (
+  typeof comment !== "string" ||
+  !comment.trim() ||
+  comment.trim().length > 1000
+) {
+  return res.status(400).json({
+    error: "Please write a review between 1 and 1000 characters."
+  });
+}
+
+const cleanComment = comment.trim();
+     
 // Verify the rating is valid
 
 const ratingNumber = Number(rating);
