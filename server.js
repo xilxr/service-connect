@@ -1365,7 +1365,7 @@ COMPLETE JOB
 ====================================
 */
 
-app.post("/request/complete", async (req,res)=>{
+app.post("/request/complete", requireBusiness, async (req,res)=>{
 
 try{
 
@@ -1374,6 +1374,33 @@ const { requestId } = req.body;
 
 const request = await Request.findById(requestId);
 
+
+// Verify the job belongs to the logged-in business owner
+
+if (
+  request &&
+  request.businessId.toString() !== req.business._id.toString()
+) {
+  return res.status(403).json({
+    error: "You cannot complete another business owner's job."
+  });
+}
+
+// Prevent completing a job more than once
+
+if (request && request.status === "Completed") {
+  return res.status(409).json({
+    error: "This job has already been completed."
+  });
+}
+
+// Only accepted jobs can be completed
+
+if (request && request.status !== "Accepted") {
+  return res.status(400).json({
+    error: "Only accepted jobs can be marked as completed."
+  });
+}
 
 if(!request){
 
