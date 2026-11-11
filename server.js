@@ -1839,12 +1839,20 @@ BUSINESS PAYMENT
 =========================================
 */
 
-app.post("/business/pay", async (req, res) => {
+app.post("/business/pay", requireBusiness, async (req, res) => {
 
   try {
 
     const { id } = req.body;
 
+// Verify payment submission belongs to the logged-in business owner
+
+if (id !== req.business._id.toString()) {
+  return res.status(403).json({
+    error: "You cannot submit payment for another business account."
+  });
+}
+     
     const business =
       await Business.findById(id);
 
