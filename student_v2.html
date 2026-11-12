@@ -2528,6 +2528,67 @@ if (!getStudentAuthToken()) {
 }
 
 /* =========================================
+   VERIFY STUDENT LOGIN SESSION
+========================================= */
+
+async function verifyStudentLoginSession() {
+
+  const token = getStudentAuthToken();
+
+  if (!token) {
+    window.location.replace("student-login.html");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      API + "/student/me",
+      {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      }
+    );
+
+    if (response.status === 401 || response.status === 403) {
+
+      localStorage.removeItem("studentToken");
+
+      window.location.replace("student-login.html");
+      return;
+
+    }
+
+    if (!response.ok) {
+      throw new Error("Unable to verify student session.");
+    }
+
+    const data = await response.json();
+
+    if (!data.loggedIn || !data.student) {
+      throw new Error("Invalid student session response.");
+    }
+
+    localStorage.setItem("studentName", data.student.name);
+    localStorage.setItem("studentPhone", data.student.phone);
+    localStorage.setItem(
+      "studentLocation",
+      data.student.location || ""
+    );
+
+  } catch (error) {
+
+    console.error("STUDENT SESSION CHECK:", error);
+
+    // A network error must not be treated as an invalid login.
+    // We'll add a proper loading/error screen before deployment.
+
+  }
+
+}
+
+/* =========================================
    STUDENT DASHBOARD HISTORY INITIALIZATION
 ========================================= */
 
