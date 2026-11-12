@@ -4550,11 +4550,16 @@ requestsRes,
 notificationsRes
 ] = await Promise.all([
 
+
 fetch(
-API +
-"/student/requests/" +
-phone
+  API + "/student/requests/" + phone,
+  {
+    headers: {
+      "Authorization": "Bearer " + getStudentAuthToken()
+    }
+  }
 ),
+
 
 fetch(
 API +
