@@ -3992,10 +3992,16 @@ if (menuBadge) {
 }
 
     // My Requests unread update count
-    const requestRes = await fetch(
-      `${API}/student/requests/${phone}/unread-count`
-    );
 
+const requestRes = await fetch(
+  `${API}/student/requests/${phone}/unread-count`,
+  {
+    headers: {
+      "Authorization": "Bearer " + getStudentAuthToken()
+    }
+  }
+);
+   
     const requestData = await requestRes.json();
 
     const requestCount = requestData.count || 0;
