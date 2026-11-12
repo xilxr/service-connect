@@ -4056,12 +4056,16 @@ list.innerHTML =
 
 try{
 
-const res =
-await fetch(
-API +
-"/student/notifications/" +
-phone
+
+const res = await fetch(
+  API + "/student/notifications/" + phone,
+  {
+    headers: {
+      "Authorization": "Bearer " + getStudentAuthToken()
+    }
+  }
 );
+
 
 
 const notifications =
