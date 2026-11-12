@@ -4794,17 +4794,19 @@ requestsPage.classList.contains("active")
 ){
 
 fetch(
-API + "/student/requests/viewed",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-phone: phone
-})
-}
+  API + "/student/requests/viewed",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + getStudentAuthToken()
+    },
+    body: JSON.stringify({
+      phone: phone
+    })
+  }
 )
+
 .then(()=>loadStudentNotificationBadge())
 .catch(err =>
 console.log(
