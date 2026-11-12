@@ -4562,9 +4562,12 @@ fetch(
 
 
 fetch(
-API +
-"/student/notifications/" +
-phone
+  API + "/student/notifications/" + phone,
+  {
+    headers: {
+      "Authorization": "Bearer " + getStudentAuthToken()
+    }
+  }
 )
 
 ]);
