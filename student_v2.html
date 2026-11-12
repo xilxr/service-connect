@@ -3959,9 +3959,15 @@ async function loadStudentNotificationBadge(){
     if(!phone) return;
 
     // Notification bell count
-    const notificationRes = await fetch(
-      `${API}/student/notifications/${phone}/unread-count`
-    );
+
+const notificationRes = await fetch(
+  `${API}/student/notifications/${phone}/unread-count`,
+  {
+    headers: {
+      "Authorization": "Bearer " + getStudentAuthToken()
+    }
+  }
+);
 
     const notificationData = await notificationRes.json();
 
