@@ -2518,6 +2518,16 @@ function getStudentAuthToken() {
 }
 
 /* =========================================
+   REQUIRE STUDENT LOGIN
+========================================= */
+
+if (!getStudentAuthToken()) {
+
+  window.location.replace("student-login.html");
+
+}
+
+/* =========================================
    STUDENT DASHBOARD HISTORY INITIALIZATION
 ========================================= */
 
