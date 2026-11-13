@@ -4306,24 +4306,12 @@ Mark notifications as read
 after displaying them.
 */
 
-await fetch(
-API +
-"/student/notifications/read",
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:JSON.stringify({
-
-phone
-
-})
-
+await fetch(API + "/student/notifications/read", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + getStudentAuthToken()
+  }
 });
 
 
