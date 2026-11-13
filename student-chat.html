@@ -249,10 +249,19 @@ async function loadMessages(){
 
 try{
 
-const res =
-await fetch(
-API+"/chat/messages/"+requestId
+const res = await fetch(
+  API + "/chat/messages/" + requestId,
+  {
+    headers: {
+      "Authorization": "Bearer " + getStudentAuthToken()
+    }
+  }
 );
+
+if (!res.ok) {
+  console.log("Unable to load chat messages:", res.status);
+  return;
+}
 
 const data =
 await res.json();
