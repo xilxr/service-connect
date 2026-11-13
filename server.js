@@ -4319,7 +4319,7 @@ app.get("/chat/messages/:requestId", async (req, res) => {
       });
     }
 
-    const hireRequest = await HireRequest.findById(requestId);
+const hireRequest = await Request.findById(requestId);
 
     if (!hireRequest) {
       return res.status(404).json({
