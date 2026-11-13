@@ -186,6 +186,10 @@ Hire this professional again to start a new chat.
 const API =
 "https://service-backend-jezm.onrender.com";
 
+function getStudentAuthToken() {
+  return localStorage.getItem("studentToken") || "";
+}
+
 const requestId =
 localStorage.getItem("chatRequestId");
 
