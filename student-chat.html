@@ -221,8 +221,13 @@ async function checkChatStatus(){
 
 try{
 
-const res=await fetch(
-API+"/request/"+encodeURIComponent(requestId)
+const res = await fetch(
+  API + "/request/" + encodeURIComponent(requestId),
+  {
+    headers: {
+      "Authorization": "Bearer " + getStudentAuthToken()
+    }
+  }
 );
 
 if(!res.ok) return;
