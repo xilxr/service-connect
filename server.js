@@ -4299,15 +4299,13 @@ chat
 
 });
 
-}catch(err){
+} catch (err) {
 
-console.log(err);
+  console.error("CHAT SEND ERROR:", err);
 
-res.json({
-
-error:"Unable to send message."
-
-});
+  return res.status(500).json({
+    error: "Unable to send message."
+  });
 
 }
 
