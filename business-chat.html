@@ -219,6 +219,16 @@ localStorage.getItem("chatCustomerName");
 
 let chatStudentPhone="";
 
+function escapeChatHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
 async function loadChatStudent(){
 
 try{
@@ -404,7 +414,7 @@ html+=`
 
 <div class="message ${m.senderType==="business"?"me":"other"}">
 
-${m.message}
+${escapeChatHTML(m.message)}
 
 <div class="time" style="text-align:right">
 
