@@ -254,6 +254,16 @@ checkChatStatus();
 setInterval(loadMessages,2000);
 setInterval(checkChatStatus,3000);
 
+function escapeChatHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
 async function loadMessages(){
 
 try{
