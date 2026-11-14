@@ -314,8 +314,18 @@ async function loadMessages(){
 try{
 
 const res = await fetch(
-API+"/chat/messages/"+requestId
+  API + "/chat/messages/" + encodeURIComponent(requestId),
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
+
+if (!res.ok) {
+  console.error("Unable to load chat messages:", res.status);
+  return;
+}
 
 const messages=await res.json();
 
