@@ -190,6 +190,10 @@ function getStudentAuthToken() {
   return localStorage.getItem("studentToken") || "";
 }
 
+if (!getStudentAuthToken()) {
+  window.location.replace("student-login.html");
+}
+
 const requestId =
 localStorage.getItem("chatRequestId");
 
