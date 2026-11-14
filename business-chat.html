@@ -468,9 +468,14 @@ return;
 
 const input=document.getElementById("message");
 
-const message=input.value.trim();
+const message = input.value.trim();
 
-if(!message) return;
+if (!message) return;
+
+if (message.length > 2000) {
+  alert("Your message is too long. Maximum 2,000 characters allowed.");
+  return;
+}
 
 try{
 
