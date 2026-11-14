@@ -223,8 +223,13 @@ async function loadChatStudent(){
 
 try{
 
-const res=await fetch(
-API+"/request/"+encodeURIComponent(requestId)
+const res = await fetch(
+  API + "/request/" + encodeURIComponent(requestId),
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
 
 if(!res.ok) return;
