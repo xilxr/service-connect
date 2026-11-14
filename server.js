@@ -4739,6 +4739,60 @@ try{
 
 const request = await Request.findById(req.params.id);
 
+if (!request) {
+  return res.status(404).json({
+    error: "Request not found."
+  });
+}
+
+const authHeader = req.headers.authorization || "";
+
+const token = authHeader.startsWith("Bearer ")
+  ? authHeader.slice(7).trim()
+  : "";
+
+let authorized = false;
+
+const studentSession = verifyStudentToken(token);
+
+if (studentSession) {
+  const student = await Student.findById(
+    studentSession.studentId
+  );
+
+  if (
+    student &&
+    (student.sessionVersion ?? 0) === studentSession.sessionVersion &&
+    student.phone === request.studentPhone
+  ) {
+    authorized = true;
+  }
+}
+
+if (!authorized) {
+  const businessSession = verifyBusinessToken(token);
+
+  if (businessSession) {
+    const business = await Business.findById(
+      businessSession.businessId
+    );
+
+    if (
+      business &&
+      (business.sessionVersion ?? 0) === businessSession.sessionVersion &&
+      request.businessId === business._id.toString()
+    ) {
+      authorized = true;
+    }
+  }
+}
+
+if (!authorized) {
+  return res.status(403).json({
+    error: "You cannot access this service request."
+  });
+}
+
 if(!request){
 
 return res.json({
