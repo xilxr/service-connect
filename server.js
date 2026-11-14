@@ -4095,6 +4095,16 @@ senderType,
 message
 }=req.body;
 
+if (
+  typeof message !== "string" ||
+  !message.trim() ||
+  message.length > 2000
+) {
+  return res.status(400).json({
+    error: "Enter a message between 1 and 2000 characters."
+  });
+}
+
 // =========================================
 // BLOCK MESSAGES AFTER JOB COMPLETION
 // =========================================
