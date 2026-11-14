@@ -238,8 +238,16 @@ if(!res.ok) return;
 
 const request=await res.json();
 
-if(request.status==="Completed"){
-lockChat();
+if (
+  request.status === "Completed" ||
+  request.status === "Declined"
+) {
+  lockChat();
+
+  document.getElementById("chatClosedNotice").textContent =
+    request.status === "Declined"
+      ? "🔒 This service request was declined. You can no longer send messages in this conversation."
+      : "🔒 This service has been completed. You can no longer send messages in this conversation. Hire this professional again to start a new chat.";
 }
 
 }catch(err){
