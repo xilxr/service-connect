@@ -198,6 +198,14 @@ Your previous messages remain available. If this customer hires you again, a new
 
 const API="https://service-backend-jezm.onrender.com";
 
+function getBusinessAuthToken() {
+  return localStorage.getItem("businessToken") || "";
+}
+
+if (!getBusinessAuthToken()) {
+  window.location.replace("business-login.html");
+}
+
 const businessId=localStorage.getItem("businessId");
 
 const params = new URLSearchParams(window.location.search);
