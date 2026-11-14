@@ -348,8 +348,10 @@ html += `
 <div class="message ${
   m.senderType === "student" ? "student" : "business"
 }">
-  ${m.message}
+  
+  ${escapeChatHTML(m.message)}
   <div style="font-size:11px;opacity:.7;margin-top:5px;text-align:right">
+
     ${new Date(m.createdAt).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit"
