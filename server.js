@@ -1930,10 +1930,6 @@ if (
       });
 
     }
-
-    business.profileViews++;
-
-await business.save();
     
 return res.json({
   _id: business._id,
