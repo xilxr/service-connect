@@ -4058,33 +4058,37 @@ BUSINESS REVIEW COUNT
 ====================================
 */
 
-app.get("/business/:id/reviews/count", async(req,res)=>{
+app.get("/business/:id/reviews/count", requireBusiness, async (req, res) => {
 
-try{
+  try {
 
-const business = await Business.findById(req.params.id);
+    const authenticatedBusinessId = String(req.business._id);
 
-if(!business){
+    if (authenticatedBusinessId !== req.params.id) {
+      return res.status(403).json({
+        error: "You are not authorized to view these review counts."
+      });
+    }
 
-return res.json({count:0});
+    const business = req.business;
 
-}
+    const unreadReviews = (business.reviewList || []).filter(
+      review => !review.viewed
+    );
 
-const unreadReviews = business.reviewList.filter(r => !r.viewed);
+    return res.json({
+      count: unreadReviews.length
+    });
 
-res.json({
+  } catch (err) {
 
-count: unreadReviews.length
+    console.error("REVIEWS COUNT ERROR:", err);
 
-});
+    return res.status(500).json({
+      error: "Unable to load review count."
+    });
 
-}catch(err){
-
-console.log(err);
-
-res.json({count:0});
-
-}
+  }
 
 });
 
