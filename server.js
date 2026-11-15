@@ -1934,8 +1934,24 @@ if (
     business.profileViews++;
 
 await business.save();
-
-    res.json(business);
+    
+return res.json({
+  _id: business._id,
+  businessCode: business.businessCode,
+  name: business.name,
+  service: business.service,
+  phone: business.phone,
+  location: business.location,
+  profilePicture: business.profilePicture,
+  shortBio: business.shortBio,
+  verified: business.verified,
+  rating: business.rating,
+  reviews: business.reviews,
+  profileViews: business.profileViews,
+  totalLeads: business.totalLeads,
+  jobsCompleted: business.jobsCompleted,
+  trustScore: business.trustScore
+});
 
   } catch (err) {
 
