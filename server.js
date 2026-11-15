@@ -3970,9 +3970,17 @@ BUSINESS REQUEST COUNT
 ====================================
 */
 
-app.get("/business/:id/requests/count", async (req,res)=>{
+app.get("/business/:id/requests/count", requireBusiness, async (req,res)=>{
 
 try{
+
+const authenticatedBusinessId = String(req.business._id);
+
+if (authenticatedBusinessId !== req.params.id) {
+  return res.status(403).json({
+    error: "You are not authorized to view these request counts."
+  });
+}
 
 const count = await Request.countDocuments({
 
