@@ -2027,7 +2027,14 @@ try{
 
 const res =
 await fetch(
-API+"/business/"+businessId
+
+const res = await fetch(
+  API + "/business/" + encodeURIComponent(businessId),
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
 
 const business =
