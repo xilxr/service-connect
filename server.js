@@ -3766,9 +3766,17 @@ BUSINESS REMAINING DAYS
 ====================================
 */
 
-app.get("/business/:id/remaining-days", async (req, res) => {
+app.get("/business/:id/remaining-days", requireBusiness, async (req, res) => {
 
   try {
+
+const authenticatedBusinessId = String(req.business._id);
+
+if (authenticatedBusinessId !== req.params.id) {
+  return res.status(403).json({
+    error: "You are not authorized to view this subscription."
+  });
+}
 
     const business = await Business.findById(req.params.id);
 
