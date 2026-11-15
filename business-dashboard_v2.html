@@ -1224,18 +1224,18 @@ const API =
 "https://service-backend-jezm.onrender.com";
 
 const businessId =
-localStorage.getItem("businessId");
+  localStorage.getItem("businessId");
 
+function getBusinessAuthToken() {
+  return localStorage.getItem("businessToken") || "";
+}
 
 /* ==========================
 LOGIN CHECK
 ========================== */
 
-if(!businessId){
-
-window.location.href =
-"business-login_v2.html";
-
+if (!businessId || !getBusinessAuthToken()) {
+  window.location.replace("business-login_v2.html");
 }
 
 
