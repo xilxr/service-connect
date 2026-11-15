@@ -2021,65 +2021,49 @@ element.innerHTML =
 ANALYTICS
 ========================== */
 
-async function loadBusinessAnalytics(){
+async function loadBusinessAnalytics() {
 
-try{
+  try {
 
-const res =
-await fetch(
+    const res = await fetch(
+      API + "/business/" + encodeURIComponent(businessId),
+      {
+        headers: {
+          "Authorization": "Bearer " + getBusinessAuthToken()
+        }
+      }
+    );
 
-const res = await fetch(
-  API + "/business/" + encodeURIComponent(businessId),
-  {
-    headers: {
-      "Authorization": "Bearer " + getBusinessAuthToken()
+    if (!res.ok) {
+      throw new Error("Unable to load business analytics.");
     }
+
+    const business = await res.json();
+
+    const fields = {
+      analyticsViews: business.profileViews ?? 0,
+      analyticsLeads: business.totalLeads ?? 0,
+      analyticsJobs: business.jobsCompleted ?? 0,
+      analyticsTrust: (business.trustScore ?? 0) + "%"
+    };
+
+    for (const id in fields) {
+
+      const element = document.getElementById(id);
+
+      if (element) {
+        element.textContent = fields[id];
+      }
+
+    }
+
+  } catch (err) {
+
+    console.error("BUSINESS ANALYTICS ERROR:", err);
+
   }
-);
-
-const business =
-await res.json();
-
-
-const fields = {
-
-analyticsViews:
-business.profileViews,
-
-analyticsLeads:
-business.totalLeads,
-
-analyticsJobs:
-business.jobsCompleted,
-
-analyticsTrust:
-(business.trustScore || 0)+"%"
-
-};
-
-
-for(const id in fields){
-
-const element =
-document.getElementById(id);
-
-if(element){
-
-element.innerHTML =
-fields[id];
 
 }
-
-}
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
 
 /* ==========================
 JOB REQUEST CHECK
