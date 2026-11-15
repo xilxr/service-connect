@@ -1920,9 +1920,13 @@ async function loadQuickMenuCounts(){
 
 try{
 
-const requests =
-await fetch(
-API+"/business/"+businessId+"/requests/count"
+const requests = await fetch(
+  API + "/business/" + encodeURIComponent(businessId) + "/requests/count",
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
 
 const requestData =
