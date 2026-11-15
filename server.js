@@ -1902,9 +1902,23 @@ GET SINGLE BUSINESS
 =========================================
 */
 
-app.get("/business/:id", async (req, res) => {
+
+app.get("/business/:id", requireBusiness, async (req, res) => {
 
   try {
+
+const authenticatedBusinessId = String(
+  req.business?._id || req.business?.id || ""
+);
+
+if (
+  !authenticatedBusinessId ||
+  authenticatedBusinessId !== req.params.id
+) {
+  return res.status(403).json({
+    error: "You are not authorized to access this business profile."
+  });
+}
 
     const business =
       await Business.findById(req.params.id);
