@@ -1932,10 +1932,13 @@ const requests = await fetch(
 const requestData =
 await requests.json();
 
-
-const reviews =
-await fetch(
-API+"/business/"+businessId+"/reviews/count"
+const reviews = await fetch(
+  API + "/business/" + encodeURIComponent(businessId) + "/reviews/count",
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
 
 const reviewData =
