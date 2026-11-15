@@ -4098,27 +4098,36 @@ CUSTOMER HISTORY COUNT
 ====================================
 */
 
-app.get("/business/:id/history/count", async(req,res)=>{
+app.get("/business/:id/history/count", requireBusiness, async (req, res) => {
 
-try{
+  try {
 
-const count = await CustomerHistory.countDocuments({
+    const authenticatedBusinessId = String(req.business._id);
 
-businessId:req.params.id,
+    if (authenticatedBusinessId !== req.params.id) {
+      return res.status(403).json({
+        error: "You are not authorized to view these history counts."
+      });
+    }
 
-viewed:false
+    const count = await CustomerHistory.countDocuments({
+      businessId: req.params.id,
+      viewed: false
+    });
 
-});
+    return res.json({
+      count
+    });
 
-res.json({count});
+  } catch (err) {
 
-}catch(err){
+    console.error("HISTORY COUNT ERROR:", err);
 
-console.log(err);
+    return res.status(500).json({
+      error: "Unable to load history count."
+    });
 
-res.json({count:0});
-
-}
+  }
 
 });
 
