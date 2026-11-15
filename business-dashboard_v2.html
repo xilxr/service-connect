@@ -1746,9 +1746,13 @@ async function loadRemainingDays(){
 
 try{
 
-const res =
-await fetch(
-API+"/business/"+businessId+"/remaining-days"
+const res = await fetch(
+  API + "/business/" + encodeURIComponent(businessId) + "/remaining-days",
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
 
 const data =
