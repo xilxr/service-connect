@@ -309,9 +309,22 @@ return;
 SAVE LOGIN
 */
 
+if (!res.ok || !data.token || !data.business?._id) {
+  document.getElementById("error").textContent =
+    "Login failed. Please try again.";
+  return;
+}
+
+// Save the authentication token
 localStorage.setItem(
-"businessId",
-data.business._id
+  "businessToken",
+  data.token
+);
+
+// Save the business ID
+localStorage.setItem(
+  "businessId",
+  data.business._id
 );
 
 localStorage.setItem(
