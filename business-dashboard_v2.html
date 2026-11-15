@@ -1944,10 +1944,13 @@ const reviews = await fetch(
 const reviewData =
 await reviews.json();
 
-
-const history =
-await fetch(
-API+"/business/"+businessId+"/history/count"
+const history = await fetch(
+  API + "/business/" + encodeURIComponent(businessId) + "/history/count",
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
 
 const historyData =
