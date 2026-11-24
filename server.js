@@ -2028,13 +2028,25 @@ if (
 
     await business.save();
 
-    res.json({
+return res.json({
 
-      message: "Profile updated ✔",
+  message: "Profile updated ✔",
 
-      business
+  business: {
+    _id: business._id,
+    businessCode: business.businessCode,
+    name: business.name,
+    service: business.service,
+    profilePicture: business.profilePicture,
+    coverPhoto: business.coverPhoto,
+    shortBio: business.shortBio,
+    availability: business.availability,
+    phone: business.phone,
+    location: business.location,
+    verified: business.verified
+  }
 
-    });
+});
 
   } catch (err) {
 
