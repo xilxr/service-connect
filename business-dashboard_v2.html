@@ -2303,9 +2303,14 @@ async function openNotifications(){
 
   try{
 
-    const res = await fetch(
-      API + "/notifications/business/" + businessId
-    );
+const res = await fetch(
+  API + "/notifications/business/" + encodeURIComponent(businessId),
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
+);
 
     if(!res.ok) throw new Error("Unable to load notifications");
 
