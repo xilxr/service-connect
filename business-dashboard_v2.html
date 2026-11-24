@@ -2452,10 +2452,15 @@ const res = await fetch(
     // just like the student dashboard.
     if(newNotifications.length){
 
-      const readRes = await fetch(
-        API + "/notifications/business/" + businessId + "/read",
-        { method:"POST" }
-      );
+const readRes = await fetch(
+  API + "/notifications/business/" + encodeURIComponent(businessId) + "/read",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
+);
 
       if(!readRes.ok){
         throw new Error("Unable to mark notifications as read");
