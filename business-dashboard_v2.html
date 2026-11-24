@@ -2049,31 +2049,31 @@ console.log(err);
 BADGE HELPER
 ========================== */
 
-function setBadge(id,count){
+function setBadge(id, count){
 
-const element =
-document.getElementById(id);
+  const element =
+    document.getElementById(id);
 
-if(!element) return;
+  if (!element) return;
 
+  const safeCount =
+    Number.isSafeInteger(count) && count >= 0
+      ? count
+      : 0;
 
-if(count > 0){
+  if (safeCount > 0) {
 
-element.style.display =
-"inline-block";
+    element.style.display = "inline-block";
 
-element.innerHTML =
-count;
+    element.textContent = String(safeCount);
 
-}else{
+  } else {
 
-element.style.display =
-"none";
+    element.style.display = "none";
 
-element.innerHTML =
-"0";
+    element.textContent = "0";
 
-}
+  }
 
 }
 
