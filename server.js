@@ -3646,18 +3646,37 @@ GET BUSINESS NOTIFICATIONS
 ====================================
 */
 
-app.get("/notifications/business/:businessId",async(req,res)=>{
-  try{
-    const notifications=await Notification.find({
-      businessId:req.params.businessId,
-      receiverType:"business"
-    }).sort({createdAt:-1});
+app.get("/notifications/business/:businessId", requireBusiness, async (req, res) => {
 
-    res.json(notifications);
-  }catch(err){
-    console.log(err);
-    res.json([]);
+  try {
+
+    const authenticatedBusinessId = String(req.business._id);
+
+    if (authenticatedBusinessId !== req.params.businessId) {
+      return res.status(403).json({
+        error: "You are not authorized to view these notifications."
+      });
+    }
+
+    const notifications = await Notification.find({
+      businessId: authenticatedBusinessId,
+      receiverType: "business"
+    }).sort({
+      createdAt: -1
+    });
+
+    return res.json(notifications);
+
+  } catch (err) {
+
+    console.error("BUSINESS NOTIFICATIONS ERROR:", err);
+
+    return res.status(500).json({
+      error: "Unable to load business notifications."
+    });
+
   }
+
 });
 
 /*
