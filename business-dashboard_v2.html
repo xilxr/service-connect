@@ -1789,8 +1789,19 @@ const res = await fetch(
   }
 );
 
-const data =
-await res.json();
+
+if (!res.ok) {
+  throw new Error("Unable to load subscription status.");
+}
+
+const data = await res.json();
+
+if (
+  !Number.isInteger(data.remainingDays) ||
+  data.remainingDays < 0
+) {
+  throw new Error("Invalid subscription response.");
+}
 
 
 const element =
@@ -1828,10 +1839,10 @@ const notifyText =
 document.getElementById("notificationText");
 
 
-const businessName =
-localStorage.getItem("businessName")
-||
-"Business Owner";
+const businessName = escapeHTML(
+  localStorage.getItem("businessName") ||
+  "Business Owner"
+);
 
 
 const today =
@@ -1939,7 +1950,23 @@ timeString;
 
 }catch(err){
 
-console.log(err);
+  console.error("SUBSCRIPTION STATUS ERROR:", err);
+
+  const element =
+    document.getElementById("remainingDays");
+
+  const text =
+    document.getElementById("progressText");
+
+  if (element) {
+    element.textContent =
+      "Unable to verify subscription status.";
+  }
+
+  if (text) {
+    text.textContent =
+      "Please refresh and try again.";
+  }
 
 }
 
