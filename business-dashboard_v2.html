@@ -1365,18 +1365,38 @@ return;
 }
 
 
-const photo =
-business.profilePicture &&
-business.profilePicture !== ""
+const defaultPhoto =
+  "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-?
+let photo = defaultPhoto;
 
-business.profilePicture
+if (
+  typeof business.profilePicture === "string" &&
+  business.profilePicture.trim() !== ""
+) {
 
-:
+  try {
 
-"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    const imageUrl = new URL(
+      business.profilePicture.trim()
+    );
 
+    if (
+      imageUrl.protocol === "https:" ||
+      imageUrl.protocol === "http:"
+    ) {
+
+      photo = imageUrl.href;
+
+    }
+
+  } catch (err) {
+
+    photo = defaultPhoto;
+
+  }
+
+}
 
 const verified =
 business.verified
@@ -1417,7 +1437,7 @@ class="card profileCard">
 
 <img
 class="profile"
-src="${photo}"
+src="${escapeHTML(photo)}"
 onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png';">
 
 
@@ -1686,7 +1706,7 @@ Keep your profile attractive and up to date.
 <input
 id="profilePicture"
 placeholder="Profile Image URL"
-value="${business.profilePicture || ""}"
+value="${escapeHTML(business.profilePicture || "")}"
 style="
 width:100%;
 padding:13px;
