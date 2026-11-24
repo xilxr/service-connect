@@ -2257,10 +2257,18 @@ async function loadMessageBadge(){
 
 try{
 
-const res =
-await fetch(
-API+"/chat/unread/"+businessId
+const res = await fetch(
+  API + "/chat/unread/" + encodeURIComponent(businessId),
+  {
+    headers: {
+      "Authorization": "Bearer " + getBusinessAuthToken()
+    }
+  }
 );
+
+if (!res.ok) {
+  throw new Error("Unable to load unread messages.");
+}
 
 const data =
 await res.json();
