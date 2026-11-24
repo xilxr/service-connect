@@ -1996,37 +1996,115 @@ if (
     error: "You cannot edit another business owner's profile."
   });
 }
-     
-    const business =
-      await Business.findById(id);
+         
+const business = req.business;
 
-    if (!business) {
+const fields = {
+  profilePicture: 2048,
+  coverPhoto: 2048,
+  shortBio: 1000,
+  availability: 50,
+  phone: 30,
+  location: 200
+};
 
-      return res.json({
-        error: "Business not found"
-      });
+for (const [field, maxLength] of Object.entries(fields)) {
 
-    }
+  const value = req.body[field];
 
-    if (profilePicture)
-      business.profilePicture = profilePicture;
+  if (value === undefined) continue;
 
-    if (coverPhoto)
-      business.coverPhoto = coverPhoto;
+  if (
+    typeof value !== "string" ||
+    value.trim().length > maxLength
+  ) {
+    return res.status(400).json({
+      error: "Invalid " + field + "."
+    });
+  }
 
-    if (shortBio)
-      business.shortBio = shortBio;
+}
 
-    if (availability)
-      business.availability = availability;
+function isValidImageUrl(value) {
 
-    if (phone)
-      business.phone = phone;
+  if (value === "") return true;
 
-    if (location)
-      business.location = location.toLowerCase();
+  try {
 
-    await business.save();
+    const url = new URL(value);
+
+    return (
+      url.protocol === "https:" ||
+      url.protocol === "http:"
+    );
+
+  } catch {
+
+    return false;
+
+  }
+
+}
+
+if (profilePicture !== undefined) {
+
+  if (!isValidImageUrl(profilePicture.trim())) {
+    return res.status(400).json({
+      error: "Invalid profile picture URL."
+    });
+  }
+
+  business.profilePicture = profilePicture.trim();
+
+}
+
+if (coverPhoto !== undefined) {
+
+  if (!isValidImageUrl(coverPhoto.trim())) {
+    return res.status(400).json({
+      error: "Invalid cover photo URL."
+    });
+  }
+
+  business.coverPhoto = coverPhoto.trim();
+
+}
+
+if (shortBio !== undefined) {
+  business.shortBio = shortBio.trim();
+}
+
+if (availability !== undefined) {
+  business.availability = availability.trim();
+}
+
+if (phone !== undefined) {
+
+  const cleanPhone = phone.trim();
+
+  if (!/^\+?[0-9\s()-]{7,30}$/.test(cleanPhone)) {
+    return res.status(400).json({
+      error: "Invalid phone number."
+    });
+  }
+
+  business.phone = cleanPhone;
+
+}
+
+if (location !== undefined) {
+
+  if (!location.trim()) {
+    return res.status(400).json({
+      error: "Location cannot be empty."
+    });
+  }
+
+  business.location = location.trim().toLowerCase();
+
+}
+
+await business.save();
 
 return res.json({
 
