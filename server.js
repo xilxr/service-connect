@@ -3685,11 +3685,21 @@ MARK BUSINESS NOTIFICATIONS AS READ
 ====================================
 */
 
-app.post("/notifications/business/:businessId/read", async (req, res) => {
+app.post("/notifications/business/:businessId/read", requireBusiness, async (req, res) => {
+
   try {
+
+    const authenticatedBusinessId = String(req.business._id);
+
+    if (authenticatedBusinessId !== req.params.businessId) {
+      return res.status(403).json({
+        error: "You are not authorized to update these notifications."
+      });
+    }
+
     await Notification.updateMany(
       {
-        businessId: req.params.businessId,
+        businessId: authenticatedBusinessId,
         receiverType: "business",
         read: false
       },
@@ -3698,16 +3708,20 @@ app.post("/notifications/business/:businessId/read", async (req, res) => {
       }
     );
 
-    res.json({
+    return res.json({
       message: "Business notifications marked as read."
     });
-  } catch (err) {
-    console.log(err);
 
-    res.status(500).json({
-      error: err.message
+  } catch (err) {
+
+    console.error("BUSINESS NOTIFICATIONS READ ERROR:", err);
+
+    return res.status(500).json({
+      error: "Unable to mark notifications as read."
     });
+
   }
+
 });
 
 /*
