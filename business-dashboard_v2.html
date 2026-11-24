@@ -2661,20 +2661,17 @@ LOGOUT
 
 function logout(){
 
-localStorage.removeItem(
-"businessId"
-);
+  localStorage.removeItem("businessId");
 
-localStorage.removeItem(
-"businessCode"
-);
+  localStorage.removeItem("businessCode");
 
-localStorage.removeItem(
-"businessName"
-);
+  localStorage.removeItem("businessName");
 
-window.location.href =
-"business-login_v2.html";
+  localStorage.removeItem("businessToken");
+
+  localStorage.removeItem("chatRequestId");
+
+  window.location.replace("business-login_v2.html");
 
 }
 
