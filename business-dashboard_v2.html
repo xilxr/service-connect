@@ -2143,9 +2143,15 @@ const res = await fetch(
   }
 );
 
-const data =
-await res.json();
+if (!res.ok) {
+  throw new Error("Unable to load job requests.");
+}
 
+const data = await res.json();
+
+if (!Array.isArray(data)) {
+  throw new Error("Invalid job requests response.");
+}
 
 const pending =
 data.filter(
@@ -2182,17 +2188,14 @@ document.getElementById(
 
 text.innerHTML =
 
-"👤 " +
-(newest.studentName ||
-"Customer") +
+  "👤 " +
+  escapeHTML(newest.studentName || "Customer") +
 
-"<br>🛠 " +
-(newest.service ||
-"Service Request") +
+  "<br>🛠 " +
+  escapeHTML(newest.service || "Service Request") +
 
-"<br>📍 " +
-(newest.location ||
-"Unknown Location");
+  "<br>📍 " +
+  escapeHTML(newest.location || "Unknown Location");
 
 
 popup.style.display =
@@ -2251,7 +2254,7 @@ popup.style.display =
 
 }catch(err){
 
-console.log(err);
+  console.error("JOB REQUESTS ERROR:", err);
 
 }
 
