@@ -1392,13 +1392,13 @@ business.verified
 
 document.getElementById(
 "sideBusinessName"
-).innerHTML =
+).textContent =
 business.name || "Business Owner";
 
 
 document.getElementById(
 "welcomeTitle"
-).innerHTML =
+).textContent =
 "Welcome back, " +
 (business.name || "Business Owner") +
 " 👋";
@@ -1423,21 +1423,21 @@ onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png';">
 
 <div class="name">
 
-${business.name || "Business Owner"}
+${escapeHTML(business.name || "Business Owner")}
 
 </div>
 
 
 <div class="service">
 
-${business.service || "Service Professional"}
+${escapeHTML(business.service || "Service Professional")}
 
 </div>
 
 
 <div class="location">
 
-📍 ${business.location || "Location not set"}
+📍 ${escapeHTML(business.location || "Location not set")}
 
 </div>
 
@@ -1459,7 +1459,7 @@ Business Code:
 </span>
 
 <b>
-${business.businessCode || "N/A"}
+${escapeHTML(business.businessCode || "N/A")}
 </b>
 
 </div>
@@ -1472,7 +1472,7 @@ Phone:
 </span>
 
 <b>
-${business.phone || "N/A"}
+${escapeHTML(business.phone || "N/A")}
 </b>
 
 </div>
@@ -1486,7 +1486,7 @@ Rating:
 
 <b>
 ⭐ ${Number(business.rating || 0).toFixed(1)}
-(${business.reviews || 0} Reviews)
+(${Number(business.reviews) || 0} Reviews)
 </b>
 
 </div>
@@ -1591,7 +1591,7 @@ Profile Views
 class="summaryValue"
 id="analyticsViews">
 
-${business.profileViews || 0}
+${Number(business.profileViews) || 0}
 
 </div>
 
@@ -1612,7 +1612,7 @@ Total Leads
 class="summaryValue"
 id="analyticsLeads">
 
-${business.totalLeads || 0}
+${Number(business.totalLeads) || 0}
 
 </div>
 
@@ -1633,7 +1633,7 @@ Jobs Completed
 class="summaryValue"
 id="analyticsJobs">
 
-${business.jobsCompleted || 0}
+${Number(business.jobsCompleted) || 0}
 
 </div>
 
@@ -1654,7 +1654,7 @@ Trust Score
 class="summaryValue"
 id="analyticsTrust">
 
-${business.trustScore || 0}%
+${Number(business.trustScore) || 0}%
 
 </div>
 
@@ -1709,7 +1709,7 @@ border:none;
 border-radius:10px;
 resize:none;
 outline:none;
-">${business.shortBio || ""}</textarea>
+">${escapeHTML(business.shortBio || "")}</textarea>
 
 
 <button
