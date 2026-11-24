@@ -2125,16 +2125,16 @@ return res.json({
   }
 
 });
+  
+} catch (err) {
 
-  } catch (err) {
+  console.error("BUSINESS PROFILE UPDATE ERROR:", err);
 
-    console.log(err);
+  return res.status(500).json({
+    error: "Profile update failed."
+  });
 
-    res.json({
-      error: "Profile update failed"
-    });
-
-  }
+}
 
 });
 
