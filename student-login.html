@@ -192,6 +192,8 @@ const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
 const message = document.getElementById("message");
 
+let isSubmitting = false;
+
 function showRegister() {
   loginForm.classList.add("hidden");
   registerForm.classList.remove("hidden");
@@ -263,6 +265,10 @@ function saveStudentSession(data) {
 loginForm.addEventListener("submit", async function(event) {
   event.preventDefault();
 
+  if (isSubmitting) return;
+
+  isSubmitting = true;
+
   const button = document.getElementById("loginButton");
   button.disabled = true;
   showMessage("Logging in...", true);
@@ -294,12 +300,17 @@ window.location.replace("student_v2.html");
   } catch (error) {
     showMessage(error.message || "Unable to log in.");
   } finally {
-    button.disabled = false;
-  }
+  isSubmitting = false;
+  button.disabled = false;
+}
 });
 
 registerForm.addEventListener("submit", async function(event) {
   event.preventDefault();
+
+  if (isSubmitting) return;
+
+  isSubmitting = true;
 
   const button = document.getElementById("registerButton");
   button.disabled = true;
@@ -340,8 +351,9 @@ registerForm.addEventListener("submit", async function(event) {
   } catch (error) {
     showMessage(error.message || "Unable to create account.");
   } finally {
-    button.disabled = false;
-  }
+  isSubmitting = false;
+  button.disabled = false;
+}
 });
 </script>
 
