@@ -2217,42 +2217,82 @@ FEATURED WORKER
 
 app.get("/featured-worker", async (req, res) => {
 
-try{
+  try {
 
-const worker = await Business.findOne({
+    const worker = await Business.findOne({
 
-verified: true,
+      verified: true,
 
-availability: {
-$regex:"available",
-$options:"i"
-}
+      availability: {
+        $regex: "^available$",
+        $options: "i"
+      },
 
-}).sort({
+      expiryDate: {
+        $gt: new Date()
+      }
 
-rating: -1,
+    })
+    .sort({
 
-trustScore: -1,
+      rating: -1,
 
-searchAppearances: -1
+      trustScore: -1,
 
-});
+      searchAppearances: -1
 
-if(!worker){
+    })
+    .select(
+      "_id name service phone location profilePicture coverPhoto shortBio availability rating reviews trustScore verified"
+    );
 
-return res.json({});
+    if (!worker) {
 
-}
+      return res.json({});
 
-res.json(worker);
+    }
 
-}catch(err){
+    return res.json({
 
-console.log(err);
+      _id: worker._id,
 
-res.json({});
+      name: worker.name,
 
-}
+      service: worker.service,
+
+      phone: worker.phone,
+
+      location: worker.location,
+
+      profilePicture: worker.profilePicture,
+
+      coverPhoto: worker.coverPhoto,
+
+      shortBio: worker.shortBio,
+
+      availability: worker.availability,
+
+      rating: worker.rating,
+
+      reviews: worker.reviews,
+
+      trustScore: worker.trustScore,
+
+      verified: worker.verified
+
+    });
+
+  } catch (err) {
+
+    console.error("FEATURED WORKER ERROR:", err);
+
+    return res.status(500).json({
+
+      error: "Unable to load featured worker."
+
+    });
+
+  }
 
 });
 
