@@ -5,9 +5,10 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
 
-<title>Business Login</title>
+<title>Business Login | Service Connect</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -23,17 +24,11 @@ font-family:'Poppins',sans-serif;
 body{
 
 background:#020617;
-
 color:white;
-
 display:flex;
-
 justify-content:center;
-
 align-items:center;
-
 min-height:100vh;
-
 padding:20px;
 
 }
@@ -41,15 +36,10 @@ padding:20px;
 .card{
 
 width:100%;
-
 max-width:420px;
-
 background:#0f172a;
-
 padding:25px;
-
 border-radius:22px;
-
 box-shadow:0 15px 35px rgba(0,0,0,.35);
 
 }
@@ -57,7 +47,6 @@ box-shadow:0 15px 35px rgba(0,0,0,.35);
 .logo{
 
 font-size:55px;
-
 text-align:center;
 
 }
@@ -65,9 +54,7 @@ text-align:center;
 h2{
 
 text-align:center;
-
 margin-top:10px;
-
 color:#22c55e;
 
 }
@@ -75,11 +62,8 @@ color:#22c55e;
 p{
 
 text-align:center;
-
 margin-top:8px;
-
 color:#94a3b8;
-
 line-height:1.6;
 
 }
@@ -87,82 +71,131 @@ line-height:1.6;
 input{
 
 width:100%;
-
 padding:16px;
-
 margin-top:20px;
-
 border:none;
-
 outline:none;
-
 border-radius:12px;
-
 font-size:16px;
+
+}
+
+input:focus{
+
+outline:2px solid #22c55e;
 
 }
 
 button{
 
 width:100%;
-
 padding:16px;
-
 margin-top:20px;
-
 border:none;
-
 border-radius:12px;
-
 background:#22c55e;
-
 color:white;
-
 font-size:17px;
-
 font-weight:bold;
-
 cursor:pointer;
-
 transition:.3s;
 
 }
 
-button:hover{
+button:hover:not(:disabled){
 
 transform:scale(1.02);
+
+}
+
+button:disabled{
+
+opacity:.6;
+cursor:not-allowed;
+
+}
+
+.passwordContainer{
+
+position:relative;
+
+}
+
+.passwordContainer input{
+
+padding-right:75px;
+
+}
+
+.togglePassword{
+
+position:absolute;
+right:14px;
+top:50%;
+transform:translateY(-15%);
+width:auto;
+padding:5px;
+margin:0;
+background:transparent;
+color:#166534;
+font-size:13px;
+font-weight:600;
+
+}
+
+.togglePassword:hover:not(:disabled){
+
+transform:translateY(-15%);
 
 }
 
 #loading{
 
 display:none;
-
 text-align:center;
+margin-top:15px;
+color:#22c55e;
+font-weight:bold;
+
+}
+
+#error{
 
 margin-top:15px;
-
-color:#22c55e;
-
-font-weight:bold;
+text-align:center;
+color:#f87171;
+font-size:14px;
+font-weight:500;
+overflow-wrap:anywhere;
 
 }
 
 .info{
 
 margin-top:18px;
-
 background:#111827;
-
 padding:15px;
-
 border-radius:12px;
-
 font-size:14px;
-
 color:#cbd5e1;
-
 line-height:1.7;
+
+}
+
+.link{
+
+text-align:center;
+margin-top:22px;
+font-size:14px;
+color:#94a3b8;
+
+}
+
+.link a{
+
+color:#22c55e;
+text-decoration:none;
+font-weight:600;
 
 }
 
@@ -188,107 +221,353 @@ Business Login
 
 <p>
 
-Login using your Service Connect Business Code.
+Login securely to your Service Connect business account.
 
 </p>
+
+<form id="loginForm">
 
 <input
 
 id="code"
 
-placeholder="Example: SC-FUTO-ELEC-483921">
+type="text"
+
+autocomplete="username"
+
+autocapitalize="characters"
+
+spellcheck="false"
+
+placeholder="Example: SC-FUTO-ELEC-483921"
+
+required>
+
+<div class="passwordContainer">
+
+<input
+
+id="password"
+
+type="password"
+
+autocomplete="current-password"
+
+placeholder="Enter your password"
+
+required>
 
 <button
 
-onclick="loginBusiness()">
+type="button"
+
+id="togglePasswordBtn"
+
+class="togglePassword"
+
+aria-label="Show password"
+
+aria-pressed="false"
+
+onclick="togglePassword()">
+
+Show
+
+</button>
+
+</div>
+
+<button
+
+id="loginBtn"
+
+type="submit">
 
 Login
 
 </button>
 
-<div id="loading">
+</form>
+
+<div id="loading" role="status">
 
 Checking your account...
 
 </div>
 
+<div id="error" role="alert"></div>
+
 <div class="info">
 
-Your Business Code was given to you after registration. Keep it safe because you'll use it whenever you want to access your business dashboard.
+🔒 Your Business Code and password are required to securely access your business dashboard.
+
+<br><br>
+
+Keep your login credentials private. Never share your password with anyone.
+
+</div>
+
+<div class="link">
+
+Don't have an account?
+
+<br><br>
+
+<a href="business_v2.html">
+
+Register Here
+
+</a>
+
+</div>
 
 </div>
 
 <script>
 
-const API="https://service-backend-jezm.onrender.com";
-async function loginBusiness(){
+/* ==========================
+API CONFIGURATION
+========================== */
 
-const code=
-document.getElementById("code").value.trim().toUpperCase();
+const API =
+"https://service-backend-jezm.onrender.com";
 
-if(!code){
+let isLoggingIn = false;
 
-alert("Enter your Business Code.");
 
-return;
+/* ==========================
+SHOW / HIDE PASSWORD
+========================== */
+
+function togglePassword(){
+
+  const password =
+    document.getElementById("password");
+
+  const button =
+    document.getElementById("togglePasswordBtn");
+
+  const isHidden =
+    password.type === "password";
+
+  password.type =
+    isHidden ? "text" : "password";
+
+  button.textContent =
+    isHidden ? "Hide" : "Show";
+
+  button.setAttribute(
+    "aria-label",
+    isHidden ? "Hide password" : "Show password"
+  );
+
+  button.setAttribute(
+    "aria-pressed",
+    String(isHidden)
+  );
 
 }
 
-document.getElementById("loading").style.display="block";
 
-try{
+/* ==========================
+BUSINESS LOGIN
+========================== */
 
-const res=await fetch(API+"/business/login",{
+async function loginBusiness(){
 
-method:"POST",
+  if(isLoggingIn) return;
 
-headers:{
-"Content-Type":"application/json"
-},
+  const errorBox =
+    document.getElementById("error");
 
-body:JSON.stringify({
+  const loading =
+    document.getElementById("loading");
 
-businessCode:code
+  const loginBtn =
+    document.getElementById("loginBtn");
 
-})
+  errorBox.textContent = "";
+
+  const businessCode =
+    document.getElementById("code")
+    .value.trim().toUpperCase();
+
+  const password =
+    document.getElementById("password").value;
+
+  if(!businessCode || !password){
+
+    errorBox.textContent =
+      "Enter your Business Code and Password.";
+
+    return;
+
+  }
+
+  isLoggingIn = true;
+
+  loginBtn.disabled = true;
+
+  loginBtn.textContent = "Logging in...";
+
+  loading.style.display = "block";
+
+  try{
+
+    const res = await fetch(
+      API + "/business/login",
+      {
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+          businessCode,
+          password
+
+        })
+
+      }
+    );
+
+    const data = await res.json();
+
+    /* ==========================
+    VALIDATE SERVER RESPONSE
+    ========================== */
+
+    if(!res.ok || data?.error){
+
+      errorBox.textContent =
+        typeof data?.error === "string"
+          ? data.error
+          : "Login failed. Please check your credentials.";
+
+      return;
+
+    }
+
+    if(
+
+      typeof data?.token !== "string" ||
+
+      !data.token.trim() ||
+
+      typeof data?.business?._id !== "string" ||
+
+      !/^[a-f0-9]{24}$/i.test(data.business._id) ||
+
+      typeof data.business.businessCode !== "string" ||
+
+      typeof data.business.name !== "string"
+
+    ){
+
+      errorBox.textContent =
+        "Invalid login response. Please try again.";
+
+      return;
+
+    }
+
+
+    /* ==========================
+    CLEAR PREVIOUS SESSION
+    ========================== */
+
+    localStorage.removeItem("businessToken");
+
+    localStorage.removeItem("businessId");
+
+    localStorage.removeItem("businessCode");
+
+    localStorage.removeItem("businessName");
+
+    localStorage.removeItem("chatRequestId");
+
+    localStorage.removeItem("rememberBusiness");
+
+
+    /* ==========================
+    SAVE AUTHENTICATED SESSION
+    ========================== */
+
+    localStorage.setItem(
+      "businessId",
+      data.business._id
+    );
+
+    localStorage.setItem(
+      "businessCode",
+      data.business.businessCode
+    );
+
+    localStorage.setItem(
+      "businessName",
+      data.business.name
+    );
+
+    localStorage.setItem(
+      "businessToken",
+      data.token
+    );
+
+
+    /* ==========================
+    CLEAR PASSWORD
+    ========================== */
+
+    document.getElementById("password").value = "";
+
+
+    /* ==========================
+    OPEN BUSINESS DASHBOARD V2
+    ========================== */
+
+    window.location.replace(
+      "business-dashboard_v2.html"
+    );
+
+  }catch(err){
+
+    console.error("BUSINESS LOGIN ERROR:", err);
+
+    errorBox.textContent =
+      "Unable to complete login. Please try again.";
+
+  }finally{
+
+    isLoggingIn = false;
+
+    loading.style.display = "none";
+
+    loginBtn.disabled = false;
+
+    loginBtn.textContent = "Login";
+
+  }
+
+}
+
+
+/* ==========================
+LOGIN FORM SUBMISSION
+========================== */
+
+document.getElementById("loginForm")
+.addEventListener("submit", function(event){
+
+  event.preventDefault();
+
+  loginBusiness();
 
 });
 
-const data=await res.json();
-
-document.getElementById("loading").style.display="none";
-
-if(data.error){
-
-alert(data.error);
-
-return;
-
-}
-
-localStorage.setItem("businessId",data.business._id);
-
-localStorage.setItem("businessCode",data.business.businessCode);
-
-localStorage.setItem("businessName",data.business.name);
-
-window.location.href="business-dashboard_v2.html";
-
-}catch(err){
-
-console.log(err);
-
-document.getElementById("loading").style.display="none";
-
-alert("Unable to connect to the server.");
-
-}
-
-}
-
 </script>
-
-</div>
 
 </body>
 
