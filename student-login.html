@@ -355,8 +355,93 @@ registerForm.addEventListener("submit", async function(event) {
   button.disabled = false;
 }
 });
+  
+async function verifyExistingStudentSession() {
+
+  const token = localStorage.getItem("studentToken");
+
+  if (!token || !token.trim()) return;
+
+  if (isSubmitting) return;
+
+  isSubmitting = true;
+
+  const loginButton = document.getElementById("loginButton");
+  const registerButton = document.getElementById("registerButton");
+
+  loginButton.disabled = true;
+  registerButton.disabled = true;
+
+  showMessage("Verifying your session...", true);
+
+  try {
+
+    const response = await fetch(API + "/student/me", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+
+      localStorage.removeItem("studentToken");
+      localStorage.removeItem("studentName");
+      localStorage.removeItem("studentPhone");
+      localStorage.removeItem("studentLocation");
+      localStorage.removeItem("chatRequestId");
+      localStorage.removeItem("chatBusinessId");
+
+      showMessage("Your session has ended. Please log in again.");
+
+      return;
+
+    }
+
+    if (!response.ok) {
+      throw new Error("Unable to verify your session.");
+    }
+
+    const data = await response.json();
+
+    if (data.loggedIn !== true) {
+      throw new Error("Invalid session response.");
+    }
+
+    saveStudentSession({
+      token: token,
+      student: data.student
+    });
+
+    showMessage("Session verified successfully!", true);
+
+    window.location.replace("student_v2.html");
+
+  } catch (error) {
+
+    console.error("STUDENT SESSION ERROR:", error);
+
+    showMessage(
+      "Unable to verify your session. Please log in."
+    );
+
+  } finally {
+
+    isSubmitting = false;
+
+    loginButton.disabled = false;
+    registerButton.disabled = false;
+
+  }
+
+}
+
+verifyExistingStudentSession();
+
 </script>
 
 </body>
 </html>
-
