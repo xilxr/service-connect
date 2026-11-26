@@ -2296,42 +2296,83 @@ app.get("/featured-worker", async (req, res) => {
 
 });
 
-/*
-=========================================
-TOP WORKERS
-=========================================
-*/
+/* =========================================
+   TOP WORKERS
+========================================= */
 
 app.get("/top-workers", async (req, res) => {
 
-try {
+  try {
 
-const workers = await Business.find({
+    const workers = await Business.find({
 
-verified: true,
+      verified: true,
 
-availability:{
-$regex:"available",
-$options:"i"
-}
+      availability: {
+        $regex: "^available$",
+        $options: "i"
+      },
 
-}).sort({
+      expiryDate: {
+        $gt: new Date()
+      }
 
-rating: -1,
+    })
+    .sort({
 
-trustScore: -1
+      rating: -1,
 
-}).limit(5);
+      trustScore: -1
 
-res.json(workers);
+    })
+    .limit(5)
+    .select(
+      "_id name service phone location profilePicture coverPhoto shortBio availability rating reviews trustScore verified"
+    );
 
-} catch (err) {
+    const publicWorkers = workers.map(worker => ({
 
-console.log(err);
+      _id: worker._id,
 
-res.json([]);
+      name: worker.name,
 
-}
+      service: worker.service,
+
+      phone: worker.phone,
+
+      location: worker.location,
+
+      profilePicture: worker.profilePicture,
+
+      coverPhoto: worker.coverPhoto,
+
+      shortBio: worker.shortBio,
+
+      availability: worker.availability,
+
+      rating: worker.rating,
+
+      reviews: worker.reviews,
+
+      trustScore: worker.trustScore,
+
+      verified: worker.verified
+
+    }));
+
+    return res.json(publicWorkers);
+
+  } catch (err) {
+
+    console.error("TOP WORKERS ERROR:", err);
+
+    return res.status(500).json({
+
+      error: "Unable to load top workers."
+
+    });
+
+  }
 
 });
 
