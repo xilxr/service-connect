@@ -210,17 +210,54 @@ function showMessage(text, success = false) {
 }
 
 function saveStudentSession(data) {
-  if (!data.token || !data.student) {
+
+  if (
+    typeof data?.token !== "string" ||
+    !data.token.trim() ||
+    typeof data?.student?.id !== "string" ||
+    !/^[a-f0-9]{24}$/i.test(data.student.id) ||
+    typeof data.student.name !== "string" ||
+    !data.student.name.trim() ||
+    typeof data.student.phone !== "string" ||
+    !data.student.phone.trim() ||
+    typeof data.student.location !== "string"
+  ) {
     throw new Error("Invalid login response.");
   }
 
-  localStorage.setItem("studentToken", data.token);
-  localStorage.setItem("studentName", data.student.name);
-  localStorage.setItem("studentPhone", data.student.phone);
+  // Remove previous student session information
+
+  localStorage.removeItem("studentToken");
+  localStorage.removeItem("studentName");
+  localStorage.removeItem("studentPhone");
+  localStorage.removeItem("studentLocation");
+  localStorage.removeItem("chatRequestId");
+  localStorage.removeItem("chatBusinessId");
+
+  // Save validated student information
+
+  localStorage.setItem(
+    "studentName",
+    data.student.name
+  );
+
+  localStorage.setItem(
+    "studentPhone",
+    data.student.phone
+  );
+
   localStorage.setItem(
     "studentLocation",
-    data.student.location || ""
+    data.student.location
   );
+
+  // Save authentication token last
+
+  localStorage.setItem(
+    "studentToken",
+    data.token
+  );
+
 }
 
 loginForm.addEventListener("submit", async function(event) {
