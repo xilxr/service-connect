@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -253,8 +252,8 @@ loginForm.addEventListener("submit", async function(event) {
 
     showMessage("Login successful!", true);
 
-    window.location.replace("student-v2.html");
-
+window.location.replace("student_v2.html");
+    
   } catch (error) {
     showMessage(error.message || "Unable to log in.");
   } finally {
