@@ -355,34 +355,188 @@ container.innerHTML =
 
 }
 
-async function updateRequestStatus(requestId,status){
+/* =========================================
+   SECURE ACCEPT AND DECLINE REQUESTS
+========================================= */
 
-try{
+let requestStatusUpdating = false;
 
-const res = await fetch(
-API+"/request/status",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-requestId,
-status
-})
-});
+async function updateRequestStatus(requestId, status) {
 
-const data = await res.json();
+  const token = getBusinessAuthToken();
 
-alert(data.message);
+  if (!hasValidBusinessSession()) {
 
-loadJobRequests();
+    window.location.replace(
+      "business-login_v2.html"
+    );
 
-}catch(err){
+    return;
 
-alert("Error");
+  }
 
-}
+  /* Validate request ID */
+
+  if (
+
+    typeof requestId !== "string" ||
+
+    !/^[a-f0-9]{24}$/i.test(requestId)
+
+  ) {
+
+    alert("Invalid job request.");
+
+    return;
+
+  }
+
+  /* Allow only valid status changes */
+
+  if (!["Accepted", "Declined"].includes(status)) {
+
+    alert("Invalid request status.");
+
+    return;
+
+  }
+
+  /* Prevent duplicate submissions */
+
+  if (requestStatusUpdating) return;
+
+  requestStatusUpdating = true;
+
+  try {
+
+    const res = await fetch(
+
+      API + "/request/status",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type": "application/json",
+
+          "Authorization": "Bearer " + token
+
+        },
+
+        body: JSON.stringify({
+
+          requestId,
+
+          status
+
+        })
+
+      }
+
+    );
+
+    /* Verify current session */
+
+    if (
+
+      getBusinessAuthToken() !== token ||
+
+      localStorage.getItem("businessId") !== businessId
+
+    ) {
+
+      return;
+
+    }
+
+    if (res.status === 401) {
+
+      alert(
+        "Your session has expired. Please log in again."
+      );
+
+      window.location.replace(
+        "business-login_v2.html"
+      );
+
+      return;
+
+    }
+
+    if (res.status === 403) {
+
+      alert(
+        "You are not authorized to update this request."
+      );
+
+      return;
+
+    }
+
+    const data = await res.json();
+
+    if (
+
+      getBusinessAuthToken() !== token ||
+
+      localStorage.getItem("businessId") !== businessId
+
+    ) {
+
+      return;
+
+    }
+
+    /* Validate server response */
+
+    if (
+
+      !res.ok ||
+
+      !data ||
+
+      data.error ||
+
+      typeof data.message !== "string"
+
+    ) {
+
+      alert(
+
+        typeof data?.error === "string"
+
+          ? data.error
+
+          : "Unable to update this request."
+
+      );
+
+      return;
+
+    }
+
+    alert(data.message);
+
+    loadJobRequests();
+
+  } catch (error) {
+
+    console.error(
+      "REQUEST STATUS UPDATE ERROR:",
+      error
+    );
+
+    alert(
+      "Unable to confirm the request update. Please check your connection."
+    );
+
+  } finally {
+
+    requestStatusUpdating = false;
+
+  }
 
 }
 
