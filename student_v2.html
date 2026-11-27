@@ -2535,9 +2535,12 @@ async function verifyStudentLoginSession() {
 
   const token = getStudentAuthToken();
 
-  if (!token) {
+  if (!token || !token.trim()) {
+
     window.location.replace("student-login.html");
-    return;
+
+    return false;
+
   }
 
   try {
@@ -2545,54 +2548,92 @@ async function verifyStudentLoginSession() {
     const response = await fetch(
       API + "/student/me",
       {
+        method: "GET",
         headers: {
           "Authorization": "Bearer " + token
         }
       }
     );
 
-    if (response.status === 401 || response.status === 403) {
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
 
       localStorage.removeItem("studentToken");
+      localStorage.removeItem("studentName");
+      localStorage.removeItem("studentPhone");
+      localStorage.removeItem("studentLocation");
+      localStorage.removeItem("chatRequestId");
+      localStorage.removeItem("chatBusinessId");
 
       window.location.replace("student-login.html");
-      return;
+
+      return false;
 
     }
 
     if (!response.ok) {
+
       throw new Error("Unable to verify student session.");
+
     }
 
     const data = await response.json();
 
-    if (!data.loggedIn || !data.student) {
+    if (
+      data.loggedIn !== true ||
+      typeof data?.student?.id !== "string" ||
+      !/^[a-f0-9]{24}$/i.test(data.student.id) ||
+      typeof data.student.name !== "string" ||
+      !data.student.name.trim() ||
+      typeof data.student.phone !== "string" ||
+      !data.student.phone.trim() ||
+      typeof data.student.location !== "string"
+    ) {
+
       throw new Error("Invalid student session response.");
+
     }
 
-    localStorage.setItem("studentName", data.student.name);
-    localStorage.setItem("studentPhone", data.student.phone);
+    if (getStudentAuthToken() !== token) {
+
+      return false;
+
+    }
+
+    localStorage.setItem(
+      "studentName",
+      data.student.name
+    );
+
+    localStorage.setItem(
+      "studentPhone",
+      data.student.phone
+    );
+
     localStorage.setItem(
       "studentLocation",
-      data.student.location || ""
+      data.student.location
     );
+
+    return true;
 
   } catch (error) {
 
     console.error("STUDENT SESSION CHECK:", error);
 
-    // A network error must not be treated as an invalid login.
-    // We'll add a proper loading/error screen before deployment.
+    alert(
+      "Unable to verify your session. Please check your internet connection and try again."
+    );
+
+    window.location.replace("student-login.html");
+
+    return false;
 
   }
 
 }
-
-/* =========================================
-   START STUDENT SESSION VERIFICATION
-========================================= */
-
-verifyStudentLoginSession();
 
 /* =========================================
    STUDENT DASHBOARD HISTORY INITIALIZATION
@@ -4915,26 +4956,41 @@ async function logoutStudent() {
 }
 
 /* =========================================
-   INITIAL LOAD
+   SECURE DASHBOARD INITIALIZATION
 ========================================= */
 
-loadStudent();
+async function initializeStudentDashboard() {
 
-loadFeaturedWorker();
+  const sessionVerified =
+    await verifyStudentLoginSession();
 
-loadTopWorkers();
+  if (!sessionVerified) {
 
-loadStudentNotificationBadge();
+    return;
 
-/*
-Refresh notification badge
-every 10 seconds.
-*/
+  }
 
-setInterval(
-loadStudentNotificationBadge,
-10000
-);
+  loadStudent();
+
+  loadFeaturedWorker();
+
+  loadTopWorkers();
+
+  loadStudentNotificationBadge();
+
+  /*
+  Refresh notification badge
+  every 10 seconds.
+  */
+
+  setInterval(
+    loadStudentNotificationBadge,
+    10000
+  );
+
+}
+
+initializeStudentDashboard();
 
 </script>
 
