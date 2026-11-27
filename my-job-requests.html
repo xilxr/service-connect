@@ -245,104 +245,293 @@ if (data.length === 0) {
 
 }
 
-let html = "";
+/* =========================================
+   SECURE JOB REQUEST CARD RENDERING
+========================================= */
 
-data.forEach(r=>{
+const fragment = document.createDocumentFragment();
 
-let buttons = "";
+data.forEach(r => {
 
-if(r.status==="Pending"){
+  if (
 
-buttons = `
+    !r ||
 
-<button style="background:#16a34a;"
-onclick="updateRequestStatus('${r._id}','Accepted')">
-✅ Accept
-</button>
+    typeof r._id !== "string" ||
 
-<button style="background:#ef4444;"
-onclick="updateRequestStatus('${r._id}','Declined')">
-❌ Decline
-</button>
+    !/^[a-f0-9]{24}$/i.test(r._id)
 
-`;
+  ) return;
 
-}
+  const requestId = r._id;
 
-else if(r.status==="Accepted"){
+  const studentName =
 
-buttons = `
+    typeof r.studentName === "string" &&
+    r.studentName.trim()
 
-<button disabled>
-🟢 Accepted
-</button>
+      ? r.studentName
 
-<button
-style="background:#2563eb;"
-onclick="openBusinessChat(
-'${r._id}',
-'${r.studentName}'
-)"
-💬 Open Chat
-</button>
+      : "Customer";
 
-<button
-style="background:#f59e0b;"
-onclick="completeJob('${r._id}')">
-🏆 Complete Job
-</button>
+  const allowedStatuses = [
 
-`;
+    "Pending",
+    "Accepted",
+    "Completed",
+    "Declined"
 
-}
+  ];
 
-else if(r.status==="Completed"){
+  const status = allowedStatuses.includes(r.status)
 
-buttons = `
-<button disabled>
-✅ Job Completed
-</button>
-`;
+    ? r.status
 
-}
+    : "Unknown";
 
-else if(r.status==="Declined"){
+  const card = document.createElement("div");
 
-buttons = `
-<button style="background:#ef4444;" disabled>
-❌ Declined
-</button>
-`;
+  card.className = "card";
 
-}
+  /* Safely display customer information */
 
-html += `
+  function addInformation(label, value, fallback, bold) {
 
-<div class="card">
+    const safeValue =
 
-<b>👤 ${r.studentName || "Customer"}</b><br><br>
+      typeof value === "string" && value.trim()
 
-📞 ${r.studentPhone || "No Phone"}<br><br>
+        ? value
 
-🛠 ${r.service || "Service"}<br><br>
+        : fallback;
 
-📍 ${r.location || "Unknown"}<br><br>
+    const element = document.createElement("div");
 
-📌 Status:
-<b>${r.status}</b><br><br>
+    element.style.marginBottom = "16px";
 
-🗓
-${new Date(r.createdAt).toLocaleString()}
+    element.textContent = label + safeValue;
 
-${buttons}
+    if (bold) {
 
-</div>
+      element.style.fontWeight = "bold";
 
-`;
+    }
+
+    card.appendChild(element);
+
+  }
+
+  addInformation(
+    "👤 ",
+    studentName,
+    "Customer",
+    true
+  );
+
+  addInformation(
+    "📞 ",
+    r.studentPhone,
+    "No Phone",
+    false
+  );
+
+  addInformation(
+    "🛠 ",
+    r.service,
+    "Service",
+    false
+  );
+
+  addInformation(
+    "📍 ",
+    r.location,
+    "Unknown",
+    false
+  );
+
+  addInformation(
+    "📌 Status: ",
+    status,
+    "Unknown",
+    true
+  );
+
+  /* Validate request date */
+
+  const requestDate = new Date(r.createdAt);
+
+  const dateText =
+
+    r.createdAt &&
+    Number.isFinite(requestDate.getTime())
+
+      ? requestDate.toLocaleString()
+
+      : "Date unavailable";
+
+  addInformation(
+    "🗓 ",
+    dateText,
+    "Date unavailable",
+    false
+  );
+
+  /* Safely create action buttons */
+
+  function addButton(label, color, action, disabled = false) {
+
+    const button = document.createElement("button");
+
+    button.type = "button";
+
+    button.textContent = label;
+
+    button.style.background = color;
+
+    button.disabled = disabled;
+
+    if (disabled) {
+
+      button.style.cursor = "default";
+
+    }
+
+    if (typeof action === "function" && !disabled) {
+
+      button.addEventListener("click", action);
+
+    }
+
+    card.appendChild(button);
+
+  }
+
+  /* Pending requests */
+
+  if (status === "Pending") {
+
+    addButton(
+
+      "✅ Accept",
+
+      "#16a34a",
+
+      () => updateRequestStatus(
+        requestId,
+        "Accepted"
+      )
+
+    );
+
+    addButton(
+
+      "❌ Decline",
+
+      "#ef4444",
+
+      () => updateRequestStatus(
+        requestId,
+        "Declined"
+      )
+
+    );
+
+  }
+
+  /* Accepted requests */
+
+  else if (status === "Accepted") {
+
+    addButton(
+
+      "🟢 Accepted",
+
+      "#22c55e",
+
+      null,
+
+      true
+
+    );
+
+    addButton(
+
+      "💬 Open Chat",
+
+      "#2563eb",
+
+      () => openBusinessChat(
+        requestId,
+        studentName
+      )
+
+    );
+
+    addButton(
+
+      "🏆 Complete Job",
+
+      "#f59e0b",
+
+      () => completeJob(requestId)
+
+    );
+
+  }
+
+  /* Completed requests */
+
+  else if (status === "Completed") {
+
+    addButton(
+
+      "✅ Job Completed",
+
+      "#22c55e",
+
+      null,
+
+      true
+
+    );
+
+  }
+
+  /* Declined requests */
+
+  else if (status === "Declined") {
+
+    addButton(
+
+      "❌ Declined",
+
+      "#ef4444",
+
+      null,
+
+      true
+
+    );
+
+  }
+
+  fragment.appendChild(card);
 
 });
 
-container.innerHTML = html;
+/* Handle empty or invalid request records */
+
+if (!fragment.hasChildNodes()) {
+
+  container.textContent = "No valid requests found.";
+
+  return;
+
+}
+
+/* Safely display all request cards */
+
+container.replaceChildren(fragment);
 
 }catch(err){
 
@@ -742,14 +931,60 @@ async function completeJob(requestId) {
 
 }
 
-function openBusinessChat(requestId,studentName){
+/* =========================================
+   SECURE BUSINESS CHAT NAVIGATION
+========================================= */
 
-localStorage.setItem("chatRequestId",requestId);
+function openBusinessChat(requestId, studentName) {
 
-localStorage.setItem("chatCustomerName",studentName);
+  if (!hasValidBusinessSession()) {
 
-window.location.href =
-"business-chat.html?requestId=" + requestId;
+    window.location.replace(
+      "business-login_v2.html"
+    );
+
+    return;
+
+  }
+
+  if (
+
+    typeof requestId !== "string" ||
+
+    !/^[a-f0-9]{24}$/i.test(requestId)
+
+  ) {
+
+    alert("Invalid chat request.");
+
+    return;
+
+  }
+
+  const safeCustomerName =
+
+    typeof studentName === "string" &&
+    studentName.trim()
+
+      ? studentName
+
+      : "Customer";
+
+  localStorage.setItem(
+    "chatRequestId",
+    requestId
+  );
+
+  localStorage.setItem(
+    "chatCustomerName",
+    safeCustomerName
+  );
+
+  window.location.href =
+
+    "business-chat.html?requestId=" +
+
+    encodeURIComponent(requestId);
 
 }
 
