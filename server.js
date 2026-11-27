@@ -2792,41 +2792,81 @@ res.json([]);
 
 /*
 =========================================
-SMART SEARCH WORKERS
+SECURE SMART SEARCH WORKERS
 =========================================
 */
 
-app.post("/request", async (req, res) => {
+app.post("/request", requireStudent, async (req, res) => {
 
   try {
 
     const {
-      studentName,
-      studentPhone,
       message,
       location
-    } = req.body;
+    } = req.body || {};
+
+    /*
+    ==============================
+    VALIDATE SEARCH INPUTS
+    ==============================
+    */
 
     if (
-      !studentName ||
-      !studentPhone ||
-      !message ||
-      !location
+      typeof message !== "string" ||
+      typeof location !== "string"
     ) {
 
-      return res.json({
-        error: "Please fill all required fields."
+      return res.status(400).json({
+
+        error:
+          "Please provide a valid service and location."
+
       });
 
     }
 
-    const text = message.toLowerCase();
+    const cleanMessage =
+      message.trim();
+
+    const cleanLocation =
+      location.trim();
+
+    if (
+      !cleanMessage ||
+      !cleanLocation
+    ) {
+
+      return res.status(400).json({
+
+        error:
+          "Please enter the service and location."
+
+      });
+
+    }
+
+    if (
+      cleanMessage.length > 200 ||
+      cleanLocation.length > 100
+    ) {
+
+      return res.status(400).json({
+
+        error:
+          "Service or location exceeds the allowed length."
+
+      });
+
+    }
+
+    const text =
+      cleanMessage.toLowerCase();
 
     let service = "";
 
     /*
     ==============================
-    DETECT SERVICE
+    SMART SERVICE DETECTION
     ==============================
     */
 
@@ -2899,12 +2939,29 @@ app.post("/request", async (req, res) => {
 
     /*
     ==============================
-    LOCATION MATCHING
+    PROTECT REGULAR EXPRESSION
+    ==============================
+    */
+
+    const safeService = service.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+    /*
+    ==============================
+    NORMALIZE SEARCH LOCATION
     ==============================
     */
 
     const searchLocation =
-      location.toLowerCase().trim();
+      cleanLocation.toLowerCase();
+
+    /*
+    ==============================
+    NEARBY LOCATION MATCHING
+    ==============================
+    */
 
     const nearbyMap = {
 
@@ -2941,13 +2998,26 @@ app.post("/request", async (req, res) => {
 
     };
 
+    /*
+    ==============================
+    SAFE LOCATION LOOKUP
+    ==============================
+    */
+
     const allowedLocations =
-      nearbyMap[searchLocation] ||
-      [searchLocation];
+
+      Object.prototype.hasOwnProperty.call(
+        nearbyMap,
+        searchLocation
+      )
+
+        ? nearbyMap[searchLocation]
+
+        : [searchLocation];
 
     /*
     ==============================
-    FIND VERIFIED AVAILABLE WORKERS
+    FIND ELIGIBLE BUSINESSES
     ==============================
     */
 
@@ -2956,22 +3026,46 @@ app.post("/request", async (req, res) => {
       verified: true,
 
       availability: {
+
         $regex: "^available$",
+
         $options: "i"
+
       },
 
-      expiryDate: { $gt: new Date() },
-      
+      expiryDate: {
+
+        $gt: new Date()
+
+      },
+
       service: {
-        $regex: service,
+
+        $regex: safeService,
+
         $options: "i"
+
       },
 
       location: {
+
         $in: allowedLocations
+
       }
 
-    });
+    })
+
+    /*
+    ==============================
+    SELECT PERMITTED BUSINESS DATA
+    ==============================
+    */
+
+    .select(
+      "_id name service phone location profilePicture coverPhoto shortBio availability rating reviews trustScore verified"
+    )
+
+    .lean();
 
     /*
     ==============================
@@ -3001,10 +3095,14 @@ app.post("/request", async (req, res) => {
     matches.sort((a, b) => {
 
       const aIndex =
-        allowedLocations.indexOf(a.location);
+        allowedLocations.indexOf(
+          a.location
+        );
 
       const bIndex =
-        allowedLocations.indexOf(b.location);
+        allowedLocations.indexOf(
+          b.location
+        );
 
       if (aIndex !== bIndex) {
 
@@ -3012,13 +3110,23 @@ app.post("/request", async (req, res) => {
 
       }
 
-      return b.rating - a.rating;
+      const aRating =
+        Number.isFinite(a.rating)
+          ? a.rating
+          : 0;
+
+      const bRating =
+        Number.isFinite(b.rating)
+          ? b.rating
+          : 0;
+
+      return bRating - aRating;
 
     });
 
     /*
     ==============================
-    RETURN WORKERS
+    PREPARE SAFE SEARCH RESPONSE
     ==============================
     */
 
@@ -3072,26 +3180,24 @@ app.post("/request", async (req, res) => {
     ==============================
     */
 
-    res.json({
+    return res.json({
 
       matches:
         responseWorkers
 
     });
 
-  }
+  } catch (err) {
 
-  catch (err) {
-
-    console.log(
+    console.error(
       "SMART SEARCH ERROR:",
       err
     );
 
-    res.status(500).json({
+    return res.status(500).json({
 
       error:
-        "Search failed. Please try again."
+        "Unable to search for workers. Please try again."
 
     });
 
