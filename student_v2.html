@@ -4608,65 +4608,219 @@ function rateBusiness(id) {
    STUDENT UNREAD MESSAGE COUNT
 ========================================= */
 
-async function loadStudentMessageBadge(){
+let studentMessageBadgeLoading = false;
 
-  const phone = localStorage.getItem("studentPhone");
-  const badge = document.getElementById("studentMessageCount");
+async function loadStudentMessageBadge() {
 
-  if(!phone || !badge) return;
+  const token =
+    getStudentAuthToken();
 
-  try{
+  const phone =
+    localStorage.getItem("studentPhone");
+
+  const badge =
+    document.getElementById("studentMessageCount");
+
+  if (!badge) return;
+
+  if (!token || !token.trim() || !phone) {
+
+    badge.textContent = "0";
+
+    badge.style.display = "none";
+
+    return;
+
+  }
+
+  /* Prevent overlapping requests */
+
+  if (studentMessageBadgeLoading) return;
+
+  studentMessageBadgeLoading = true;
+
+  try {
+
+    /*
+    =========================================
+    LOAD AUTHENTICATED STUDENT REQUESTS
+    =========================================
+    */
 
     const res = await fetch(
-      API + "/student/requests/" + encodeURIComponent(phone)
+
+      API + "/student/requests/" +
+      encodeURIComponent(phone),
+
+      {
+
+        headers: {
+
+          "Authorization": "Bearer " + token
+
+        }
+
+      }
+
     );
 
-    if(!res.ok) throw new Error("Unable to load requests");
+    if (!res.ok) {
+
+      throw new Error(
+        "Unable to load student requests."
+      );
+
+    }
 
     const requests = await res.json();
 
-    if(!Array.isArray(requests)) return;
+    if (!Array.isArray(requests)) {
+
+      throw new Error(
+        "Invalid student requests response."
+      );
+
+    }
+
+    if (getStudentAuthToken() !== token) {
+
+      return;
+
+    }
+
+    /*
+    =========================================
+    VALIDATE CONVERSATION IDS
+    =========================================
+    */
+
+    const requestIds = [
+
+      ...new Set(
+
+        requests
+
+          .filter(request =>
+
+            request &&
+            typeof request._id === "string" &&
+            /^[a-f0-9]{24}$/i.test(request._id)
+
+          )
+
+          .map(request => request._id)
+
+      )
+
+    ];
+
+    /*
+    =========================================
+    LOAD AUTHENTICATED CHAT MESSAGES
+    =========================================
+    */
+
+    const results = await Promise.all(
+
+      requestIds.map(async requestId => {
+
+        const response = await fetch(
+
+          API + "/chat/messages/" +
+          encodeURIComponent(requestId),
+
+          {
+
+            headers: {
+
+              "Authorization": "Bearer " + token
+
+            }
+
+          }
+
+        );
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Unable to load conversation messages."
+          );
+
+        }
+
+        const messages = await response.json();
+
+        if (!Array.isArray(messages)) {
+
+          throw new Error(
+            "Invalid conversation response."
+          );
+
+        }
+
+        return messages;
+
+      })
+
+    );
+
+    /*
+    =========================================
+    COUNT UNREAD BUSINESS MESSAGES
+    =========================================
+    */
 
     let unreadCount = 0;
 
-    const results = await Promise.all(
-      requests.map(async request => {
-
-        const response = await fetch(
-          API + "/chat/messages/" + request._id
-        );
-
-        if(!response.ok) return [];
-
-        return await response.json();
-      })
-    );
-
     results.forEach(messages => {
 
-      if(!Array.isArray(messages)) return;
-
       unreadCount += messages.filter(message =>
+
+        message &&
         message.senderType === "business" &&
         message.read === false
+
       ).length;
 
     });
 
-    badge.textContent = unreadCount;
+    /*
+    =========================================
+    VERIFY SESSION BEFORE UPDATING BADGE
+    =========================================
+    */
+
+    if (getStudentAuthToken() !== token) {
+
+      return;
+
+    }
+
+    badge.textContent = String(unreadCount);
+
     badge.style.display =
-      unreadCount > 0 ? "inline-flex" : "none";
 
-  }catch(err){
+      unreadCount > 0
 
-    console.log("Message badge error:", err);
+        ? "inline-flex"
+
+        : "none";
+
+  } catch (error) {
+
+    console.error(
+      "STUDENT MESSAGE BADGE ERROR:",
+      error
+    );
+
+  } finally {
+
+    studentMessageBadgeLoading = false;
 
   }
 
 }
-
-loadStudentMessageBadge();
-setInterval(loadStudentMessageBadge, 10000);
 
 /* =========================================
    LOAD STUDENT NOTIFICATION BADGE
@@ -5878,6 +6032,13 @@ async function initializeStudentDashboard() {
 
   loadStudentNotificationBadge();
 
+  loadStudentMessageBadge();
+
+setInterval(
+  loadStudentMessageBadge,
+  10000
+);
+   
   /*
   Refresh notification badge
   every 10 seconds.
