@@ -107,27 +107,36 @@ function hasValidBusinessSession() {
 
 }
 
-if (!hasValidBusinessSession()) {
+/* =========================================
+   PROTECTED JOB REQUEST LOADING
+========================================= */
 
-  window.location.replace(
-    "business-login_v2.html"
-  );
-
-} else {
-
-  loadJobRequests();
-
-}
+let jobRequestsLoading = false;
 
 async function loadJobRequests(){
 
-const container =
-document.getElementById("requestContainer");
+  const container =
+    document.getElementById("requestContainer");
 
-container.innerHTML =
-"Loading requests...";
+  if (!container) return;
 
-try{
+  if (!hasValidBusinessSession()) {
+
+    window.location.replace(
+      "business-login_v2.html"
+    );
+
+    return;
+
+  }
+
+  /* Prevent overlapping requests */
+
+  if (jobRequestsLoading) return;
+
+  jobRequestsLoading = true;
+
+  try{
 
 /* =========================================
    AUTHENTICATED JOB REQUESTS
@@ -533,14 +542,25 @@ if (!fragment.hasChildNodes()) {
 
 container.replaceChildren(fragment);
 
-}catch(err){
+  } catch (err) {
 
-console.log(err);
+    console.error(
+      "LOAD JOB REQUESTS ERROR:",
+      err
+    );
 
-container.innerHTML =
-"Failed to load requests";
+    if (!container.querySelector(".card")) {
 
-}
+      container.textContent =
+        "Failed to load requests. Please check your connection.";
+
+    }
+
+  } finally {
+
+    jobRequestsLoading = false;
+
+  }
 
 }
 
@@ -989,6 +1009,22 @@ function openBusinessChat(requestId, studentName) {
 }
 
 /* =========================================
+   INITIALIZE JOB REQUESTS PAGE
+========================================= */
+
+if (!hasValidBusinessSession()) {
+
+  window.location.replace(
+    "business-login_v2.html"
+  );
+
+} else {
+
+  loadJobRequests();
+
+}
+
+/* =========================================
    PROTECTED AUTOMATIC REFRESH
 ========================================= */
 
@@ -1003,6 +1039,22 @@ setInterval(() => {
     return;
 
   }
+
+  /* Pause background refresh when hidden */
+
+  if (document.hidden) return;
+
+  /* Prevent refresh during active operations */
+
+  if (
+
+    jobRequestsLoading ||
+
+    requestStatusUpdating ||
+
+    jobCompletionSubmitting
+
+  ) return;
 
   loadJobRequests();
 
