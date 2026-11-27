@@ -4840,53 +4840,77 @@ Unable to load requests.
    LOGOUT
 ========================================= */
 
-function logoutStudent(){
+async function logoutStudent() {
 
-const confirmLogout =
-confirm(
-"Are you sure you want to logout?"
-);
+  const confirmLogout = confirm(
+    "Are you sure you want to logout?"
+  );
 
+  if (!confirmLogout) {
+    return;
+  }
 
-if(!confirmLogout){
+  const token = getStudentAuthToken();
 
-return;
+  let logoutVerified = false;
 
-}
+  try {
 
+    if (token) {
 
-/*
-We only remove dashboard
-session information.
-*/
+      const response = await fetch(
+        API + "/student/logout",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        }
+      );
 
-localStorage.removeItem(
-"studentName"
-);
+      logoutVerified =
+        response.ok || response.status === 401;
 
-localStorage.removeItem(
-"studentPhone"
-);
+    } else {
 
-localStorage.removeItem(
-"studentLocation"
-);
+      logoutVerified = true;
 
-localStorage.removeItem(
-"chatRequestId"
-);
+    }
 
-localStorage.removeItem(
-"chatBusinessId"
-);
+  } catch (error) {
 
+    console.error("STUDENT LOGOUT ERROR:", error);
 
-/*
-Change this to your actual
-student login page if different.
-*/
+  } finally {
 
-window.location.replace("index.html");
+    // Clear student authentication
+
+    localStorage.removeItem("studentToken");
+
+    // Clear student account information
+
+    localStorage.removeItem("studentName");
+    localStorage.removeItem("studentPhone");
+    localStorage.removeItem("studentLocation");
+
+    // Clear previous chat information
+
+    localStorage.removeItem("chatRequestId");
+    localStorage.removeItem("chatBusinessId");
+
+    if (!logoutVerified) {
+
+      alert(
+        "You have been logged out on this device, but the server session could not be verified."
+      );
+
+    }
+
+    // Return to official student login page
+
+    window.location.replace("student-login.html");
+
+  }
 
 }
 
