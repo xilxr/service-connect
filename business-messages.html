@@ -454,64 +454,266 @@ uniqueRequests.forEach(r => {
 
 list.replaceChildren(fragment);
 
-for(const r of uniqueRequests){
+/* =========================================
+   AUTHENTICATED MESSAGE PREVIEWS
+   AND UNREAD MESSAGE COUNTERS
+========================================= */
 
-try{
+for (const r of uniqueRequests) {
 
-const response = await fetch(
-API+"/chat/last/"+r._id
-);
+  /* Verify current business session */
 
-const lastMessage = await response.json();
+  if (
 
-const row = document.getElementById(
-"preview-"+r._id
-);
+    !hasValidBusinessSession() ||
 
-const time = document.getElementById(
-"time-"+r._id
-);
+    getBusinessAuthToken() !== token
 
-const unreadBox = document.getElementById(
-"unread-"+r._id
-);
+  ) return;
 
-const messagesResponse = await fetch(
-API+"/chat/messages/"+r._id
-);
+  const requestId = r._id;
 
-const messages = await messagesResponse.json();
+  try {
 
-const unreadCount = messages.filter(m =>
-m.senderType === "student" && m.read === false
-).length;
+    /* Load latest message and conversation messages */
 
-if(unreadBox){
-unreadBox.innerHTML = unreadCount > 0
-? `<span class="unreadBadge">${unreadCount}</span>`
-: "";
-}
+    const [response, messagesResponse] =
+      await Promise.all([
 
-if(lastMessage.message){
+        fetch(
 
-if(row){
-row.textContent = lastMessage.message;
-}
+          API + "/chat/last/" +
+          encodeURIComponent(requestId),
 
-if(time){
-time.textContent = new Date(
-lastMessage.createdAt
-).toLocaleTimeString([],{
-hour:"2-digit",
-minute:"2-digit"
-});
-}
+          {
 
-}
+            method: "GET",
 
-}catch(err){
-console.log(err);
-}
+            headers: {
+
+              "Authorization": "Bearer " + token
+
+            }
+
+          }
+
+        ),
+
+        fetch(
+
+          API + "/chat/messages/" +
+          encodeURIComponent(requestId),
+
+          {
+
+            method: "GET",
+
+            headers: {
+
+              "Authorization": "Bearer " + token
+
+            }
+
+          }
+
+        )
+
+      ]);
+
+    /* Prevent outdated session responses */
+
+    if (
+
+      getBusinessAuthToken() !== token ||
+
+      localStorage.getItem("businessId") !== businessId
+
+    ) return;
+
+    /* Handle expired or invalid sessions */
+
+    if (
+
+      response.status === 401 ||
+
+      messagesResponse.status === 401
+
+    ) {
+
+      window.location.replace(
+        "business-login_v2.html"
+      );
+
+      return;
+
+    }
+
+    /* Prevent unauthorized conversation access */
+
+    if (
+
+      response.status === 403 ||
+
+      messagesResponse.status === 403
+
+    ) {
+
+      console.warn(
+        "Unauthorized conversation:",
+        requestId
+      );
+
+      continue;
+
+    }
+
+    /* Validate HTTP responses */
+
+    if (!response.ok || !messagesResponse.ok) {
+
+      throw new Error(
+        "Unable to load conversation messages."
+      );
+
+    }
+
+    const [lastMessage, messages] =
+      await Promise.all([
+
+        response.json(),
+
+        messagesResponse.json()
+
+      ]);
+
+    /* Verify session after reading responses */
+
+    if (
+
+      getBusinessAuthToken() !== token ||
+
+      localStorage.getItem("businessId") !== businessId
+
+    ) return;
+
+    /* Validate response formats */
+
+    if (
+
+      !lastMessage ||
+
+      typeof lastMessage !== "object" ||
+
+      Array.isArray(lastMessage) ||
+
+      !Array.isArray(messages)
+
+    ) {
+
+      throw new Error(
+        "Invalid conversation message response."
+      );
+
+    }
+
+    /* Locate conversation elements */
+
+    const row = document.getElementById(
+      "preview-" + requestId
+    );
+
+    const time = document.getElementById(
+      "time-" + requestId
+    );
+
+    const unreadBox = document.getElementById(
+      "unread-" + requestId
+    );
+
+    /* Count unread student messages */
+
+    const unreadCount = messages.filter(m =>
+
+      m &&
+
+      m.senderType === "student" &&
+
+      m.read === false
+
+    ).length;
+
+    /* Safely render unread message badge */
+
+    if (unreadBox) {
+
+      unreadBox.replaceChildren();
+
+      if (unreadCount > 0) {
+
+        const badge =
+          document.createElement("span");
+
+        badge.className = "unreadBadge";
+
+        badge.textContent = String(unreadCount);
+
+        unreadBox.appendChild(badge);
+
+      }
+
+    }
+
+    /* Safely display latest message */
+
+    if (
+
+      row &&
+
+      typeof lastMessage.message === "string" &&
+
+      lastMessage.message.trim()
+
+    ) {
+
+      row.textContent = lastMessage.message;
+
+    }
+
+    /* Safely display message timestamp */
+
+    if (time && lastMessage.createdAt) {
+
+      const messageDate =
+        new Date(lastMessage.createdAt);
+
+      if (Number.isFinite(messageDate.getTime())) {
+
+        time.textContent =
+          messageDate.toLocaleTimeString([], {
+
+            hour: "2-digit",
+
+            minute: "2-digit"
+
+          });
+
+      }
+
+    }
+
+  } catch (err) {
+
+    console.error(
+
+      "CONVERSATION MESSAGE ERROR:",
+
+      requestId,
+
+      err
+
+    );
+
+  }
 
 }
 
