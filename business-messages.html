@@ -270,30 +270,52 @@ try {
 
   }
 
+/* =========================================
+   SECURE CONVERSATION GROUPING
+========================================= */
+
 const uniqueRequests = [];
 
-const seen = {};
+const seenRequestIds = new Set();
 
-requests.forEach(r=>{
+requests.forEach(r => {
 
-if(!seen[r.studentPhone]){
+  /* Validate request record */
 
-seen[r.studentPhone]=true;
+  if (
 
-uniqueRequests.push(r);
+    !r ||
 
-}
+    typeof r._id !== "string" ||
+
+    !/^[a-f0-9]{24}$/i.test(r._id)
+
+  ) return;
+
+  const requestId = r._id.toLowerCase();
+
+  /* Prevent duplicate conversations */
+
+  if (seenRequestIds.has(requestId)) return;
+
+  seenRequestIds.add(requestId);
+
+  uniqueRequests.push(r);
 
 });
 
 const list =
-document.getElementById("conversationList");
+  document.getElementById("conversationList");
 
-if(!requests.length){
+if (!list) return;
 
-list.innerHTML="No conversations yet.";
+/* Handle empty conversation records */
 
-return;
+if (uniqueRequests.length === 0) {
+
+  list.textContent = "No conversations yet.";
+
+  return;
 
 }
 
