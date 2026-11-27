@@ -2900,73 +2900,77 @@ loadStudentNotifications();
    LOAD STUDENT INFORMATION
 ========================================= */
 
-function loadStudent(){
+function loadStudent() {
 
-const name =
-localStorage.getItem("studentName") || "";
+  const name =
+    localStorage.getItem("studentName") || "";
 
-const phone =
-localStorage.getItem("studentPhone") || "";
+  const phone =
+    localStorage.getItem("studentPhone") || "";
 
-const location =
-localStorage.getItem("studentLocation") || "";
+  const location =
+    localStorage.getItem("studentLocation") || "";
 
+  /* =========================================
+     SEARCH FIELDS
+  ========================================= */
 
-/* search fields */
+  document.getElementById("studentName").value =
+    name;
 
-document.getElementById("studentName").value =
-name;
+  document.getElementById("studentPhone").value =
+    phone;
 
-document.getElementById("studentPhone").value =
-phone;
+  document.getElementById("location").value =
+    location;
 
-document.getElementById("location").value =
-location;
+  /* =========================================
+     HOME PAGE
+  ========================================= */
 
+  document.getElementById("welcomeName")
+    .textContent =
+    name || "Student";
 
-/* home */
+  document.getElementById("homeStudentName")
+    .textContent =
+    name || "Not set";
 
-document.getElementById("welcomeName")
-.innerHTML =
-name || "Student";
+  document.getElementById("homeStudentPhone")
+    .textContent =
+    phone || "Phone not set";
 
-document.getElementById("homeStudentName")
-.innerHTML =
-name || "Not set";
+  document.getElementById("homeStudentLocation")
+    .textContent =
+    location || "Location not set";
 
-document.getElementById("homeStudentPhone")
-.innerHTML =
-phone || "Phone not set";
+  /* =========================================
+     NAVIGATION DRAWER
+  ========================================= */
 
-document.getElementById("homeStudentLocation")
-.innerHTML =
-location || "Location not set";
+  document.getElementById("drawerStudentName")
+    .textContent =
+    name || "Student";
 
+  document.getElementById("drawerStudentPhone")
+    .textContent =
+    phone || "Not logged in";
 
-/* drawer */
+  /* =========================================
+     STUDENT PROFILE
+  ========================================= */
 
-document.getElementById("drawerStudentName")
-.innerHTML =
-name || "Student";
+  document.getElementById("profileName")
+    .textContent =
+    name || "Not set";
 
-document.getElementById("drawerStudentPhone")
-.innerHTML =
-phone || "Not logged in";
+  document.getElementById("profilePhone")
+    .textContent =
+    phone || "Not set";
 
-
-/* profile */
-
-document.getElementById("profileName")
-.innerHTML =
-name || "Not set";
-
-document.getElementById("profilePhone")
-.innerHTML =
-phone || "Not set";
-
-document.getElementById("profileLocation")
-.innerHTML =
-location || "Not set";
+  document.getElementById("profileLocation")
+    .textContent =
+    location || "Not set";
 
 }
 
