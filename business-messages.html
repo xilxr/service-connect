@@ -727,24 +727,76 @@ isLoadingConversations = false;
 
 }
 
-function openChat(requestId,name){
+/* =========================================
+   SECURE BUSINESS CHAT NAVIGATION
+========================================= */
 
-localStorage.setItem(
+function openChat(requestId, name) {
 
-"chatCustomerName",
+  /* Verify business session */
 
-name
+  if (!hasValidBusinessSession()) {
 
-);
+    window.location.replace(
+      "business-login_v2.html"
+    );
 
-window.location.href=
+    return;
 
-"business-chat.html?requestId="+requestId;
+  }
+
+  /* Validate conversation request ID */
+
+  if (
+
+    typeof requestId !== "string" ||
+
+    !/^[a-f0-9]{24}$/i.test(requestId)
+
+  ) {
+
+    alert("Invalid conversation.");
+
+    return;
+
+  }
+
+  /* Validate customer name */
+
+  const safeCustomerName =
+
+    typeof name === "string" &&
+    name.trim()
+
+      ? name.trim()
+
+      : "Student";
+
+  /* Save conversation information */
+
+  localStorage.setItem(
+    "chatRequestId",
+    requestId
+  );
+
+  localStorage.setItem(
+    "chatCustomerName",
+    safeCustomerName
+  );
+
+  /* Open the correct conversation */
+
+  window.location.href =
+
+    "business-chat.html?requestId=" +
+
+    encodeURIComponent(requestId);
 
 }
 
 /* =========================================
-   INITIALIZE BUSINESS MESSAGES
+   PROTECTED BUSINESS MESSAGES
+   INITIALIZATION AND AUTOMATIC REFRESH
 ========================================= */
 
 if (!hasValidBusinessSession()) {
@@ -759,6 +811,8 @@ if (!hasValidBusinessSession()) {
 
   setInterval(() => {
 
+    /* Verify current business session */
+
     if (!hasValidBusinessSession()) {
 
       window.location.replace(
@@ -768,6 +822,16 @@ if (!hasValidBusinessSession()) {
       return;
 
     }
+
+    /* Pause refresh when page is hidden */
+
+    if (document.hidden) return;
+
+    /* Prevent overlapping API requests */
+
+    if (isLoadingConversations) return;
+
+    /* Refresh conversations */
 
     loadConversations();
 
