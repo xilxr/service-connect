@@ -4418,310 +4418,470 @@ const requestRes = await fetch(
  LOAD STUDENT NOTIFICATIONS
 ========================================= */
 
-async function loadStudentNotifications(){
+async function loadStudentNotifications() {
 
-const phone =
-localStorage.getItem(
-"studentPhone"
-);
+  const phone =
+    localStorage.getItem("studentPhone");
 
+  const token =
+    getStudentAuthToken();
 
-const list =
-document.getElementById(
-"studentNotificationList"
-);
+  const list =
+    document.getElementById("studentNotificationList");
 
+  if (!list) return;
 
-if(!phone){
+  if (!phone || !token) {
 
-list.innerHTML = `
+    list.innerHTML = `
 
-<div class="empty">
+      <div class="empty">
 
-Search for a worker first
-to receive notifications.
+        No student information found.
 
-</div>
+      </div>
 
-`;
+    `;
 
-return;
+    return;
 
-}
+  }
 
+  list.innerHTML =
+    '<div class="loader">Loading notifications...</div>';
 
-list.innerHTML =
-'<div class="loader">Loading notifications...</div>';
+  try {
 
+    /* Load authenticated notifications */
 
-try{
+    const res = await fetch(
 
+      API + "/student/notifications/" +
+      encodeURIComponent(phone),
 
-const res = await fetch(
-  API + "/student/notifications/" + phone,
-  {
-    headers: {
-      "Authorization": "Bearer " + getStudentAuthToken()
+      {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      }
+
+    );
+
+    if (!res.ok) {
+
+      throw new Error(
+        "Unable to load notifications."
+      );
+
     }
+
+    const notifications =
+      await res.json();
+
+    if (!Array.isArray(notifications)) {
+
+      throw new Error(
+        "Invalid notifications response."
+      );
+
+    }
+
+    /* Validate notification records */
+
+    const validNotifications =
+      notifications.filter(notification =>
+
+        notification &&
+        typeof notification._id === "string" &&
+        /^[a-f0-9]{24}$/i.test(notification._id)
+
+      );
+
+    if (getStudentAuthToken() !== token) {
+
+      return;
+
+    }
+
+    /* Track unread request notifications */
+
+    unreadStudentRequestIds = new Set(
+
+      validNotifications
+        .filter(notification =>
+
+          !notification.read &&
+          typeof notification.requestId === "string" &&
+          /^[a-f0-9]{24}$/i.test(
+            notification.requestId
+          )
+
+        )
+        .map(notification =>
+          notification.requestId
+        )
+
+    );
+
+    if (validNotifications.length === 0) {
+
+      list.innerHTML = `
+
+        <div class="empty">
+
+          🔔 No notifications yet.
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+    const fragment =
+      document.createDocumentFragment();
+
+    validNotifications.forEach(notification => {
+
+      /* Validate notification ID */
+
+      const notificationId =
+        notification._id;
+
+      /* Validate request ID */
+
+      const requestId =
+        typeof notification.requestId === "string" &&
+        /^[a-f0-9]{24}$/i.test(
+          notification.requestId
+        )
+          ? notification.requestId
+          : "";
+
+      /* Validate business ID */
+
+      const businessId =
+        typeof notification.businessId === "string" &&
+        /^[a-f0-9]{24}$/i.test(
+          notification.businessId
+        )
+          ? notification.businessId
+          : "";
+
+      /* Protect notification information */
+
+      const rawTitle =
+        typeof notification.title === "string"
+          ? notification.title
+          : "Notification";
+
+      const title =
+        escapeHTML(rawTitle);
+
+      const message =
+        escapeHTML(
+          notification.message || ""
+        );
+
+      /* Validate notification date */
+
+      const createdDate =
+        new Date(notification.createdAt);
+
+      const dateText =
+        notification.createdAt &&
+        Number.isFinite(createdDate.getTime())
+          ? createdDate.toLocaleString()
+          : "Date unavailable";
+
+      /* Select notification icon */
+
+      let icon = "🔔";
+
+      if (notification.type === "chat") {
+
+        icon = "💬";
+
+      } else if (notification.type === "hire") {
+
+        icon = "🛠️";
+
+      } else if (
+        rawTitle.toLowerCase().includes("request")
+      ) {
+
+        icon = "📋";
+
+      } else if (
+        rawTitle.toLowerCase().includes("approved")
+      ) {
+
+        icon = "✅";
+
+      }
+
+      /* Preserve unread notification design */
+
+      const isUnread =
+        !notification.read;
+
+      const newLabel = isUnread
+
+        ? '<span class="notificationNew">NEW</span>'
+
+        : "";
+
+      /* Select safe notification action */
+
+      let button = "";
+
+      if (
+        notification.type === "chat" &&
+        requestId &&
+        businessId
+      ) {
+
+        button = `
+
+          <button
+            class="notificationChatButton"
+            type="button"
+            data-action="open-chat"
+          >
+
+            💬 Open Chat
+
+          </button>
+
+        `;
+
+      }
+
+      /* Completed job rating button */
+
+      if (
+        rawTitle === "Job Completed" &&
+        requestId &&
+        businessId
+      ) {
+
+        button = `
+
+          <button
+            class="notificationRateButton"
+            type="button"
+            data-action="rate-business"
+          >
+
+            ⭐ Rate This Business
+
+          </button>
+
+        `;
+
+      }
+
+      /* Create protected notification card */
+
+      const item =
+        document.createElement("div");
+
+      item.className =
+        "notificationItem" +
+        (isUnread ? " unread" : "");
+
+      item.innerHTML = `
+
+        <div class="notificationHeader">
+
+          <div class="notificationIcon">
+
+            ${icon}
+
+          </div>
+
+          <div class="notificationTitleArea">
+
+            <div class="notificationTitleRow">
+
+              <b>${title}</b>
+
+              ${newLabel}
+
+            </div>
+
+            <div class="notificationMessage">
+
+              ${message}
+
+            </div>
+
+            <div class="notificationTime">
+
+              ${escapeHTML(dateText)}
+
+            </div>
+
+          </div>
+
+        </div>
+
+        ${button}
+
+      `;
+
+      /* Safe mark-as-read event */
+
+      item.addEventListener(
+
+        "click",
+
+        function() {
+
+          markStudentNotificationRead(
+            notificationId,
+            item
+          );
+
+        }
+
+      );
+
+      /* Safe Open Chat event */
+
+      const chatButton =
+        item.querySelector(
+          '[data-action="open-chat"]'
+        );
+
+      if (chatButton) {
+
+        chatButton.addEventListener(
+
+          "click",
+
+          function(event) {
+
+            event.stopPropagation();
+
+            markStudentNotificationRead(
+              notificationId,
+              item
+            );
+
+            openStudentChat(
+              requestId,
+              businessId
+            );
+
+          }
+
+        );
+
+      }
+
+      /* Safe completed job rating event */
+
+      const rateButton =
+        item.querySelector(
+          '[data-action="rate-business"]'
+        );
+
+      if (rateButton) {
+
+        rateButton.addEventListener(
+
+          "click",
+
+          function(event) {
+
+            event.stopPropagation();
+
+            openCompletedJobRating(
+              requestId,
+              businessId
+            );
+
+          }
+
+        );
+
+      }
+
+      fragment.appendChild(item);
+
+    });
+
+    /* Display protected notifications */
+
+    if (getStudentAuthToken() !== token) {
+
+      return;
+
+    }
+
+    list.replaceChildren(fragment);
+
+    /* Preserve automatic mark-as-read behavior */
+
+    try {
+
+      const readRes = await fetch(
+
+        API + "/student/notifications/read",
+
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+
+          body: JSON.stringify({})
+
+        }
+
+      );
+
+      if (!readRes.ok) {
+
+        throw new Error(
+          "Unable to mark notifications as read."
+        );
+
+      }
+
+      loadStudentNotificationBadge();
+
+    } catch (error) {
+
+      console.error(
+        "NOTIFICATION READ ERROR:",
+        error
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "STUDENT NOTIFICATIONS ERROR:",
+      error
+    );
+
+    list.innerHTML = `
+
+      <div class="empty">
+
+        Unable to load notifications.
+
+      </div>
+
+    `;
+
   }
-);
-
-
-
-const notifications =
-await res.json();
-
-
-if(
-!notifications ||
-notifications.length===0
-){
-
-list.innerHTML = `
-
-<div class="empty">
-
-🔔 No notifications yet.
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-/*
-Remember which request notifications
-are still unread before marking them read.
-*/
-
-unreadStudentRequestIds =
-new Set(
-notifications
-.filter(
-notification =>
-!notification.read &&
-notification.requestId
-)
-.map(
-notification =>
-String(notification.requestId)
-)
-);
-
-
-let html="";
-
-
-notifications.forEach(notification=>{
-
-let button="";
-
-
-if(
-notification.type === "chat" &&
-notification.requestId
-){
-
-button = `
-
-<button
-class="notificationChatButton"
-onclick="openStudentChat(
-'${notification.requestId}',
-'${notification.businessId}'
-)">
-
-💬 Open Chat
-
-</button>
-
-`;
-
-}
-
-/* =========================================
-   SHOW RATING BUTTON FOR COMPLETED JOBS
-========================================= */
-
-if (
-  notification.title === "Job Completed" &&
-  notification.requestId &&
-  notification.businessId
-) {
-
-  button = `
-
-    <button
-      class="notificationRateButton"
-      onclick="event.stopPropagation(); openCompletedJobRating(
-        '${notification.requestId}',
-        '${notification.businessId}'
-      )"
-    >
-      ⭐ Rate This Business
-    </button>
-
-  `;
-
-}
-
-/*
-Choose a simple icon based on
-the notification type.
-*/
-
-let icon="🔔";
-
-
-if(
-notification.type === "chat"
-){
-
-icon="💬";
-
-}
-
-else if(
-notification.type === "hire"
-){
-
-icon="🛠️";
-
-}
-
-else if(
-notification.title &&
-notification.title
-.toLowerCase()
-.includes("request")
-){
-
-icon="📋";
-
-}
-
-else if(
-notification.title &&
-notification.title
-.toLowerCase()
-.includes("approved")
-){
-
-icon="✅";
-
-}
-
-
-const unreadClass =
-!notification.read
-?
-"unread"
-:
-"";
-
-
-const newLabel =
-!notification.read
-?
-`<span class="notificationNew">NEW</span>`
-:
-"";
-
-
-html += `
-
-<div
-class="notificationItem ${unreadClass}"
-onclick="markStudentNotificationRead('${notification._id}', this)"
->
-
-<div class="notificationHeader">
-
-<div class="notificationIcon">
-
-${icon}
-
-</div>
-
-<div class="notificationTitleArea">
-
-<div class="notificationTitleRow">
-
-<b>
-${notification.title}
-</b>
-
-${newLabel}
-
-</div>
-
-<div class="notificationMessage">
-
-${notification.message}
-
-</div>
-
-<div class="notificationTime">
-
-${new Date(
-notification.createdAt
-).toLocaleString()}
-
-</div>
-
-</div>
-
-</div>
-
-${button}
-
-</div>
-
-`;
-
-});
-
-
-list.innerHTML =
-html;
-
-
-/*
-Mark notifications as read
-after displaying them.
-*/
-
-await fetch(API + "/student/notifications/read", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer " + getStudentAuthToken()
-  }
-});
-
-
-loadStudentNotificationBadge();
-
-
-}catch(err){
-
-console.log(err);
-
-
-list.innerHTML = `
-
-<div class="empty">
-
-Unable to load notifications.
-
-</div>
-
-`;
-
-}
 
 }
 
