@@ -4888,339 +4888,398 @@ window.location.href =
    LOAD STUDENT REQUESTS
 ========================================= */
 
-async function loadStudentRequests(){
+async function loadStudentRequests() {
 
-const phone =
-localStorage.getItem(
-"studentPhone"
-);
+  const phone =
+    localStorage.getItem("studentPhone");
 
+  const token =
+    getStudentAuthToken();
 
-const container =
-document.getElementById(
-"requestsList"
-);
+  const container =
+    document.getElementById("requestsList");
 
+  if (!container) return;
 
-if(!phone){
+  if (!phone || !token) {
 
-container.innerHTML = `
+    container.innerHTML = `
 
-<div class="empty">
+      <div class="empty">
 
-No student information found yet.
+        No student information found yet.
 
-</div>
+      </div>
 
-`;
+    `;
 
-return;
+    return;
 
-}
+  }
 
+  container.innerHTML =
+    '<div class="loader">Loading requests...</div>';
 
-container.innerHTML =
-'<div class="loader">Loading requests...</div>';
+  try {
 
+    /* Load authenticated student requests */
 
-try{
+    const requestsRes = await fetch(
 
-/*
-Load requests and notifications together.
+      API + "/student/requests/" +
+      encodeURIComponent(phone),
 
-The notification tells us whether
-a particular request has a new update.
-*/
+      {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      }
 
-const [
-requestsRes,
-notificationsRes
-] = await Promise.all([
+    );
 
+    if (!requestsRes.ok) {
 
-fetch(
-  API + "/student/requests/" + phone,
-  {
-    headers: {
-      "Authorization": "Bearer " + getStudentAuthToken()
+      throw new Error("Unable to load requests.");
+
     }
-  }
-),
 
+    const requests =
+      await requestsRes.json();
 
-fetch(
-  API + "/student/notifications/" + phone,
-  {
-    headers: {
-      "Authorization": "Bearer " + getStudentAuthToken()
+    if (!Array.isArray(requests)) {
+
+      throw new Error("Invalid requests response.");
+
     }
+
+    /* Validate request records */
+
+    const validRequests = requests.filter(
+      request =>
+
+        request &&
+        typeof request._id === "string" &&
+        /^[a-f0-9]{24}$/i.test(request._id)
+
+    );
+
+    /* Track unread request updates */
+
+    unreadStudentRequestIds = new Set(
+
+      validRequests
+        .filter(request => request.viewed === false)
+        .map(request => request._id)
+
+    );
+
+    if (validRequests.length === 0) {
+
+      container.innerHTML = `
+
+        <div class="empty">
+
+          📋 You haven't made any service requests yet.
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+    const fragment =
+      document.createDocumentFragment();
+
+    validRequests.forEach(request => {
+
+      const requestId = request._id;
+
+      const businessId =
+        typeof request.businessId === "string" &&
+        /^[a-f0-9]{24}$/i.test(request.businessId)
+          ? request.businessId
+          : "";
+
+      const isNew =
+        unreadStudentRequestIds.has(requestId);
+
+      /* Validate request status */
+
+      const allowedStatuses = [
+
+        "Pending",
+        "Accepted",
+        "Declined",
+        "Completed"
+
+      ];
+
+      const status =
+        allowedStatuses.includes(request.status)
+          ? request.status
+          : "Unknown";
+
+      let statusClass = "requestStatus";
+
+      if (status === "Pending") {
+
+        statusClass += " pending";
+
+      } else if (status === "Declined") {
+
+        statusClass += " declined";
+
+      } else if (status === "Completed") {
+
+        statusClass += " completed";
+
+      }
+
+      /* Protect request information */
+
+      const service = escapeHTML(
+        request.service || "Service Request"
+      );
+
+      const location = escapeHTML(
+        request.location || ""
+      );
+
+      const message = escapeHTML(
+        request.message || ""
+      );
+
+      /* Validate request date */
+
+      const createdDate =
+        new Date(request.createdAt);
+
+      const dateText =
+        request.createdAt &&
+        Number.isFinite(createdDate.getTime())
+          ? createdDate.toLocaleString()
+          : "Date unavailable";
+
+      /* Preserve new update badge */
+
+      const newUpdate = isNew
+        ? `
+
+          <div class="requestNewBadge">
+
+            🔴 NEW UPDATE
+
+          </div>
+
+        `
+        : "";
+
+      /* Preserve accepted request chat button */
+
+      const chatButton =
+        status === "Accepted" && businessId
+          ? `
+
+            <button
+              class="searchButton"
+              type="button"
+              data-action="open-chat"
+            >
+
+              💬 Open Chat
+
+            </button>
+
+          `
+          : "";
+
+      /* Create protected request card */
+
+      const card =
+        document.createElement("div");
+
+      card.className = "card";
+
+      card.innerHTML = `
+
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items:flex-start;
+          "
+        >
+
+          <div>
+
+            <b>${service}</b>
+
+            <p
+              style="
+                font-size:12px;
+                color:#94a3b8;
+                margin-top:5px;
+              "
+            >
+
+              📍 ${location}
+
+            </p>
+
+          </div>
+
+          <div class="${statusClass}">
+
+            ${escapeHTML(status)}
+
+          </div>
+
+        </div>
+
+        ${newUpdate}
+
+        <p
+          style="
+            font-size:13px;
+            color:#cbd5e1;
+            margin-top:12px;
+          "
+        >
+
+          ${message}
+
+        </p>
+
+        <p
+          style="
+            font-size:10px;
+            color:#64748b;
+            margin-top:10px;
+          "
+        >
+
+          ${escapeHTML(dateText)}
+
+        </p>
+
+        ${chatButton}
+
+      `;
+
+      /* Safe chat button event */
+
+      const openChatButton =
+        card.querySelector(
+          '[data-action="open-chat"]'
+        );
+
+      if (openChatButton) {
+
+        openChatButton.addEventListener(
+
+          "click",
+
+          function() {
+
+            openStudentChat(
+              requestId,
+              businessId
+            );
+
+          }
+
+        );
+
+      }
+
+      fragment.appendChild(card);
+
+    });
+
+    /* Display protected request cards */
+
+    if (getStudentAuthToken() !== token) {
+
+      container.textContent = "";
+
+      return;
+
+    }
+
+    container.replaceChildren(fragment);
+
+    /* Mark requests as viewed only when
+       My Requests is actually open */
+
+    const requestsPage =
+      document.getElementById("requests");
+
+    if (
+      requestsPage &&
+      requestsPage.classList.contains("active")
+    ) {
+
+      try {
+
+        const viewedRes = await fetch(
+
+          API + "/student/requests/viewed",
+
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + token
+            },
+
+            body: JSON.stringify({})
+          }
+
+        );
+
+        if (!viewedRes.ok) {
+
+          throw new Error(
+            "Unable to mark requests as viewed."
+          );
+
+        }
+
+        loadStudentNotificationBadge();
+
+      } catch (error) {
+
+        console.error(
+          "REQUEST VIEWED ERROR:",
+          error
+        );
+
+      }
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "STUDENT REQUESTS ERROR:",
+      error
+    );
+
+    container.innerHTML = `
+
+      <div class="empty">
+
+        Unable to load requests.
+
+      </div>
+
+    `;
+
   }
-)
-
-]);
-
-
-const requests =
-await requestsRes.json();
-
-const notifications =
-await notificationsRes.json();
-
-
-/*
-Use the request itself to determine
-whether it has been viewed.
-*/
-
-unreadStudentRequestIds =
-new Set(
-(requests || [])
-.filter(request => request.viewed === false)
-.map(request => String(request._id))
-);
-
-
-if(
-!requests ||
-requests.length===0
-){
-
-container.innerHTML = `
-
-<div class="empty">
-
-📋 You haven't made any service requests yet.
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-let html="";
-
-
-requests.forEach(request=>{
-
-const requestId =
-String(request._id);
-
-
-const isNew =
-unreadStudentRequestIds
-.has(requestId);
-
-
-let statusClass =
-"requestStatus";
-
-
-if(
-request.status === "Pending"
-){
-
-statusClass +=
-" pending";
-
-}
-
-else if(
-request.status === "Declined"
-){
-
-statusClass +=
-" declined";
-
-}
-
-else if(
-request.status === "Completed"
-){
-
-statusClass +=
-" completed";
-
-}
-
-
-/*
-Show a red NEW UPDATE badge
-when the business has responded.
-*/
-
-const newUpdate =
-isNew
-?
-`
-
-<div class="requestNewBadge">
-
-🔴 NEW UPDATE
-
-</div>
-
-`
-:
-"";
-
-
-html += `
-
-<div class="card">
-
-<div
-style="
-display:flex;
-justify-content:space-between;
-gap:10px;
-align-items:flex-start;
-">
-
-<div>
-
-<b>
-
-${request.service ||
-"Service Request"}
-
-</b>
-
-<p
-style="
-font-size:12px;
-color:#94a3b8;
-margin-top:5px;
-">
-
-📍 ${request.location || ""}
-
-</p>
-
-</div>
-
-
-<div
-class="${statusClass}">
-
-${request.status || "Pending"}
-
-</div>
-
-</div>
-
-
-${newUpdate}
-
-
-<p
-style="
-font-size:13px;
-color:#cbd5e1;
-margin-top:12px;
-">
-
-${request.message || ""}
-
-</p>
-
-
-<p
-style="
-font-size:10px;
-color:#64748b;
-margin-top:10px;
-">
-
-${new Date(
-request.createdAt
-).toLocaleString()}
-
-</p>
-
-
-${
-request.status === "Accepted"
-?
-`
-
-<button
-class="searchButton"
-onclick="openStudentChat(
-'${request._id}',
-'${request.businessId}'
-)">
-
-💬 Open Chat
-
-</button>
-
-`
-:
-""
-}
-
-</div>
-
-`;
-
-});
-
-
-container.innerHTML =
-html;
-
-/* Mark student requests as viewed only when
-   the My Requests page is actually open */
-
-const requestsPage =
-document.getElementById("requests");
-
-if(
-requestsPage &&
-requestsPage.classList.contains("active")
-){
-
-fetch(
-  API + "/student/requests/viewed",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + getStudentAuthToken()
-    },
-body: JSON.stringify({})
-  }
-)
-
-.then(()=>loadStudentNotificationBadge())
-.catch(err =>
-console.log(
-"Unable to mark requests as viewed:",
-err
-)
-);
-
-}
-
-}catch(err){
-
-console.log(err);
-
-
-container.innerHTML = `
-
-<div class="empty">
-
-Unable to load requests.
-
-</div>
-
-`;
-
-}
 
 }
 
