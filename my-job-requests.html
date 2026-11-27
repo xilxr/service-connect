@@ -129,18 +129,120 @@ container.innerHTML =
 
 try{
 
+/* =========================================
+   AUTHENTICATED JOB REQUESTS
+========================================= */
+
+const token = getBusinessAuthToken();
+
+if (!hasValidBusinessSession()) {
+
+  window.location.replace(
+    "business-login_v2.html"
+  );
+
+  return;
+
+}
+
 const res = await fetch(
-API + "/business/" + businessId + "/requests"
+
+  API + "/business/" +
+  encodeURIComponent(businessId) +
+  "/requests",
+
+  {
+
+    method: "GET",
+
+    headers: {
+
+      "Authorization": "Bearer " + token
+
+    }
+
+  }
+
 );
+
+/* Prevent outdated session responses */
+
+if (
+
+  getBusinessAuthToken() !== token ||
+
+  localStorage.getItem("businessId") !== businessId
+
+) {
+
+  return;
+
+}
+
+/* Handle expired or invalid sessions */
+
+if (res.status === 401) {
+
+  window.location.replace(
+    "business-login_v2.html"
+  );
+
+  return;
+
+}
+
+/* Prevent unauthorized access */
+
+if (res.status === 403) {
+
+  container.textContent =
+    "You are not authorized to access these requests.";
+
+  return;
+
+}
+
+/* Validate server response */
+
+if (!res.ok) {
+
+  throw new Error(
+    "Unable to load job requests."
+  );
+
+}
 
 const data = await res.json();
 
-if(!data || data.length===0){
+if (
 
-container.innerHTML =
-"No requests yet.";
+  getBusinessAuthToken() !== token ||
 
-return;
+  localStorage.getItem("businessId") !== businessId
+
+) {
+
+  return;
+
+}
+
+/* Validate response format */
+
+if (!Array.isArray(data)) {
+
+  throw new Error(
+    "Invalid job requests response."
+  );
+
+}
+
+if (data.length === 0) {
+
+  container.textContent =
+    "No requests yet.";
+
+  return;
+
 }
 
 let html = "";
