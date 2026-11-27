@@ -3413,322 +3413,453 @@ async function loadTopWorkers() {
    SEARCH WORKERS
 ========================================= */
 
-async function findWorkers(){
+async function findWorkers() {
 
-const studentName =
-document.getElementById(
-"studentName"
-).value.trim();
+  const studentName =
+    document.getElementById("studentName").value.trim();
 
+  const studentPhone =
+    document.getElementById("studentPhone").value.trim();
 
-const studentPhone =
-document.getElementById(
-"studentPhone"
-).value.trim();
+  const service =
+    document.getElementById("service").value.trim();
 
+  const location =
+    document.getElementById("location").value.trim();
 
-const service =
-document.getElementById(
-"service"
-).value.trim();
+  if (
+    !studentName ||
+    !studentPhone ||
+    !service ||
+    !location
+  ) {
 
+    alert("Please fill in all fields.");
 
-const location =
-document.getElementById(
-"location"
-).value.trim();
+    return;
 
+  }
 
-if(
-!studentName ||
-!studentPhone ||
-!service ||
-!location
-){
+  /* Save student information */
 
-alert(
-"Please fill in all fields."
-);
+  localStorage.setItem("studentName", studentName);
+  localStorage.setItem("studentPhone", studentPhone);
+  localStorage.setItem("studentLocation", location);
 
-return;
+  loadStudent();
 
-}
+  const loading =
+    document.getElementById("loading");
 
+  const results =
+    document.getElementById("results");
 
-/* save */
+  loading.style.display = "block";
 
-localStorage.setItem(
-"studentName",
-studentName
-);
+  results.textContent = "";
 
-localStorage.setItem(
-"studentPhone",
-studentPhone
-);
+  try {
 
-localStorage.setItem(
-"studentLocation",
-location
-);
+    const res = await fetch(
+      API + "/request",
+      {
+        method: "POST",
 
+        headers: {
+          "Content-Type": "application/json"
+        },
 
-/* update display */
+        body: JSON.stringify({
 
-loadStudent();
+          studentName,
+          studentPhone,
+          message: service,
+          location
 
+        })
 
-document.getElementById("loading")
-.style.display="block";
+      }
+    );
 
+    if (!res.ok) {
 
-document.getElementById("results")
-.innerHTML="";
+      throw new Error("Worker search failed.");
 
+    }
 
-try{
+    const data = await res.json();
 
-const res =
-await fetch(
-API + "/request",
-{
+    if (!Array.isArray(data.matches)) {
 
-method:"POST",
+      throw new Error("Invalid search response.");
 
-headers:{
-"Content-Type":
-"application/json"
-},
+    }
 
-body:JSON.stringify({
+    if (data.matches.length === 0) {
 
-studentName,
+      results.innerHTML = `
 
-studentPhone,
+        <div class="empty">
 
-message:service,
+          ❌ No verified worker found
+          in your area.
 
-location
+        </div>
 
-})
+      `;
 
-});
+      return;
 
+    }
 
-const data =
-await res.json();
+    const defaultPhoto =
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
+    const fragment =
+      document.createDocumentFragment();
 
-document.getElementById("loading")
-.style.display="none";
+    data.matches.forEach(worker => {
 
+      /* Validate business ID */
 
-if(
-!data.matches ||
-data.matches.length===0
-){
+      if (
+        !worker ||
+        typeof worker._id !== "string" ||
+        !/^[a-f0-9]{24}$/i.test(worker._id)
+      ) {
 
-document.getElementById(
-"results"
-).innerHTML = `
+        return;
 
-<div class="empty">
+      }
 
-❌ No verified worker found
-in your area.
+      const businessId = worker._id;
 
-</div>
+      /* Validate optional request ID */
 
-`;
+      const requestId =
+        typeof worker.requestId === "string" &&
+        /^[a-f0-9]{24}$/i.test(worker.requestId)
+          ? worker.requestId
+          : undefined;
 
-return;
+      /* Validate phone number */
 
-}
+      const phone =
+        typeof worker.phone === "string" &&
+        /^\+?[0-9\s()-]{7,30}$/.test(worker.phone) &&
+        worker.phone.replace(/\D/g, "").length >= 7 &&
+        worker.phone.replace(/\D/g, "").length <= 15
+          ? worker.phone.trim()
+          : "";
 
+      /* Safe profile picture */
 
-let html="";
+      let photo = defaultPhoto;
 
+      if (
+        typeof worker.profilePicture === "string" &&
+        worker.profilePicture.trim()
+      ) {
 
-data.matches.forEach(worker=>{
+        try {
 
-const photo =
-worker.profilePicture &&
-worker.profilePicture !== ""
-?
-worker.profilePicture
-:
-"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+          const imageURL = new URL(
+            worker.profilePicture.trim()
+          );
 
+          if (
+            imageURL.protocol === "https:" ||
+            imageURL.protocol === "http:"
+          ) {
 
-const bio =
-worker.shortBio &&
-worker.shortBio !== ""
-?
-worker.shortBio
-:
-"Trusted Service Connect Professional.";
+            photo = imageURL.href;
 
+          }
 
-const rating =
-Number(worker.rating || 0)
-.toFixed(1);
+        } catch (error) {
 
+          photo = defaultPhoto;
 
-const trustScore =
-Math.min(
-100,
-Math.round(
-(Number(worker.rating || 0) * 20) +
-(Number(worker.reviews || 0) * 2)
-)
-);
+        }
 
+      }
 
-html += `
+      /* Safe worker information */
 
-<div class="workerCard">
+      const name = escapeHTML(
+        worker.name || "Professional"
+      );
 
+      const workerService = escapeHTML(
+        worker.service || "Service not specified"
+      );
 
-<div class="workerCardTop">
+      const workerLocation = escapeHTML(
+        worker.location || "Location not specified"
+      );
 
-<img
-class="workerCardImage"
-src="${photo}">
+      const bio = escapeHTML(
+        worker.shortBio ||
+        "Trusted Service Connect Professional."
+      );
 
+      /* Validate rating */
 
-<div class="workerCardInfo">
+      const rawRating = Number(worker.rating);
 
-<h3>
-${worker.name}
-</h3>
+      const safeRating =
+        Number.isFinite(rawRating)
+          ? Math.min(5, Math.max(0, rawRating))
+          : 0;
 
-<div class="service">
-${worker.service}
-</div>
+      const rating = safeRating.toFixed(1);
 
-<div class="location">
-📍 ${worker.location}
-</div>
+      /* Validate review count */
 
-</div>
+      const rawReviews = Number(worker.reviews);
 
-</div>
+      const reviews =
+        Number.isSafeInteger(rawReviews) &&
+        rawReviews >= 0
+          ? rawReviews
+          : 0;
 
+      /* Preserve existing trust calculation */
 
-<div class="bio">
+      const trustScore = Math.min(
+        100,
+        Math.round(
+          (safeRating * 20) +
+          (reviews * 2)
+        )
+      );
 
-${bio}
+      /* Create protected worker card */
 
-</div>
+      const card =
+        document.createElement("div");
 
+      card.className = "workerCard";
 
-<div class="rating">
+      card.innerHTML = `
 
-⭐ ${rating}
-(${worker.reviews || 0} Reviews)
+        <div class="workerCardTop">
 
-</div>
+          <img
+            class="workerCardImage"
+            alt="Worker profile picture"
+          >
 
+          <div class="workerCardInfo">
 
-<div class="badges">
+            <h3>${name}</h3>
 
-<div class="badge">
+            <div class="service">
 
-✅ VERIFIED
+              ${workerService}
 
-</div>
+            </div>
 
+            <div class="location">
 
-<div class="badge">
+              📍 ${workerLocation}
 
-🟢 AVAILABLE
+            </div>
 
-</div>
+          </div>
 
+        </div>
 
-<div
-class="badge trustBadge">
+        <div class="bio">
 
-🛡️ Trust ${trustScore}%
+          ${bio}
 
-</div>
+        </div>
 
-</div>
+        <div class="rating">
 
+          ⭐ ${rating}
+          (${reviews} Reviews)
 
-<div class="actions">
+        </div>
 
+        <div class="badges">
 
-<button
-onclick="hireWorker('${worker._id}','${worker.requestId}')">
+          <div class="badge">
 
-🛠️ HIRE
+            ✅ VERIFIED
 
-</button>
+          </div>
 
+          <div class="badge">
 
-<button
-class="actionButton call"
-onclick="callWorker(
-'${worker.phone}',
-'${worker._id}'
-)">
+            🟢 AVAILABLE
 
-📞 Call
+          </div>
 
-</button>
+          <div class="badge trustBadge">
 
+            🛡️ Trust ${trustScore}%
 
-<button
-class="actionButton rate"
-onclick="rateBusiness(
-'${worker._id}'
-)">
+          </div>
 
-⭐ Rate
+        </div>
 
-</button>
+        <div class="actions">
 
+          <button
+            type="button"
+            data-action="hire"
+          >
 
-</div>
+            🛠️ HIRE
 
+          </button>
 
-</div>
+          <button
+            type="button"
+            class="actionButton call"
+            data-action="call"
+          >
 
-`;
+            📞 Call
 
-});
+          </button>
 
+          <button
+            type="button"
+            class="actionButton rate"
+            data-action="rate"
+          >
 
-document.getElementById(
-"results"
-).innerHTML =
-html;
+            ⭐ Rate
 
+          </button>
 
-}catch(err){
+        </div>
 
-console.log(err);
+      `;
 
+      /* Safe profile picture assignment */
 
-document.getElementById("loading")
-.style.display="none";
+      const image =
+        card.querySelector(".workerCardImage");
 
+      image.addEventListener(
+        "error",
+        function() {
 
-document.getElementById(
-"results"
-).innerHTML = `
+          image.src = defaultPhoto;
 
-<div class="empty">
+        },
+        { once: true }
+      );
 
-❌ Unable to connect to
-the server.
+      image.src = photo;
 
-</div>
+      /* Safe hire button */
 
-`;
+      card
+        .querySelector('[data-action="hire"]')
+        .addEventListener(
+          "click",
+          function() {
 
-}
+            hireWorker(
+              businessId,
+              requestId
+            );
+
+          }
+        );
+
+      /* Safe call button */
+
+      const callButton =
+        card.querySelector('[data-action="call"]');
+
+      if (!phone) {
+
+        callButton.disabled = true;
+
+        callButton.title =
+          "Worker phone number unavailable.";
+
+      } else {
+
+        callButton.addEventListener(
+          "click",
+          function() {
+
+            callWorker(
+              phone,
+              businessId
+            );
+
+          }
+        );
+
+      }
+
+      /* Safe rating button */
+
+      card
+        .querySelector('[data-action="rate"]')
+        .addEventListener(
+          "click",
+          function() {
+
+            rateBusiness(businessId);
+
+          }
+        );
+
+      fragment.appendChild(card);
+
+    });
+
+    if (!fragment.hasChildNodes()) {
+
+      results.innerHTML = `
+
+        <div class="empty">
+
+          ❌ No verified worker found
+          in your area.
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+    results.replaceChildren(fragment);
+
+  } catch (error) {
+
+    console.error(
+      "WORKER SEARCH ERROR:",
+      error
+    );
+
+    results.innerHTML = `
+
+      <div class="empty">
+
+        ❌ Unable to load workers.
+        Please try again.
+
+      </div>
+
+    `;
+
+  } finally {
+
+    loading.style.display = "none";
+
+  }
 
 }
 
