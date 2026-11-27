@@ -2974,120 +2974,221 @@ location || "Not set";
    FEATURED WORKER
 ========================================= */
 
-async function loadFeaturedWorker(){
+async function loadFeaturedWorker() {
 
-try{
+  const container =
+    document.getElementById("featuredWorker");
 
-const res =
-await fetch(
-API + "/featured-worker"
-);
+  if (!container) return;
 
-const worker =
-await res.json();
+  try {
 
+    const res = await fetch(
+      API + "/featured-worker"
+    );
 
-const container =
-document.getElementById(
-"featuredWorker"
-);
+    if (!res.ok) {
 
+      throw new Error("Unable to load featured worker.");
 
-if(!worker || !worker._id){
+    }
 
-container.innerHTML =
-"No featured worker available.";
+    const worker = await res.json();
 
-return;
+    if (
+      !worker ||
+      typeof worker._id !== "string" ||
+      !/^[a-f0-9]{24}$/i.test(worker._id)
+    ) {
 
-}
+      container.textContent =
+        "No featured worker available.";
 
+      return;
 
-const photo =
-worker.profilePicture &&
-worker.profilePicture !== ""
-?
-worker.profilePicture
-:
-"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    }
 
+    /* Safe profile picture */
 
-const rating =
-Number(worker.rating || 0)
-.toFixed(1);
+    const defaultPhoto =
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
+    let photo = defaultPhoto;
 
-container.innerHTML = `
+    if (
+      typeof worker.profilePicture === "string" &&
+      worker.profilePicture.trim()
+    ) {
 
-<div class="featuredWorker">
+      try {
 
-<div class="workerTop">
+        const imageURL = new URL(
+          worker.profilePicture.trim()
+        );
 
-<img
-class="workerImage"
-src="${photo}">
+        if (
+          imageURL.protocol === "https:" ||
+          imageURL.protocol === "http:"
+        ) {
 
-<div class="workerInfo">
+          photo = imageURL.href;
 
-<h3>
-${worker.name}
-</h3>
+        }
 
-<p>
-🛠 ${worker.service}
-</p>
+      } catch (error) {
 
-<p>
-📍 ${worker.location}
-</p>
+        photo = defaultPhoto;
 
-</div>
+      }
 
-</div>
+    }
 
+    /* Safe worker information */
 
-<div class="workerStats">
+    const name = escapeHTML(
+      worker.name || "Professional"
+    );
 
-⭐ ${rating}
-(${worker.reviews || 0} reviews)
+    const service = escapeHTML(
+      worker.service || "Service not specified"
+    );
 
-<br>
+    const location = escapeHTML(
+      worker.location || "Location not specified"
+    );
 
-🛡️ Trust ${worker.trustScore || 100}%
+    /* Safe numerical information */
 
-<br>
+    const rawRating = Number(worker.rating);
 
-🟢 Available
+    const rating = (
+      Number.isFinite(rawRating)
+        ? Math.min(5, Math.max(0, rawRating))
+        : 0
+    ).toFixed(1);
 
-</div>
+    const rawReviews = Number(worker.reviews);
 
+    const reviews =
+      Number.isSafeInteger(rawReviews) &&
+      rawReviews >= 0
+        ? rawReviews
+        : 0;
 
-<button
-class="hireButton"
-onclick="hireFeaturedWorker(
-'${worker.phone}',
-'${worker._id}'
-)">
+    const rawTrustScore = Number(worker.trustScore);
 
-🚀 Hire Now
+    const trustScore =
+      Number.isFinite(rawTrustScore)
+        ? Math.min(100, Math.max(0, rawTrustScore))
+        : 0;
 
-</button>
+    /* Render protected worker card */
 
-</div>
+    container.innerHTML = `
 
-`;
+      <div class="featuredWorker">
 
+        <div class="workerTop">
 
-}catch(err){
+          <img
+            class="workerImage"
+            src="${escapeHTML(photo)}"
+            alt="Worker profile picture"
+          >
 
-console.log(err);
+          <div class="workerInfo">
 
-document.getElementById(
-"featuredWorker"
-).innerHTML =
-"Unable to load featured worker.";
+            <h3>${name}</h3>
 
-}
+            <p>🛠 ${service}</p>
+
+            <p>📍 ${location}</p>
+
+          </div>
+
+        </div>
+
+        <div class="workerStats">
+
+          ⭐ ${rating}
+          (${reviews} reviews)
+
+          <br>
+
+          🛡️ Trust ${trustScore}%
+
+          <br>
+
+          🟢 Available
+
+        </div>
+
+        <button
+          class="hireButton"
+          type="button"
+        >
+
+          🚀 Hire Now
+
+        </button>
+
+      </div>
+
+    `;
+
+    /* Safe image fallback */
+
+    const workerImage =
+      container.querySelector(".workerImage");
+
+    if (workerImage) {
+
+      workerImage.addEventListener(
+        "error",
+        function() {
+
+          workerImage.src = defaultPhoto;
+
+        },
+        { once: true }
+      );
+
+    }
+
+    /* Safe hire button event */
+
+    const hireButton =
+      container.querySelector(".hireButton");
+
+    if (hireButton) {
+
+      hireButton.addEventListener(
+        "click",
+        function() {
+
+          hireFeaturedWorker(
+            typeof worker.phone === "string"
+              ? worker.phone
+              : "",
+            worker._id
+          );
+
+        }
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "FEATURED WORKER ERROR:",
+      error
+    );
+
+    container.textContent =
+      "Unable to load featured worker.";
+
+  }
 
 }
 
