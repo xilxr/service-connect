@@ -3425,30 +3425,51 @@ async function loadTopWorkers() {
 
 async function findWorkers() {
 
-  const studentName =
-    document.getElementById("studentName").value.trim();
+  const token =
+    getStudentAuthToken();
 
-  const studentPhone =
-    document.getElementById("studentPhone").value.trim();
+  if (!token || !token.trim()) {
 
+    alert(
+      "Please log in before searching for workers."
+    );
+
+    window.location.replace(
+      "student-login.html"
+    );
+
+    return;
+
+  }
+  
   const service =
     document.getElementById("service").value.trim();
 
   const location =
     document.getElementById("location").value.trim();
 
-  if (
-    !studentName ||
-    !studentPhone ||
-    !service ||
-    !location
-  ) {
+  if (!service || !location) {
 
-    alert("Please fill in all fields.");
+  alert(
+    "Please enter the service you need and your search location."
+  );
 
-    return;
+  return;
 
-  }
+}
+
+if (
+  service.length > 200 ||
+  location.length > 100
+) {
+
+  alert(
+    "Service or location exceeds the allowed length."
+  );
+
+  return;
+
+}
 
   /* Preserve registered student information.
    Search location must not overwrite
@@ -3467,25 +3488,69 @@ async function findWorkers() {
   try {
 
     const res = await fetch(
-      API + "/request",
-      {
-        method: "POST",
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+  API + "/request",
 
-        body: JSON.stringify({
+  {
 
-          studentName,
-          studentPhone,
-          message: service,
-          location
+    method: "POST",
 
-        })
+    headers: {
 
-      }
-    );
+      "Content-Type": "application/json",
+
+      "Authorization": "Bearer " + token
+
+    },
+
+    body: JSON.stringify({
+
+      message: service,
+
+      location: location
+
+    })
+
+  }
+
+);
+
+/* Prevent results from appearing
+   after the student session changes */
+
+if (getStudentAuthToken() !== token) {
+
+  return;
+
+}
+
+/* Handle expired student session */
+
+if (res.status === 401) {
+
+  alert(
+    "Your session has expired. Please log in again."
+  );
+
+  window.location.replace(
+    "student-login.html"
+  );
+
+  return;
+
+}
+
+/* Handle unauthorized search */
+
+if (res.status === 403) {
+
+  alert(
+    "You are not authorized to search for workers."
+  );
+
+  return;
+
+}
 
     if (!res.ok) {
 
@@ -3494,6 +3559,12 @@ async function findWorkers() {
     }
 
     const data = await res.json();
+
+if (getStudentAuthToken() !== token) {
+
+  return;
+
+}
 
     if (!Array.isArray(data.matches)) {
 
