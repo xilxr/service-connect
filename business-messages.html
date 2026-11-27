@@ -118,14 +118,38 @@ Loading conversations...
 
 const API="https://service-backend-jezm.onrender.com";
 
-const businessId=
-localStorage.getItem("businessId");
+/* =========================================
+   BUSINESS LOGIN PROTECTION
+========================================= */
 
-loadConversations();
-
-setInterval(loadConversations, 5000);
+const businessId =
+  localStorage.getItem("businessId");
 
 let isLoadingConversations = false;
+
+function getBusinessAuthToken() {
+
+  return localStorage.getItem("businessToken") || "";
+
+}
+
+function hasValidBusinessSession() {
+
+  const token = getBusinessAuthToken();
+
+  return (
+
+    typeof businessId === "string" &&
+
+    /^[a-f0-9]{24}$/i.test(businessId) &&
+
+    localStorage.getItem("businessId") === businessId &&
+
+    token.trim().length > 0
+
+  );
+
+}
 
 async function loadConversations(){
 
@@ -294,6 +318,38 @@ name
 window.location.href=
 
 "business-chat.html?requestId="+requestId;
+
+}
+
+/* =========================================
+   INITIALIZE BUSINESS MESSAGES
+========================================= */
+
+if (!hasValidBusinessSession()) {
+
+  window.location.replace(
+    "business-login_v2.html"
+  );
+
+} else {
+
+  loadConversations();
+
+  setInterval(() => {
+
+    if (!hasValidBusinessSession()) {
+
+      window.location.replace(
+        "business-login_v2.html"
+      );
+
+      return;
+
+    }
+
+    loadConversations();
+
+  }, 5000);
 
 }
 
