@@ -4190,83 +4190,44 @@ function closeCompletedRating() {
    RATE BUSINESS
 ========================================= */
 
-async function rateBusiness(id){
+function rateBusiness(id) {
 
-const score =
-prompt(
-"Rate this worker (1-5)"
-);
+  const token =
+    getStudentAuthToken();
 
+  if (!token || !token.trim()) {
 
-if(!score){
+    alert(
+      "Please log in before rating a business."
+    );
 
-return;
+    window.location.replace(
+      "student-login.html"
+    );
 
-}
+    return;
 
+  }
 
-const rating =
-parseInt(score);
+  if (
+    typeof id !== "string" ||
+    !/^[a-f0-9]{24}$/i.test(id)
+  ) {
 
+    alert(
+      "Invalid business information."
+    );
 
-if(
-rating < 1 ||
-rating > 5
-){
+    return;
 
-alert(
-"Please enter a rating between 1 and 5."
-);
+  }
 
-return;
+  alert(
+    "You can only rate a business after completing a job with them.\n\n" +
+    "Open your Job Completed notification and select Rate This Business."
+  );
 
-}
-
-
-try{
-
-const res =
-await fetch(
-API + "/rate",
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:JSON.stringify({
-
-id:id,
-
-rating:rating
-
-})
-
-});
-
-
-const data =
-await res.json();
-
-
-alert(
-data.message ||
-data.error
-);
-
-
-}catch(err){
-
-console.log(err);
-
-alert(
-"Rating failed."
-);
-
-}
+  openPageByName("notifications");
 
 }
 
