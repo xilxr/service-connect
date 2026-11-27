@@ -3222,98 +3222,189 @@ alert(
    TOP WORKERS
 ========================================= */
 
-async function loadTopWorkers(){
+async function loadTopWorkers() {
 
-try{
+  const container =
+    document.getElementById("topWorkers");
 
-const res =
-await fetch(
-API + "/top-workers"
-);
+  if (!container) return;
 
-const workers =
-await res.json();
+  try {
 
+    const res = await fetch(
+      API + "/top-workers"
+    );
 
-const container =
-document.getElementById("topWorkers");
+    if (!res.ok) {
 
+      throw new Error("Unable to load top workers.");
 
-if(!workers || workers.length===0){
+    }
 
-container.innerHTML =
-"No verified workers yet.";
+    const workers = await res.json();
 
-return;
+    if (!Array.isArray(workers)) {
 
-}
+      throw new Error("Invalid workers response.");
 
+    }
 
-let html="";
+    if (workers.length === 0) {
 
+      container.textContent =
+        "No verified workers yet.";
 
-workers.forEach(worker=>{
+      return;
 
-const photo =
-worker.profilePicture &&
-worker.profilePicture !== ""
-?
-worker.profilePicture
-:
-"https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    }
 
+    const defaultPhoto =
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-html += `
+    let html = "";
 
-<div class="topWorker">
+    workers.forEach(worker => {
 
-<img
-class="topWorkerImage"
-src="${photo}">
+      if (
+        !worker ||
+        typeof worker._id !== "string" ||
+        !/^[a-f0-9]{24}$/i.test(worker._id)
+      ) {
 
-<div class="topWorkerInfo">
+        return;
 
-<b>
-${worker.name}
-</b>
+      }
 
-<p>
-🛠 ${worker.service}
-</p>
+      /* Safe profile picture */
 
-<p>
-📍 ${worker.location}
-</p>
+      let photo = defaultPhoto;
 
-</div>
+      if (
+        typeof worker.profilePicture === "string" &&
+        worker.profilePicture.trim()
+      ) {
 
-<div class="topWorkerRating">
+        try {
 
-⭐ ${Number(worker.rating || 0).toFixed(1)}
+          const imageURL = new URL(
+            worker.profilePicture.trim()
+          );
 
-</div>
+          if (
+            imageURL.protocol === "https:" ||
+            imageURL.protocol === "http:"
+          ) {
 
-</div>
+            photo = imageURL.href;
 
-`;
+          }
 
-});
+        } catch (error) {
 
+          photo = defaultPhoto;
 
-container.innerHTML =
-html;
+        }
 
+      }
 
-}catch(err){
+      /* Safe worker information */
 
-console.log(err);
+      const name = escapeHTML(
+        worker.name || "Professional"
+      );
 
-document.getElementById(
-"topWorkers"
-).innerHTML =
-"Unable to load top workers.";
+      const service = escapeHTML(
+        worker.service || "Service not specified"
+      );
 
-}
+      const location = escapeHTML(
+        worker.location || "Location not specified"
+      );
+
+      /* Safe rating */
+
+      const rawRating = Number(worker.rating);
+
+      const rating = (
+        Number.isFinite(rawRating)
+          ? Math.min(5, Math.max(0, rawRating))
+          : 0
+      ).toFixed(1);
+
+      /* Render protected worker card */
+
+      html += `
+
+        <div class="topWorker">
+
+          <img
+            class="topWorkerImage"
+            src="${escapeHTML(photo)}"
+            alt="Worker profile picture"
+          >
+
+          <div class="topWorkerInfo">
+
+            <b>${name}</b>
+
+            <p>🛠 ${service}</p>
+
+            <p>📍 ${location}</p>
+
+          </div>
+
+          <div class="topWorkerRating">
+
+            ⭐ ${rating}
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+    if (!html) {
+
+      container.textContent =
+        "No verified workers yet.";
+
+      return;
+
+    }
+
+    container.innerHTML = html;
+
+    /* Safe image fallback */
+
+    container
+      .querySelectorAll(".topWorkerImage")
+      .forEach(image => {
+
+        image.addEventListener(
+          "error",
+          function() {
+
+            image.src = defaultPhoto;
+
+          },
+          { once: true }
+        );
+
+      });
+
+  } catch (error) {
+
+    console.error(
+      "TOP WORKERS ERROR:",
+      error
+    );
+
+    container.textContent =
+      "Unable to load top workers.";
+
+  }
 
 }
 
