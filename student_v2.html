@@ -2011,7 +2011,10 @@ Your Full Name
 
 <input
 id="studentName"
-placeholder="Enter your full name">
+type="text"
+placeholder="Registered full name"
+readonly
+style="opacity:0.8;cursor:default;">
 
 </div>
 
@@ -2024,7 +2027,10 @@ Phone Number
 
 <input
 id="studentPhone"
-placeholder="Enter your phone number">
+type="tel"
+placeholder="Registered phone number"
+readonly
+style="opacity:0.8;cursor:default;">
 
 </div>
 
@@ -3444,13 +3450,9 @@ async function findWorkers() {
 
   }
 
-  /* Save student information */
-
-  localStorage.setItem("studentName", studentName);
-  localStorage.setItem("studentPhone", studentPhone);
-  localStorage.setItem("studentLocation", location);
-
-  loadStudent();
+  /* Preserve registered student information.
+   Search location must not overwrite
+   the student's registered location. */
 
   const loading =
     document.getElementById("loading");
