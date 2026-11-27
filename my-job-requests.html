@@ -78,10 +78,46 @@ Loading requests...
 const API =
 "https://service-backend-jezm.onrender.com";
 
-const businessId =
-localStorage.getItem("businessId");
+/* =========================================
+   BUSINESS LOGIN PROTECTION
+========================================= */
 
-loadJobRequests();
+const businessId =
+  localStorage.getItem("businessId");
+
+function getBusinessAuthToken() {
+
+  return localStorage.getItem("businessToken") || "";
+
+}
+
+function hasValidBusinessSession() {
+
+  const token = getBusinessAuthToken();
+
+  return (
+
+    typeof businessId === "string" &&
+
+    /^[a-f0-9]{24}$/i.test(businessId) &&
+
+    token.trim().length > 0
+
+  );
+
+}
+
+if (!hasValidBusinessSession()) {
+
+  window.location.replace(
+    "business-login_v2.html"
+  );
+
+} else {
+
+  loadJobRequests();
+
+}
 
 async function loadJobRequests(){
 
@@ -289,9 +325,24 @@ window.location.href =
 
 }
 
-// Automatically refresh job requests every 5 seconds
+/* =========================================
+   PROTECTED AUTOMATIC REFRESH
+========================================= */
+
 setInterval(() => {
-    loadJobRequests();
+
+  if (!hasValidBusinessSession()) {
+
+    window.location.replace(
+      "business-login_v2.html"
+    );
+
+    return;
+
+  }
+
+  loadJobRequests();
+
 }, 5000);
 
 </script>
