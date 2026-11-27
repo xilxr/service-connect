@@ -153,19 +153,122 @@ function hasValidBusinessSession() {
 
 async function loadConversations(){
 
-if(isLoadingConversations) return;
+/* =========================================
+   AUTHENTICATED CONVERSATION LOADING
+========================================= */
+
+const token = getBusinessAuthToken();
+
+if (!hasValidBusinessSession()) {
+
+  window.location.replace(
+    "business-login_v2.html"
+  );
+
+  return;
+
+}
+
+if (isLoadingConversations) return;
 
 isLoadingConversations = true;
 
-try{
+try {
 
-const res = await fetch(
+  const res = await fetch(
 
-API+"/business/"+businessId+"/requests"
+    API + "/business/" +
+    encodeURIComponent(businessId) +
+    "/requests",
 
-);
+    {
 
-const requests = await res.json();
+      method: "GET",
+
+      headers: {
+
+        "Authorization": "Bearer " + token
+
+      }
+
+    }
+
+  );
+
+  /* Prevent outdated session responses */
+
+  if (
+
+    getBusinessAuthToken() !== token ||
+
+    localStorage.getItem("businessId") !== businessId
+
+  ) {
+
+    return;
+
+  }
+
+  /* Handle expired or invalid sessions */
+
+  if (res.status === 401) {
+
+    window.location.replace(
+      "business-login_v2.html"
+    );
+
+    return;
+
+  }
+
+  /* Handle unauthorized access */
+
+  if (res.status === 403) {
+
+    document.getElementById(
+      "conversationList"
+    ).textContent =
+      "You are not authorized to access these conversations.";
+
+    return;
+
+  }
+
+  /* Validate HTTP response */
+
+  if (!res.ok) {
+
+    throw new Error(
+      "Unable to load conversations."
+    );
+
+  }
+
+  const requests = await res.json();
+
+  /* Verify session after reading response */
+
+  if (
+
+    getBusinessAuthToken() !== token ||
+
+    localStorage.getItem("businessId") !== businessId
+
+  ) {
+
+    return;
+
+  }
+
+  /* Validate conversation response */
+
+  if (!Array.isArray(requests)) {
+
+    throw new Error(
+      "Invalid conversation response."
+    );
+
+  }
 
 const uniqueRequests = [];
 
