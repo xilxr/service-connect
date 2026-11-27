@@ -4185,6 +4185,306 @@ function closeCompletedRating() {
 
 }
 
+/* =========================================
+   SECURE COMPLETED JOB RATING SUBMISSION
+========================================= */
+
+let completedRatingSubmitting = false;
+
+async function submitCompletedRating() {
+
+  /* Prevent duplicate submissions */
+
+  if (completedRatingSubmitting) {
+
+    return;
+
+  }
+
+  const token =
+    getStudentAuthToken();
+
+  const submitButton =
+    document.getElementById(
+      "submitCompletedRatingButton"
+    );
+
+  const errorBox =
+    document.getElementById(
+      "completedRatingError"
+    );
+
+  const commentInput =
+    document.getElementById(
+      "completedRatingComment"
+    );
+
+  if (
+    !submitButton ||
+    !errorBox ||
+    !commentInput
+  ) {
+
+    return;
+
+  }
+
+  errorBox.textContent = "";
+
+  /* Verify student authentication */
+
+  if (!token || !token.trim()) {
+
+    alert(
+      "Please log in before submitting a review."
+    );
+
+    window.location.replace(
+      "student-login.html"
+    );
+
+    return;
+
+  }
+
+  /* Capture completed job information */
+
+  const requestId =
+    completedRatingRequestId;
+
+  const businessId =
+    completedRatingBusinessId;
+
+  const rating =
+    completedRatingScore;
+
+  const comment =
+    commentInput.value.trim();
+
+  /* Validate completed request ID */
+
+  if (
+    typeof requestId !== "string" ||
+    !/^[a-f0-9]{24}$/i.test(requestId)
+  ) {
+
+    errorBox.textContent =
+      "Invalid completed job information.";
+
+    return;
+
+  }
+
+  /* Validate business ID */
+
+  if (
+    typeof businessId !== "string" ||
+    !/^[a-f0-9]{24}$/i.test(businessId)
+  ) {
+
+    errorBox.textContent =
+      "Invalid business information.";
+
+    return;
+
+  }
+
+  /* Validate selected star rating */
+
+  if (
+    !Number.isInteger(rating) ||
+    rating < 1 ||
+    rating > 5
+  ) {
+
+    errorBox.textContent =
+      "Please select between 1 and 5 stars.";
+
+    return;
+
+  }
+
+  /* Validate written review */
+
+  if (!comment) {
+
+    errorBox.textContent =
+      "Please write a review about your experience.";
+
+    return;
+
+  }
+
+  if (comment.length > 1000) {
+
+    errorBox.textContent =
+      "Your review cannot exceed 1000 characters.";
+
+    return;
+
+  }
+
+  /* Lock submission */
+
+  completedRatingSubmitting = true;
+
+  submitButton.disabled = true;
+
+  submitButton.textContent =
+    "Submitting Review...";
+
+  try {
+
+    /* Send authenticated rating request */
+
+    const res = await fetch(
+
+      API + "/rate",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type": "application/json",
+
+          "Authorization": "Bearer " + token
+
+        },
+
+        body: JSON.stringify({
+
+          id: businessId,
+
+          requestId: requestId,
+
+          rating: rating,
+
+          comment: comment
+
+        })
+
+      }
+
+    );
+
+    const data = await res.json();
+
+    /* Prevent updates after session changes */
+
+    if (getStudentAuthToken() !== token) {
+
+      return;
+
+    }
+
+    /* Handle expired authentication */
+
+    if (res.status === 401) {
+
+      errorBox.textContent =
+        "Your session has expired. Please log in again.";
+
+      return;
+
+    }
+
+    /* Handle unauthorized requests */
+
+    if (res.status === 403) {
+
+      errorBox.textContent =
+        "You are not authorized to submit this review.";
+
+      return;
+
+    }
+
+    /* Handle duplicate or ineligible reviews */
+
+    if (res.status === 409) {
+
+      errorBox.textContent =
+        "This job has already been reviewed or is not eligible for rating.";
+
+      return;
+
+    }
+
+    /* Validate server response */
+
+    if (!res.ok || data?.reviewed !== true) {
+
+      errorBox.textContent =
+
+        typeof data?.error === "string"
+
+          ? data.error
+
+          : "Unable to submit your review. Please try again.";
+
+      return;
+
+    }
+
+    /* Confirm successful submission */
+
+    if (
+      completedRatingRequestId === requestId &&
+      completedRatingBusinessId === businessId
+    ) {
+
+      closeCompletedRating();
+
+      completedRatingRequestId = "";
+
+      completedRatingBusinessId = "";
+
+      completedRatingScore = 0;
+
+      commentInput.value = "";
+
+      errorBox.textContent = "";
+
+    }
+
+    alert(
+      "Thank you! Your review has been submitted successfully."
+    );
+
+    /* Refresh worker ratings */
+
+    loadFeaturedWorker();
+
+    loadTopWorkers();
+
+    loadStudentNotificationBadge();
+
+  } catch (error) {
+
+    console.error(
+      "COMPLETED RATING ERROR:",
+      error
+    );
+
+    errorBox.textContent =
+      "Unable to confirm your review submission. Please check your connection.";
+
+  } finally {
+
+    /* Restore submission button */
+
+    completedRatingSubmitting = false;
+
+    submitButton.disabled = false;
+
+    submitButton.textContent =
+      "Submit Review";
+
+  }
+
+}
 
 /* =========================================
    RATE BUSINESS
