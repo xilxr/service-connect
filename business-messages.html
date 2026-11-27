@@ -319,45 +319,140 @@ if (uniqueRequests.length === 0) {
 
 }
 
-let html="";
+/* =========================================
+   SECURE CONVERSATION RENDERING
+========================================= */
 
-uniqueRequests.forEach(r=>{
+const fragment = document.createDocumentFragment();
 
-html += `
+uniqueRequests.forEach(r => {
 
-<div class="conversation"
-onclick="openChat('${r._id}','${r.studentName}')">
+  const requestId = r._id;
 
-<div class="avatar">
-${(r.studentName || "S").charAt(0).toUpperCase()}
-</div>
+  /* Validate customer name */
 
-<div class="conversationInfo">
+  const studentName =
 
-<div class="conversationName">
-${r.studentName || "Student"}
-</div>
+    typeof r.studentName === "string" &&
+    r.studentName.trim()
 
-<div class="lastMessage" id="preview-${r._id}">
-${r.service || "Tap to open conversation"}
-</div>
+      ? r.studentName.trim()
 
-</div>
+      : "Student";
 
-<div class="conversationMeta">
-<div class="messageTime" id="time-${r._id}"></div>
-<div id="unread-${r._id}"></div>
-</div>
+  /* Validate service description */
 
-</div>
+  const serviceName =
 
-`;
+    typeof r.service === "string" &&
+    r.service.trim()
+
+      ? r.service.trim()
+
+      : "Tap to open conversation";
+
+  /* Create conversation container */
+
+  const conversation =
+    document.createElement("div");
+
+  conversation.className = "conversation";
+
+  /* Secure conversation navigation */
+
+  conversation.addEventListener("click", () => {
+
+    openChat(requestId, studentName);
+
+  });
+
+  /* Create customer avatar */
+
+  const avatar =
+    document.createElement("div");
+
+  avatar.className = "avatar";
+
+  avatar.textContent =
+    studentName.charAt(0).toUpperCase();
+
+  /* Create conversation information */
+
+  const conversationInfo =
+    document.createElement("div");
+
+  conversationInfo.className =
+    "conversationInfo";
+
+  /* Safely display customer name */
+
+  const nameElement =
+    document.createElement("div");
+
+  nameElement.className =
+    "conversationName";
+
+  nameElement.textContent =
+    studentName;
+
+  /* Safely display message preview */
+
+  const preview =
+    document.createElement("div");
+
+  preview.className = "lastMessage";
+
+  preview.id = "preview-" + requestId;
+
+  preview.textContent = serviceName;
+
+  conversationInfo.appendChild(nameElement);
+
+  conversationInfo.appendChild(preview);
+
+  /* Create conversation metadata */
+
+  const conversationMeta =
+    document.createElement("div");
+
+  conversationMeta.className =
+    "conversationMeta";
+
+  /* Create message timestamp */
+
+  const messageTime =
+    document.createElement("div");
+
+  messageTime.className = "messageTime";
+
+  messageTime.id = "time-" + requestId;
+
+  /* Create unread message container */
+
+  const unreadBox =
+    document.createElement("div");
+
+  unreadBox.id = "unread-" + requestId;
+
+  conversationMeta.appendChild(messageTime);
+
+  conversationMeta.appendChild(unreadBox);
+
+  /* Assemble conversation */
+
+  conversation.appendChild(avatar);
+
+  conversation.appendChild(conversationInfo);
+
+  conversation.appendChild(conversationMeta);
+
+  fragment.appendChild(conversation);
 
 });
 
-if(list.innerHTML !== html){
-  list.innerHTML = html;
-}
+/* Safely display all conversations */
+
+list.replaceChildren(fragment);
 
 for(const r of uniqueRequests){
 
